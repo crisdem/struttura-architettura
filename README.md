@@ -8,6 +8,7 @@ Pagine statiche, senza dipendenze esterne e senza passaggi di build: funzionano 
 | `lezione1.html` | combinazione delle azioni, momento, W minimo e profilo; domanda, capacità e coefficienti parziali; unità di misura |
 | `lezione2.html` | area d'influenza di travi e pilastri, solaio a una via e a due vie |
 | `telaio.html` | telaio piano in acciaio, legno o c.a.: campate, piani, luci, sbalzi, luce fuori piano, sezioni in scala. Preset da URL: `?materiale=acciaio\|legno\|ca&piani=2&campate=2&sbalzo_sx=2&sbalzo_dx=1.5` |
+| `muratura.html` | parete in muratura portante: piani, interpiano, luce del solaio, aperture, tipo di muratura, snellezza; sezione in scala. Preset: `?piani=3&tipo=bordo\|spina&materiale=pieno\|forato\|cls\|pietra\|tufo\|storica` |
 | `assets/js/calc.js` | formule e tabelle (IPE, HEB) usate da tutte le pagine |
 
 ## Pubblicare su GitHub Pages

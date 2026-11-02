@@ -209,6 +209,78 @@
     return out;
   };
 
+  // ---- muratura portante: predimensionamento di una parete (striscia di 1 m) ----
+  // Valori INDICATIVI di fk [MPa] (muratura con malta M5-M10), peso [kN/m3], spessore minimo [mm] (NTC 2018, 7.8.1.2).
+  RT.MURATURE = {
+    pieno:    { nome: 'Mattoni pieni (nuova)',        fk: 5.0, gamma: 18, tmin: 240 },
+    forato:   { nome: 'Blocchi in laterizio semipieno', fk: 4.0, gamma: 11, tmin: 240 },
+    cls:      { nome: 'Blocchi in calcestruzzo',       fk: 4.0, gamma: 14, tmin: 200 },
+    pietra:   { nome: 'Pietra squadrata',               fk: 6.0, gamma: 22, tmin: 240 },
+    tufo:     { nome: 'Tufo / pietra irregolare',       fk: 2.0, gamma: 16, tmin: 300 },
+    storica:  { nome: 'Mattoni e calce (esistente)',    fk: 3.0, gamma: 18, tmin: 240 }
+  };
+  RT.SPESSORI_MUR = [200, 240, 250, 300, 380, 400, 500, 600, 800, 1000]; // mm
+
+  // Coefficiente di riduzione per snellezza ed eccentricita' (formula tipo EC6, App. G, con E = 1000 fk).
+  RT.phiMuratura = function (hef, t, e) {
+    var lam = (hef / t) * Math.sqrt(1 / 1000);
+    var A1 = 1 - 2 * e / t;
+    var u = (lam - 0.063) / (0.73 - 1.17 * e / t);
+    return Math.max(0, A1 * Math.exp(-u * u / 2));
+  };
+
+  // p: {n, H, L1, L2, tipo: 'bordo'|'spina', g1,g2,q,neve, aperture (0-0.5), mur, gammaM, sismica, costante}
+  // Restituisce, per ogni interpiano (1 = terra), spessore, tensione e coefficiente di utilizzo.
+  RT.muratura = function (p) {
+    var G = RT.GAMMA, m = RT.MURATURE[p.mur], fd = m.fk / p.gammaM;
+    var lamMax = p.sismica ? 12 : 20;
+    var Linf = p.tipo === 'spina' ? (p.L1 + p.L2) / 2 : p.L1 / 2;       // larghezza d'influenza del solaio [m]
+    var pSol = (G.G1 * p.g1 + G.G2 * p.g2 + G.Q * p.q) * Linf;          // kN/m, solaio di piano
+    var pCop = (G.G1 * p.g1 + G.G2 * p.g2 + G.Q * p.neve) * Linf;       // kN/m, copertura
+    var eL = p.tipo === 'spina' ? 0.03 : 0.10;                          // eccentricita' del carico, in frazioni di t
+    var apertura = 1 - p.aperture;
+    var hef = p.H * 1000;
+    var tmin = Math.max(m.tmin, hef / lamMax);
+    var out = { fd: fd, Linf: Linf, lamMax: lamMax, piani: [], pSol: pSol, pCop: pCop, tot: {} };
+    var Nsopra = 0, vol = 0, tPrec = 0;
+    for (var s = p.n; s >= 1; s--) {
+      var Nsol = (s === p.n ? pCop : pSol);                              // solaio che grava su questo interpiano
+      var scelto = null;
+      for (var i = 0; i < RT.SPESSORI_MUR.length; i++) {
+        var t = RT.SPESSORI_MUR[i];
+        if (t < tmin - 1e-9 || t < tPrec) continue;
+        var pp = G.G1 * m.gamma * (t / 1000) * p.H;                       // peso proprio dell'interpiano [kN/m]
+        var N = (Nsopra + Nsol + pp);                                    // alla base dell'interpiano [kN/m]
+        var Nm = N - pp / 2;                                              // a meta' altezza (verifica)
+        var e = Math.max(0.5 * eL * t + hef / 450, 0.05 * t);
+        var phi = RT.phiMuratura(hef, t, e);
+        var sigma = Nm / apertura / (t / 1000) / 1000;                   // MPa, sul pannello resistente
+        var Rd = phi * fd;
+        scelto = { s: s, t: t, N: N, Nm: Nm, e: e, phi: phi, sigma: sigma, Rd: Rd, uso: sigma / Rd, lam: hef / t, pp: pp };
+        if (sigma <= Rd) break;
+      }
+      if (p.costante) { /* spessore costante: si fissa dopo il ciclo */ }
+      out.piani.push(scelto);
+      Nsopra = scelto.N; tPrec = scelto.t;
+    }
+    if (p.costante) {                                                     // stesso spessore in tutti i piani = quello della base
+      var tb = out.piani[out.piani.length - 1].t, Ns = 0;
+      out.piani.forEach(function (r) {
+        var pp = G.G1 * m.gamma * (tb / 1000) * p.H, Nsol = (r.s === p.n ? pCop : pSol);
+        var N = Ns + Nsol + pp, Nm = N - pp / 2, e = Math.max(0.5 * eL * tb + hef / 450, 0.05 * tb);
+        var phi = RT.phiMuratura(hef, tb, e), sigma = Nm / apertura / (tb / 1000) / 1000;
+        r.t = tb; r.N = N; r.Nm = Nm; r.e = e; r.phi = phi; r.sigma = sigma; r.Rd = phi * fd; r.uso = sigma / r.Rd; r.lam = hef / tb; r.pp = pp;
+        Ns = N;
+      });
+    }
+    out.piani.forEach(function (r) { vol += r.t / 1000 * p.H; });
+    out.tot.volumePerMetro = vol;                                         // m3 di muratura per metro di parete
+    out.tot.pesoPerMetro = out.piani.reduce(function (a, r) { return a + r.pp / G.G1; }, 0);
+    out.tot.Nbase = out.piani[out.piani.length - 1].N;
+    out.tot.ok = out.piani.every(function (r) { return r.uso <= 1 + 1e-9 && r.lam <= lamMax + 1e-9; });
+    return out;
+  };
+
   if (typeof module !== 'undefined' && module.exports) module.exports = RT;
   root.RT = RT;
 })(typeof window !== 'undefined' ? window : this);
