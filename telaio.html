@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Telaio piano - predimensionamento | Struttura e Architettura</title>
+<meta name="description" content="Telaio piano in acciaio, legno o calcestruzzo armato, con sbalzi: cambia campate, piani, luci e luce fuori piano e osserva le sezioni necessarie, disegnate in scala.">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+ .kpi{display:flex;gap:1.2rem;flex-wrap:wrap;margin:.6rem 0}
+ .kpi div{background:var(--carta);border-top:3px solid var(--nero);padding:.4rem .8rem;border-radius:0 0 4px 4px}
+ .kpi b{display:block;font-size:1.25rem}
+ .kpi span{font-size:.75rem;color:var(--grigio);text-transform:uppercase;letter-spacing:.04em}
+ .campate .campo{margin:.25rem 0}
+ details.regole{margin:.8rem 0}
+ details.regole summary{cursor:pointer;font-weight:700}
+ .campo.inline{grid-template-columns:auto 1fr;gap:.5rem}
+ .campo.inline input[type=checkbox]{grid-column:auto;accent-color:var(--rosso);width:1.1rem;height:1.1rem}
+</style>
+</head>
+<body>
+<header class="sito"><div class="in">
+  <a href="index.html"><img src="assets/img/logo_romatre_bianco.png" alt="Roma Tre"></a>
+  <div class="titolo">Struttura e Architettura<small>Laboratorio di Progettazione Architettonica 2 - Dipartimento di Architettura</small></div>
+  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="lezione1.html">Lezione 1</a><a href="lezione2.html">Lezione 2</a><a href="telaio.html" aria-current="page">Telaio piano</a></nav>
+</div></header>
+
+<main>
+<h1>Telaio piano: predimensionamento</h1>
+<p class="sotto">Acciaio, legno o calcestruzzo armato, con sbalzi. Le sezioni sono disegnate <b>in scala</b>, a partire dai criteri del modulo.</p>
+
+<div class="griglia due">
+  <div>
+    <div class="pannello">
+      <h3 style="margin-top:0">Materiale</h3>
+      <div class="pillole" role="group" aria-label="Materiale">
+        <button type="button" id="mAcc" aria-pressed="true">Acciaio</button>
+        <button type="button" id="mLeg" aria-pressed="false">Legno</button>
+        <button type="button" id="mCa" aria-pressed="false">C.a.</button>
+      </div>
+
+      <h3>Geometria</h3>
+      <div class="campo"><label for="n">Numero di piani</label><output id="nv"></output>
+        <input type="range" id="n" min="1" max="6" step="1" value="2"></div>
+      <div class="campo"><label for="nc">Numero di campate</label><output id="ncv"></output>
+        <input type="range" id="nc" min="1" max="5" step="1" value="2"></div>
+      <div class="campo inline"><input type="checkbox" id="uguali" checked><label for="uguali">Campate tutte uguali</label></div>
+      <div class="campate" id="campate"></div>
+      <div class="campo"><label for="sx">Sbalzo sinistro <span class="unita">[m, 0 = assente]</span></label><output id="sxv"></output>
+        <input type="range" id="sx" min="0" max="3" step="0.1" value="0"></div>
+      <div class="campo"><label for="dx">Sbalzo destro <span class="unita">[m, 0 = assente]</span></label><output id="dxv"></output>
+        <input type="range" id="dx" min="0" max="3" step="0.1" value="0"></div>
+      <div class="campo"><label for="H">Altezza di interpiano <span class="unita">H [m]</span></label><output id="Hv"></output>
+        <input type="range" id="H" min="2.6" max="5" step="0.1" value="3.2"></div>
+      <div class="campo"><label for="B">Luce fuori piano <span class="unita">B, interasse dei telai [m]</span></label><output id="Bv"></output>
+        <input type="range" id="B" min="2.5" max="9" step="0.1" value="5"></div>
+      <div class="campo inline"><input type="checkbox" id="bordo"><label for="bordo">Telaio di bordo (area d'influenza B/2)</label></div>
+
+      <h3>Carichi caratteristici <span class="unita">[kN/m²]</span></h3>
+      <div class="campo"><label for="g1">G₁ strutturali (solaio)</label><output id="g1v"></output>
+        <input type="range" id="g1" min="0.5" max="6" step="0.1" value="2.5"></div>
+      <div class="campo"><label for="g2">G₂ non strutturali</label><output id="g2v"></output>
+        <input type="range" id="g2" min="0.5" max="4" step="0.1" value="2"></div>
+      <div class="campo"><label for="q">Q sovraccarico d'uso</label><output id="qv"></output>
+        <input type="range" id="q" min="0.5" max="8" step="0.1" value="2"></div>
+      <div class="campo"><label for="qb">Q sugli sbalzi (balconi)</label><output id="qbv"></output>
+        <input type="range" id="qb" min="0.5" max="8" step="0.1" value="4"></div>
+      <div class="campo"><label for="neve">Q neve (copertura)</label><output id="neveV"></output>
+        <input type="range" id="neve" min="0" max="3" step="0.1" value="0.5"></div>
+
+      <h3>Modello e materiali</h3>
+      <div class="campo"><label for="vinc">Schema delle travi</label>
+        <select id="vinc"><option value="appoggiata">Appoggiata: M = pL²/8</option><option value="semi" selected>Semi-incastro: M = pL²/10</option><option value="incastro">Incastro-incastro: M = pL²/12</option></select></div>
+      <div id="optAcc"><div class="campo"><label for="acc">Acciaio</label>
+        <select id="acc"><option>S235</option><option selected>S275</option><option>S355</option></select></div></div>
+      <div id="optLeg" hidden>
+        <div class="campo"><label for="cleg">Classe di resistenza</label>
+          <select id="cleg"><option value="C24">C24 (massiccio)</option><option value="GL24h" selected>GL24h (lamellare)</option><option value="GL28h">GL28h (lamellare)</option><option value="GL32h">GL32h (lamellare)</option></select></div>
+        <div class="campo"><label for="bleg">Base delle travi <span class="unita">[mm]</span></label>
+          <select id="bleg"><option>120</option><option>140</option><option selected>160</option><option>200</option><option>240</option></select></div>
+      </div>
+      <div id="optCa" hidden>
+        <div class="campo"><label for="fck">Calcestruzzo</label>
+          <select id="fck"><option>C25/30</option><option>C28/35</option><option>C30/37</option></select></div>
+        <div class="campo"><label for="tipoTrave">Travi</label>
+          <select id="tipoTrave"><option value="emergente">Emergenti (b = 300 mm)</option><option value="spessore">A spessore (h = spessore del solaio)</option></select></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <svg id="fig" class="fig" role="img" aria-label="Prospetto del telaio con le sezioni di travi e pilastri in scala"></svg>
+    <div class="kpi" id="kpi" aria-live="polite"></div>
+    <div class="avviso" id="avvisi" hidden></div>
+
+    <h2>Travi</h2>
+    <div class="scroll"><table id="tTravi"></table></div>
+    <h2>Pilastri</h2>
+    <div class="scroll"><table id="tPil"></table></div>
+
+    <details class="regole"><summary>Criteri usati (appunti del laboratorio)</summary>
+      <ul>
+        <li><b>Azioni</b>: p<sub>d</sub> = (1,3·G₁ + 1,5·G₂ + 1,5·Q)·B<sub>inf</sub>; in copertura Q = neve. Il solaio lavora in una direzione, ortogonale al telaio.</li>
+        <li><b>Momento</b>: M<sub>Ed</sub> = p<sub>d</sub>·L²/β, con β = 8, 10, 12.</li>
+        <li><b>Sbalzi</b>: mensola, M<sub>Ed</sub> = p<sub>d</sub>·L<sub>s</sub>²/2, con il sovraccarico dei balconi ai piani e la neve in copertura. Per h indicativo e per il limite di freccia si usa la luce equivalente 2·L<sub>s</sub>. Sul pilastro di estremità si somma la reazione p·L<sub>s</sub>·(1 + L<sub>s</sub>/2L). La trave reale è unica: si adotta la sezione più grande tra campata e sbalzo.</li>
+        <li><b>Acciaio, travi</b>: h indicativo L/20–L/15; W<sub>min</sub> = M<sub>Ed</sub>/f<sub>yd</sub>, f<sub>yd</sub> = f<sub>yk</sub>/1,05; freccia con carichi caratteristici ≤ L/250, E = 210 GPa. Profilo IPE più leggero che soddisfa W e I.</li>
+        <li><b>Acciaio, pilastri</b>: A<sub>min</sub> = N<sub>Ed</sub>/(χ₀·f<sub>yd</sub>), χ₀ = 0,5; profilo HEB con ingombro minimo 200×200 (HEB 200).</li>
+        <li><b>Legno, travi</b>: h indicativo L/20–L/15; f<sub>m,d</sub> = k<sub>h</sub>·k<sub>mod</sub>·f<sub>m,k</sub>/γ<sub>M</sub> con k<sub>h</sub> = 1, k<sub>mod</sub> = 0,8, γ<sub>M</sub> = 1,5; W<sub>min</sub> = M<sub>Ed</sub>/f<sub>m,d</sub>. Frecce con E medio: istantanea dovuta a Q ≤ L/300; finale δ<sub>rara</sub> + k<sub>def</sub>·δ<sub>quasi perm.</sub> ≤ L/200, k<sub>def</sub> = 0,6, ψ₂ = 0,3 (neve 0). Base b scelta, altezza arrotondata a 40 mm.</li>
+        <li><b>Legno, pilastri</b>: A<sub>min</sub> = N<sub>Ed</sub>/(χ₀·f<sub>c,0,d</sub>), χ₀ = 0,30; lato minimo 300 mm, arrotondato a 50 mm.</li>
+        <li><b>C.a., travi emergenti</b>: b = 300 mm, d<sub>min</sub> = ρ′·√(M<sub>Ed</sub>/(b·f<sub>cd</sub>)), ρ′ = 2,0, h = d + 40 mm arrotondata a 50 mm; confronto con h = L/10.</li>
+        <li><b>C.a., travi a spessore</b>: h = spessore solaio (B/25, min 120 mm), b<sub>min</sub> = ρ′²·M<sub>Ed</sub>/(d²·f<sub>cd</sub>), ρ′ = 2,2.</li>
+        <li><b>C.a., pilastri</b>: A<sub>min</sub> = N<sub>Ed</sub>/(ν·f<sub>cd</sub>), ν = 0,5; lato minimo 300 mm, arrotondato a 50 mm. f<sub>cd</sub> = 0,85·f<sub>ck</sub>/1,5.</li>
+      </ul>
+      <p class="nota">Peso proprio di travi e pilastri non aggiunto ai carichi (si assume compreso in G₁). Semi-incastro: freccia approssimata (k = 2,5 invece di 5 e 1). Per gli sbalzi il momento negativo non riduce il momento in campata (a favore di sicurezza). Strumento didattico: non sostituisce il dimensionamento né le verifiche delle NTC 2018.</p>
+    </details>
+  </div>
+</div>
+</main>
+<footer class="sito">Strumento didattico del Modulo Struttura e Architettura. Valori dei profili e delle classi di resistenza da controllare sulle tabelle ufficiali.</footer>
+
+<script src="assets/js/calc.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var F = RT.fmt;
+  var materiale = 'acciaio';
+  var luci = [5, 5, 5, 5, 5];
+  var DEF = { acciaio: { g1: 2.5, g2: 2.0, q: 2.0, neve: 0.5 }, legno: { g1: 1.5, g2: 1.5, q: 2.0, neve: 0.5 }, ca: { g1: 3.5, g2: 2.0, q: 2.0, neve: 0.5 } };
+
+  function impostaMateriale(m, ripristina) {
+    materiale = m;
+    $('mAcc').setAttribute('aria-pressed', m === 'acciaio');
+    $('mLeg').setAttribute('aria-pressed', m === 'legno');
+    $('mCa').setAttribute('aria-pressed', m === 'ca');
+    $('optAcc').hidden = m !== 'acciaio';
+    $('optLeg').hidden = m !== 'legno';
+    $('optCa').hidden = m !== 'ca';
+    if (ripristina) ['g1', 'g2', 'q', 'neve'].forEach(function (k) { $(k).value = DEF[m][k]; });
+    calcola();
+  }
+
+  function costruisciCampate() {
+    var nc = parseInt($('nc').value, 10), h = '';
+    for (var i = 0; i < nc; i++) {
+      h += '<div class="campo"><label for="L' + i + '">Campata ' + (i + 1) + ' <span class="unita">L [m]</span></label><output id="L' + i + 'v">' + F(luci[i], 1) + '</output>' +
+        '<input type="range" id="L' + i + '" data-i="' + i + '" min="2" max="10" step="0.1" value="' + luci[i] + '"></div>';
+    }
+    $('campate').innerHTML = h;
+    Array.prototype.forEach.call($('campate').querySelectorAll('input'), function (el) {
+      el.addEventListener('input', function () {
+        var i = parseInt(el.dataset.i, 10), v = parseFloat(el.value);
+        if ($('uguali').checked) { for (var j = 0; j < 5; j++) luci[j] = v; costruisciCampate(); }
+        else { luci[i] = v; $('L' + i + 'v').textContent = F(v, 1); }
+        calcola();
+      });
+    });
+  }
+
+  function leggi(id) { return parseFloat($(id).value); }
+
+  function parametri() {
+    var nc = parseInt($('nc').value, 10);
+    return {
+      n: parseInt($('n').value, 10), spans: luci.slice(0, nc), H: leggi('H'), B: leggi('B'), bordo: $('bordo').checked,
+      g1: leggi('g1'), g2: leggi('g2'), q: leggi('q'), neve: leggi('neve'), qb: leggi('qb'), sx: leggi('sx'), dx: leggi('dx'),
+      mat: materiale, acciaio: $('acc').value, classeLegno: $('cleg').value, bLegno: parseInt($('bleg').value, 10),
+      fck: $('fck').value, vincolo: $('vinc').value, travaTipo: $('tipoTrave').value
+    };
+  }
+
+  function etichettaTrave(t) {
+    if (materiale === 'acciaio') return t.prof ? t.prof[0] : '> IPE 600';
+    return t.b + '×' + t.h;
+  }
+  function etichettaPil(e) {
+    if (materiale === 'acciaio') return e.prof ? e.prof[0] : '> HEB 600';
+    return e.lato + '×' + e.lato;
+  }
+
+  function disegna(p, r) {
+    var nc = p.spans.length, tot = p.spans.reduce(function (a, b) { return a + b; }, 0);
+    var sx = p.sx || 0, dx = p.dx || 0, totale = tot + sx + dx;
+    var W = 900, mx = 70, my = 34;
+    var s = Math.min(70, (W - 2 * mx) / totale, 320 / (p.n * p.H));
+    var Hh = p.n * p.H * s + 2 * my + 30;
+    var svg = $('fig'); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + Hh);
+    var xStart = (W - totale * s) / 2, x0 = xStart + sx * s, yg = Hh - my - 14;
+    var xs = [x0]; for (var i = 0; i < nc; i++) xs.push(xs[i] + p.spans[i] * s);
+    var out = '';
+    out += '<line x1="' + (xStart - 30) + '" x2="' + (xStart + totale * s + 30) + '" y1="' + yg + '" y2="' + yg + '" stroke="#121212" stroke-width="2"/>';
+    for (var t = xStart - 30; t < xStart + totale * s + 30; t += 10) out += '<line x1="' + t + '" x2="' + (t - 7) + '" y1="' + yg + '" y2="' + (yg + 8) + '" stroke="#6e6e6e"/>';
+    r.interpiani.forEach(function (ip) {
+      var y1 = yg - (ip.s - 1) * p.H * s, y2 = yg - ip.s * p.H * s;
+      ip.pilastri.forEach(function (e) {
+        var w = ((e.lato || 600) / 1000) * s, x = xs[e.j];
+        out += '<rect x="' + (x - w / 2) + '" y="' + y2 + '" width="' + w + '" height="' + (y1 - y2) + '" fill="#121212"/>';
+        if (e.j === 0 || e.j === nc) {
+          var ax = e.j === 0 ? x - w / 2 - 4 : x + w / 2 + 4, an = e.j === 0 ? 'end' : 'start';
+          if ((e.j === 0 && sx > 0) || (e.j === nc && dx > 0)) { ax = x; an = 'middle'; out += '<text x="' + ax + '" y="' + ((y1 + y2) / 2 + 4) + '" font-size="11" text-anchor="middle" fill="#fff" transform="rotate(-90 ' + ax + ' ' + ((y1 + y2) / 2) + ')">' + etichettaPil(e) + '</text>'; return; }
+          out += '<text x="' + ax + '" y="' + ((y1 + y2) / 2 + 4) + '" font-size="11" text-anchor="' + an + '" fill="#121212">' + etichettaPil(e) + '</text>';
+        }
+      });
+    });
+    r.livelli.forEach(function (lv) {
+      var yl = yg - lv.k * p.H * s;
+      lv.travi.forEach(function (t, i) {
+        var hh = ((t.h || 600) / 1000) * s;
+        out += '<rect x="' + xs[i] + '" y="' + (yl - hh / 2) + '" width="' + (xs[i + 1] - xs[i]) + '" height="' + hh + '" fill="#d1382b"/>';
+        out += '<text x="' + ((xs[i] + xs[i + 1]) / 2) + '" y="' + (yl - hh / 2 - 5) + '" font-size="11" text-anchor="middle" fill="#121212" font-weight="700">' + etichettaTrave(t) + '</text>';
+      });
+      lv.sbalzi.forEach(function (t) {
+        var hh = ((t.h || 600) / 1000) * s, L = t.L * s;
+        var xa = t.lato === 'sx' ? xs[0] - L : xs[nc];
+        out += '<rect x="' + xa + '" y="' + (yl - hh / 2) + '" width="' + L + '" height="' + hh + '" fill="#1f5c8b"/>';
+        out += '<text x="' + (xa + L / 2) + '" y="' + (yl - hh / 2 - 5) + '" font-size="10" text-anchor="middle" fill="#1f5c8b" font-weight="700">' + etichettaTrave(t) + '</text>';
+      });
+    });
+    for (i = 0; i < nc; i++) {
+      out += '<line x1="' + xs[i] + '" x2="' + xs[i + 1] + '" y1="' + (yg + 22) + '" y2="' + (yg + 22) + '" stroke="#6e6e6e"/>';
+      out += '<text x="' + ((xs[i] + xs[i + 1]) / 2) + '" y="' + (yg + 36) + '" font-size="11" text-anchor="middle" fill="#6e6e6e">' + F(p.spans[i], 1) + ' m</text>';
+    }
+    if (sx > 0) out += '<text x="' + (xs[0] - sx * s / 2) + '" y="' + (yg + 36) + '" font-size="11" text-anchor="middle" fill="#1f5c8b">sbalzo ' + F(sx, 1) + ' m</text>';
+    if (dx > 0) out += '<text x="' + (xs[nc] + dx * s / 2) + '" y="' + (yg + 36) + '" font-size="11" text-anchor="middle" fill="#1f5c8b">sbalzo ' + F(dx, 1) + ' m</text>';
+    svg.innerHTML = out;
+  }
+
+  function tabelle(p, r) {
+    var ac = materiale === 'acciaio', lg = materiale === 'legno', ca = materiale === 'ca';
+    var avv = [];
+    var h = '<thead><tr><th>Livello</th><th>Elemento</th><th>L [m]</th><th>p<sub>d</sub> [kN/m]</th><th>M<sub>Ed</sub> [kN·m]</th>' +
+      (ca ? '<th>h indicativo [mm]</th><th>d<sub>min</sub> / b<sub>min</sub> [mm]</th><th>Sezione b×h [mm]</th><th>L/h</th>'
+          : '<th>h indicativo [mm]</th><th>W<sub>min</sub> [cm³]</th><th>I<sub>min</sub> [cm⁴]</th><th>' + (ac ? 'Profilo' : 'Sezione b×h [mm]') + '</th><th>L/h</th>') + '</tr></thead><tbody>';
+    function riga(lv, t, nome) {
+      var liv = lv.k === p.n ? 'Copertura' : 'Piano ' + lv.k;
+      var Leq = t.lato ? 2 * t.L : t.L;
+      var r_ = '<tr><td>' + liv + '</td><td>' + nome + '</td><td>' + F(t.L, 1) + '</td><td>' + F(t.pd, 1) + '</td><td>' + F(t.M, 1) + '</td>';
+      if (ca) {
+        var dm = p.travaTipo === 'spessore' ? 'b<sub>min</sub> = ' + F(t.bmin, 0) : 'd<sub>min</sub> = ' + F(t.d, 0);
+        r_ += '<td>' + F(p.travaTipo === 'spessore' ? Leq * 1000 / 6 : t.hGeo, 0) + (p.travaTipo === 'spessore' ? ' (b)' : '') + '</td><td>' + dm + '</td><td><b>' + t.b + '×' + t.h + '</b></td><td>' + F(Leq * 1000 / t.h, 1) + '</td>';
+        if (p.travaTipo === 'spessore' && t.b > Leq * 1000 / 6 * 1.5) avv.push(liv + ', ' + nome.toLowerCase() + ': la trave a spessore risulta molto larga (b = ' + t.b + ' mm). Valuta una trave emergente.');
+      } else {
+        r_ += '<td>' + F(t.hMin, 0) + '–' + F(t.hMax, 0) + '</td><td>' + F(t.W, 0) + '</td><td>' + F(t.I, 0) + '</td>';
+        if (ac) {
+          if (t.prof) r_ += '<td><b>' + t.prof[0] + '</b></td><td>' + F(Leq * 1000 / t.h, 1) + '</td>';
+          else { r_ += '<td class="ko">oltre IPE 600</td><td>-</td>'; avv.push(liv + ', ' + nome.toLowerCase() + ': nessun IPE soddisfa W e freccia. Riduci la luce o la luce fuori piano, o cambia schema.'); }
+        } else {
+          r_ += '<td><b>' + t.b + '×' + t.h + '</b></td><td>' + F(Leq * 1000 / t.h, 1) + '</td>';
+          if (t.h > 1000) avv.push(liv + ', ' + nome.toLowerCase() + ': altezza di ' + t.h + ' mm: valuta una base maggiore, una classe migliore o una luce minore.');
+        }
+      }
+      return r_ + '</tr>';
+    }
+    r.livelli.slice().reverse().forEach(function (lv) {
+      lv.travi.forEach(function (t, i) { h += riga(lv, t, 'Campata ' + (i + 1)); });
+      lv.sbalzi.forEach(function (t) { h += riga(lv, t, 'Sbalzo ' + (t.lato === 'sx' ? 'sx' : 'dx')); });
+    });
+    $('tTravi').innerHTML = h + '</tbody>';
+
+    var hp = '<thead><tr><th>Interpiano</th><th>Pilastro</th><th>Area d\'influenza [m²]</th><th>N<sub>Ed</sub> alla base [kN]</th><th>A<sub>min</sub> [cm²]</th><th>' + (ac ? 'Profilo' : 'Sezione [mm]') + '</th></tr></thead><tbody>';
+    r.interpiani.slice().reverse().forEach(function (ip) {
+      ip.pilastri.forEach(function (e) {
+        hp += '<tr><td>' + ip.s + (ip.s === 1 ? ' (terra)' : '') + '</td><td>' + (e.j + 1) + '</td><td>' + F(e.tj * r.Binf, 1) + '</td><td>' + F(e.N, 0) + (e.dN > 0 ? ' <span class="unita">(di cui sbalzo ' + F(e.dN, 0) + ')</span>' : '') + '</td><td>' + F(ac ? e.A : e.A / 100, ac ? 1 : 0) + '</td>';
+        if (ac) {
+          hp += e.prof ? '<td><b>' + e.prof[0] + '</b></td>' : '<td class="ko">oltre HEB 600</td>';
+          if (!e.prof) avv.push('Interpiano ' + ip.s + ', pilastro ' + (e.j + 1) + ': nessun HEB soddisfa A min.');
+        } else hp += '<td><b>' + e.lato + '×' + e.lato + '</b></td>';
+        hp += '</tr>';
+      });
+    });
+    $('tPil').innerHTML = hp + '</tbody>';
+
+    var k = '';
+    if (ac) k += '<div><b>' + F(r.tot.massaAcciaio, 0) + ' kg</b><span>acciaio nel telaio</span></div>';
+    else if (lg) k += '<div><b>' + F(r.tot.volumeLegno, 2) + ' m³</b><span>legno di travi e pilastri</span></div>';
+    else k += '<div><b>' + F(r.tot.volumeCls, 1) + ' m³</b><span>calcestruzzo di travi e pilastri</span></div>';
+    k += '<div><b>' + F(r.Binf, 2) + ' m</b><span>larghezza d\'influenza</span></div>';
+    if (ca) k += '<div><b>' + F(r.hs, 0) + ' mm</b><span>spessore solaio (B/25)</span></div>';
+    var fval = ac ? r.fyd : (lg ? r.fmd : r.fcd), flab = ac ? 'f<sub>yd</sub>' : (lg ? 'f<sub>m,d</sub>' : 'f<sub>cd</sub>');
+    k += '<div><b>' + F(fval, 1) + ' MPa</b><span>' + flab + '</span></div>';
+    $('kpi').innerHTML = k;
+    var av = $('avvisi');
+    if (avv.length) { av.hidden = false; av.innerHTML = '<b>Attenzione</b><ul style="margin:.3rem 0 0 1rem;padding:0">' + avv.slice(0, 6).map(function (a) { return '<li>' + a + '</li>'; }).join('') + '</ul>'; }
+    else av.hidden = true;
+  }
+
+  function calcola() {
+    $('nv').textContent = $('n').value; $('ncv').textContent = $('nc').value;
+    $('Hv').textContent = F(leggi('H'), 1) + ' m'; $('Bv').textContent = F(leggi('B'), 1) + ' m';
+    $('sxv').textContent = leggi('sx') > 0 ? F(leggi('sx'), 1) + ' m' : 'assente'; $('dxv').textContent = leggi('dx') > 0 ? F(leggi('dx'), 1) + ' m' : 'assente';
+    $('g1v').textContent = F(leggi('g1'), 1); $('g2v').textContent = F(leggi('g2'), 1); $('qv').textContent = F(leggi('q'), 1); $('qbv').textContent = F(leggi('qb'), 1); $('neveV').textContent = F(leggi('neve'), 1);
+    var p = parametri(), r = RT.telaio(p);
+    disegna(p, r); tabelle(p, r);
+  }
+
+  $('mAcc').addEventListener('click', function () { impostaMateriale('acciaio', true); });
+  $('mLeg').addEventListener('click', function () { impostaMateriale('legno', true); });
+  $('mCa').addEventListener('click', function () { impostaMateriale('ca', true); });
+  $('nc').addEventListener('input', function () { costruisciCampate(); calcola(); });
+  $('uguali').addEventListener('change', function () { if (this.checked) { for (var j = 1; j < 5; j++) luci[j] = luci[0]; costruisciCampate(); calcola(); } });
+  ['n', 'H', 'B', 'bordo', 'g1', 'g2', 'q', 'qb', 'neve', 'sx', 'dx', 'vinc', 'acc', 'cleg', 'bleg', 'fck', 'tipoTrave'].forEach(function (id) { $(id).addEventListener('input', calcola); });
+
+  // preset da URL: ?materiale=acciaio|legno|ca&piani=N&campate=N&sbalzo_sx=m&sbalzo_dx=m
+  var qs = new URLSearchParams(location.search);
+  if (qs.get('piani')) $('n').value = Math.min(6, Math.max(1, parseInt(qs.get('piani'), 10) || 2));
+  if (qs.get('campate')) $('nc').value = Math.min(5, Math.max(1, parseInt(qs.get('campate'), 10) || 2));
+  if (qs.get('sbalzo_sx')) $('sx').value = Math.min(3, Math.max(0, parseFloat(qs.get('sbalzo_sx')) || 0));
+  if (qs.get('sbalzo_dx')) $('dx').value = Math.min(3, Math.max(0, parseFloat(qs.get('sbalzo_dx')) || 0));
+  costruisciCampate();
+  var m = qs.get('materiale');
+  impostaMateriale(m === 'ca' ? 'ca' : (m === 'legno' ? 'legno' : 'acciaio'), true);
+})();
+</script>
+</body>
+</html>

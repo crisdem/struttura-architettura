@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lezione 2 - Area d'influenza | Struttura e Architettura</title>
+<meta name="description" content="Strumento interattivo per la lezione 2: area d'influenza di travi e pilastri, solaio a una via o a due vie, percorso dei carichi.">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+ #pianta [data-t]{cursor:pointer}
+ #pianta [data-t]:focus-visible{outline:none}
+ #pianta [data-t]:focus-visible .hit{stroke:#1f5c8b;stroke-width:3}
+ .sel dl{display:grid;grid-template-columns:auto 1fr;gap:.2rem .8rem;margin:.4rem 0}
+ .sel dt{color:var(--grigio);font-size:.85rem}
+ .sel dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums}
+ .mappa{display:grid;gap:3px;margin:.4rem 0}
+ .mappa div{background:var(--carta);padding:.3rem .2rem;text-align:center;font-size:.8rem;font-variant-numeric:tabular-nums;border-radius:3px}
+</style>
+</head>
+<body>
+<header class="sito"><div class="in">
+  <a href="index.html"><img src="assets/img/logo_romatre_bianco.png" alt="Roma Tre"></a>
+  <div class="titolo">Struttura e Architettura<small>Laboratorio di Progettazione Architettonica 2 - Dipartimento di Architettura</small></div>
+  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="lezione1.html">Lezione 1</a><a href="lezione2.html" aria-current="page">Lezione 2</a><a href="telaio.html">Telaio piano</a></nav>
+</div></header>
+
+<main>
+<h1>Lezione 2 - Area d'influenza e percorso dei carichi</h1>
+<p class="sotto">Dal carico superficiale <i>q</i> [kN/m²] al carico lineare <i>p</i> [kN/m] sulle travi e al carico concentrato <i>N</i> [kN] sui pilastri. Clicca su una trave o su un pilastro.</p>
+
+<div class="griglia due">
+  <div>
+    <div class="pannello">
+      <div class="campo"><label for="nx">Campate in direzione x</label><output id="nxv"></output><input type="range" id="nx" min="1" max="4" step="1" value="2"></div>
+      <div class="campo"><label for="ny">Campate in direzione y</label><output id="nyv"></output><input type="range" id="ny" min="1" max="4" step="1" value="2"></div>
+      <div class="campo"><label for="Lx">Luce in x <span class="unita">L<sub>x</sub> [m]</span></label><output id="Lxv"></output><input type="range" id="Lx" min="2" max="9" step="0.1" value="5"></div>
+      <div class="campo"><label for="Ly">Luce in y <span class="unita">L<sub>y</sub> [m]</span></label><output id="Lyv"></output><input type="range" id="Ly" min="2" max="9" step="0.1" value="4"></div>
+      <div class="campo"><label for="q">Carico superficiale <span class="unita">q [kN/m²]</span></label><output id="qv"></output><input type="range" id="q" min="1" max="20" step="0.25" value="9"></div>
+      <div class="campo"><label for="ord">Solaio</label>
+        <select id="ord">
+          <option value="y">Una via: orditura lungo y (appoggia sulle travi lungo x)</option>
+          <option value="x">Una via: orditura lungo x (appoggia sulle travi lungo y)</option>
+          <option value="due">Due vie: ripartizione a 45°</option>
+        </select></div>
+    </div>
+    <div class="pannello neutro sel" style="margin-top:1rem" aria-live="polite" id="sel"></div>
+  </div>
+  <div>
+    <svg id="pianta" class="fig" role="group" aria-label="Pianta strutturale con travi e pilastri"></svg>
+    <p class="nota">Tratteggio rosso: area d'influenza dell'elemento selezionato. Con il solaio a una via le travi parallele all'orditura non ricevono carico dal solaio.</p>
+    <h2>Carico concentrato sui pilastri <span class="unita">N [kN]</span></h2>
+    <div id="mappa" class="mappa"></div>
+    <p class="ris" id="equilibrio" aria-live="polite"></p>
+  </div>
+</div>
+</main>
+<footer class="sito">Strumento didattico: carichi ripartiti secondo area d'influenza, senza continuità delle travi né peso proprio. Non sostituisce l'analisi strutturale.</footer>
+
+<script src="assets/js/calc.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var F = RT.fmt;
+  var sel = { t: 'c', i: 1, j: 1 };
+
+  function stato() { return { nx: +$('nx').value, ny: +$('ny').value, Lx: +$('Lx').value, Ly: +$('Ly').value, q: +$('q').value, ord: $('ord').value }; }
+
+  // poligono (array di [x,y] in metri) -> area
+  function area(P) { var a = 0; for (var k = 0; k < P.length; k++) { var u = P[k], v = P[(k + 1) % P.length]; a += u[0] * v[1] - v[0] * u[1]; } return Math.abs(a) / 2; }
+
+  // Zona d'influenza di una trave su un lato: lungo la trave lunghezza len, verso l'interno profondita' dep.
+  // (u0,v0) origine locale, asse u lungo la trave, asse v verso la campata; dir = +1/-1 sul segno di v. horiz: trave lungo x.
+  function zonaTrave(s, horiz, a, b, side) {
+    // a: indice lungo la trave (segmento), b: indice della linea; side: -1 (verso indici minori) o +1
+    var lenB = horiz ? s.Lx : s.Ly, depB = horiz ? s.Ly : s.Lx;
+    var u0 = a * lenB, v0 = b * depB, P;
+    var d = s.ord === 'due' ? Math.min(lenB, depB) / 2 : depB / 2;
+    var loc = s.ord === 'due' ? [[0, 0], [lenB, 0], [lenB - d, d], [d, d]] : [[0, 0], [lenB, 0], [lenB, d], [0, d]];
+    P = loc.map(function (p) {
+      var u = u0 + p[0], v = v0 + side * p[1];
+      return horiz ? [u, v] : [v, u];
+    });
+    return P;
+  }
+
+  function carica(s, tipo, a, b) {
+    // restituisce {zone:[poligoni], A, picco}
+    var zone = [], picco = 0, n = tipo === 'bx' ? s.ny : s.nx, nOrt = tipo === 'bx' ? s.nx : s.ny;
+    if (tipo === 'bx' || tipo === 'by') {
+      var horiz = tipo === 'bx';
+      var carica_ = s.ord === 'due' || (s.ord === 'y' && horiz) || (s.ord === 'x' && !horiz);
+      if (carica_) {
+        [-1, 1].forEach(function (side) {
+          var esiste = side < 0 ? b > 0 : b < n;
+          if (esiste) zone.push(zonaTrave(s, horiz, a, b, side));
+        });
+        var lenB = horiz ? s.Lx : s.Ly, depB = horiz ? s.Ly : s.Lx;
+        var d = s.ord === 'due' ? Math.min(lenB, depB) / 2 : depB / 2;
+        picco = s.q * d * zone.length;
+      }
+    }
+    var A = zone.reduce(function (t, P) { return t + area(P); }, 0);
+    return { zone: zone, A: A, picco: picco };
+  }
+
+  function pilastro(s, i, j) {
+    var x0 = i * s.Lx - (i > 0 ? s.Lx / 2 : 0), x1 = i * s.Lx + (i < s.nx ? s.Lx / 2 : 0);
+    var y0 = j * s.Ly - (j > 0 ? s.Ly / 2 : 0), y1 = j * s.Ly + (j < s.ny ? s.Ly / 2 : 0);
+    var P = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
+    return { zone: [P], A: (x1 - x0) * (y1 - y0) };
+  }
+
+  function disegna() {
+    var s = stato();
+    var Wm = s.nx * s.Lx, Hm = s.ny * s.Ly, W = 760, mx = 50, my = 40;
+    var k = Math.min(80, (W - 2 * mx) / Wm, 380 / Hm);
+    var H = Hm * k + 2 * my;
+    var X = function (m) { return mx + (W - 2 * mx - Wm * k) / 2 + m * k; }, Y = function (m) { return my + m * k; };
+    var svg = $('pianta'); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    var out = '<defs><pattern id="tr" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#d1382b" stroke-width="2"/></pattern></defs>';
+    // zona selezionata
+    var cur = sel.t === 'c' ? pilastro(s, sel.i, sel.j) : carica(s, sel.t, sel.i, sel.j);
+    cur.zone.forEach(function (P) {
+      out += '<polygon points="' + P.map(function (p) { return X(p[0]).toFixed(1) + ',' + Y(p[1]).toFixed(1); }).join(' ') + '" fill="url(#tr)" fill-opacity=".55" stroke="#d1382b" stroke-width="1.5"/>';
+    });
+    // direzione orditura
+    if (s.ord !== 'due') {
+      var hx = s.ord === 'x';
+      for (var b = 0; b < (hx ? s.ny : s.nx); b++) {
+        var cx = X((hx ? s.nx * s.Lx / 2 : (b + .5) * s.Lx)), cy = Y((hx ? (b + .5) * s.Ly : s.ny * s.Ly / 2));
+        var dx = hx ? 22 : 0, dy = hx ? 0 : 22;
+        out += '<line x1="' + (cx - dx) + '" y1="' + (cy - dy) + '" x2="' + (cx + dx) + '" y2="' + (cy + dy) + '" stroke="#6e6e6e" stroke-width="1.4" marker-end="url(#fr)" marker-start="url(#fr)"/>';
+      }
+      out = '<defs><marker id="fr" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L8 4 L0 8 z" fill="#6e6e6e"/></marker></defs>' + out;
+    }
+    // travi
+    function trave(horiz, a, b) {
+      var x1 = horiz ? a * s.Lx : b * s.Lx, y1 = horiz ? b * s.Ly : a * s.Ly;
+      var x2 = horiz ? (a + 1) * s.Lx : x1, y2 = horiz ? y1 : (a + 1) * s.Ly;
+      var tipo = horiz ? 'bx' : 'by', attivo = sel.t === tipo && sel.i === a && sel.j === b;
+      return '<g data-t="' + tipo + '" data-i="' + a + '" data-j="' + b + '" tabindex="0" role="button" aria-label="Trave ' + (horiz ? 'lungo x' : 'lungo y') + ' ' + (a + 1) + ',' + (b + 1) + '">' +
+        '<line class="hit" x1="' + X(x1) + '" y1="' + Y(y1) + '" x2="' + X(x2) + '" y2="' + Y(y2) + '" stroke="transparent" stroke-width="16"/>' +
+        '<line x1="' + X(x1) + '" y1="' + Y(y1) + '" x2="' + X(x2) + '" y2="' + Y(y2) + '" stroke="' + (attivo ? '#d1382b' : '#121212') + '" stroke-width="' + (attivo ? 5 : 3.2) + '"/></g>';
+    }
+    var i, j;
+    for (j = 0; j <= s.ny; j++) for (i = 0; i < s.nx; i++) out += trave(true, i, j);
+    for (i = 0; i <= s.nx; i++) for (j = 0; j < s.ny; j++) out += trave(false, j, i);
+    // pilastri
+    for (j = 0; j <= s.ny; j++) for (i = 0; i <= s.nx; i++) {
+      var att = sel.t === 'c' && sel.i === i && sel.j === j;
+      out += '<g data-t="c" data-i="' + i + '" data-j="' + j + '" tabindex="0" role="button" aria-label="Pilastro ' + (i + 1) + ',' + (j + 1) + '">' +
+        '<rect class="hit" x="' + (X(i * s.Lx) - 11) + '" y="' + (Y(j * s.Ly) - 11) + '" width="22" height="22" fill="transparent"/>' +
+        '<rect x="' + (X(i * s.Lx) - 7) + '" y="' + (Y(j * s.Ly) - 7) + '" width="14" height="14" fill="' + (att ? '#d1382b' : '#121212') + '"/></g>';
+    }
+    // quote
+    out += '<text x="' + X(Wm / 2) + '" y="' + (my - 14) + '" text-anchor="middle" font-size="12" fill="#6e6e6e">' + s.nx + ' × ' + F(s.Lx, 1) + ' m = ' + F(Wm, 1) + ' m</text>';
+    out += '<text transform="translate(' + (X(0) - 22) + ',' + Y(Hm / 2) + ') rotate(-90)" text-anchor="middle" font-size="12" fill="#6e6e6e">' + s.ny + ' × ' + F(s.Ly, 1) + ' m = ' + F(Hm, 1) + ' m</text>';
+    svg.innerHTML = out;
+    Array.prototype.forEach.call(svg.querySelectorAll('[data-t]'), function (g) {
+      var f = function () { sel = { t: g.dataset.t, i: +g.dataset.i, j: +g.dataset.j }; aggiorna(); };
+      g.addEventListener('click', f);
+      g.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); f(); } });
+    });
+  }
+
+  function pannelloSel() {
+    var s = stato(), h;
+    if (sel.t === 'c') {
+      var c = pilastro(s, sel.i, sel.j), N = s.q * c.A;
+      var tipo = (sel.i === 0 || sel.i === s.nx) && (sel.j === 0 || sel.j === s.ny) ? 'd\'angolo' : ((sel.i === 0 || sel.i === s.nx || sel.j === 0 || sel.j === s.ny) ? 'di bordo' : 'interno');
+      h = '<h3 style="margin-top:0">Pilastro ' + tipo + '</h3><dl><dt>Area d\'influenza</dt><dd>' + F(c.A, 2) + ' m²</dd><dt>Carico concentrato</dt><dd>N = q·A = ' + F(N, 1) + ' kN</dd></dl>';
+    } else {
+      var c2 = carica(s, sel.t, sel.i, sel.j), L = sel.t === 'bx' ? s.Lx : s.Ly, W = s.q * c2.A;
+      h = '<h3 style="margin-top:0">Trave lungo ' + (sel.t === 'bx' ? 'x' : 'y') + '</h3>';
+      if (c2.A === 0) h += '<p>Trave parallela all\'orditura: non riceve carico dal solaio (solo il proprio peso, qui trascurato).</p>';
+      else h += '<dl><dt>Luce della trave</dt><dd>' + F(L, 1) + ' m</dd><dt>Area d\'influenza</dt><dd>' + F(c2.A, 2) + ' m²</dd><dt>Carico totale</dt><dd>W = q·A = ' + F(W, 1) + ' kN</dd><dt>Carico lineare equivalente</dt><dd>p = W/L = ' + F(W / L, 2) + ' kN/m</dd>' +
+        (s.ord === 'due' ? '<dt>Picco del carico (triangolo/trapezio)</dt><dd>' + F(c2.picco, 2) + ' kN/m</dd>' : '') + '</dl>' +
+        (s.ord === 'due' ? '<p class="nota">Con il solaio a due vie il carico non è uniforme: il valore equivalente è utile per un primo calcolo del taglio, meno per il momento.</p>' : '');
+    }
+    $('sel').innerHTML = h;
+  }
+
+  function mappa() {
+    var s = stato(), h = '', tot = 0;
+    $('mappa').style.gridTemplateColumns = 'repeat(' + (s.nx + 1) + ',1fr)';
+    for (var j = 0; j <= s.ny; j++) for (var i = 0; i <= s.nx; i++) {
+      var N = s.q * pilastro(s, i, j).A; tot += N;
+      h += '<div' + (sel.t === 'c' && sel.i === i && sel.j === j ? ' style="background:#d1382b;color:#fff"' : '') + '>' + F(N, 0) + '</div>';
+    }
+    $('mappa').innerHTML = h;
+    var att = s.q * s.nx * s.Lx * s.ny * s.Ly;
+    $('equilibrio').innerHTML = 'Σ N = ' + F(tot, 1) + ' kN &nbsp;=&nbsp; q·A<sub>tot</sub> = ' + F(s.q, 2) + ' × ' + F(s.nx * s.Lx * s.ny * s.Ly, 1) + ' m² = ' + F(att, 1) + ' kN &nbsp; <span class="' + (Math.abs(tot - att) < 1e-6 ? 'ok' : 'ko') + '">equilibrio verticale rispettato</span>';
+  }
+
+  function aggiorna() {
+    var s = stato();
+    $('nxv').textContent = s.nx; $('nyv').textContent = s.ny; $('Lxv').textContent = F(s.Lx, 1) + ' m'; $('Lyv').textContent = F(s.Ly, 1) + ' m'; $('qv').textContent = F(s.q, 2);
+    if (sel.t === 'c') { sel.i = Math.min(sel.i, s.nx); sel.j = Math.min(sel.j, s.ny); }
+    else if (sel.t === 'bx') { sel.i = Math.min(sel.i, s.nx - 1); sel.j = Math.min(sel.j, s.ny); }
+    else { sel.i = Math.min(sel.i, s.ny - 1); sel.j = Math.min(sel.j, s.nx); }
+    disegna(); pannelloSel(); mappa();
+  }
+  ['nx', 'ny', 'Lx', 'Ly', 'q', 'ord'].forEach(function (id) { $(id).addEventListener('input', aggiorna); });
+  aggiorna();
+})();
+</script>
+</body>
+</html>
