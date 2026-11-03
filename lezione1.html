@@ -11,7 +11,7 @@
 <header class="sito"><div class="in">
   <a href="index.html"><img src="assets/img/logo_romatre_bianco.png" alt="Roma Tre"></a>
   <div class="titolo">Struttura e Architettura<small>Laboratorio di Progettazione Architettonica 2 - Dipartimento di Architettura</small></div>
-  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="lezione1.html" aria-current="page">Lezione 1</a><a href="lezione2.html">Lezione 2</a><a href="telaio.html">Telaio piano</a><a href="muratura.html">Muratura</a></nav>
+  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="introduzione.html">Introduzione</a><a href="lezione1.html" aria-current="page">Lezione 1</a><a href="lezione2.html">Lezione 2</a><a href="lezione3.html">Lezione 3</a><a href="lezione4.html">Lezione 4</a><a href="telaio.html">Telaio piano</a><a href="muratura.html">Muratura</a></nav>
 </div></header>
 
 <main>
@@ -19,6 +19,18 @@
 <p class="sotto">Cambia i dati e osserva come cambiano domanda, capacità e profilo scelto.</p>
 
 <h2>A. L'esempio svolto: la trave di un solaio</h2>
+
+<div class="griglia due" style="margin-bottom:1rem">
+  <figure style="margin:0">
+    <img src="assets/img/solaio_travi.png" alt="Solaio appoggiato su travi e pilastri, con i carichi che scendono" style="width:100%;max-height:300px;object-fit:contain;background:#fff;border:1px solid var(--grigio-chiaro);border-radius:6px">
+    <figcaption class="nota">Il solaio appoggia sulle <b>travi</b> (in rosso), le travi sui <b>pilastri</b>. Qui studiamo <b>una</b> trave: quella che porta la striscia di solaio evidenziata.</figcaption>
+  </figure>
+  <div>
+    <svg id="schemaA" class="fig" viewBox="0 0 560 330" role="img" aria-label="Schema statico della trave con i carichi e diagramma del momento flettente"></svg>
+    <p class="nota" style="margin-top:.3rem">In alto lo <b>schema statico</b>: la trave, i vincoli e i carichi (somma di g₁, g₂, q con i coefficienti dell'SLU). Sotto il <b>momento flettente</b>: è la "domanda" che la sezione deve sopportare.</p>
+  </div>
+</div>
+
 <div class="griglia due">
   <div class="pannello">
     <div class="campo"><label for="L">Luce <span class="unita">L [m]</span></label><output id="Lv"></output>
@@ -42,6 +54,7 @@
       <li><b>Modulo di resistenza minimo</b><br><span class="formula">W<sub>min</sub> = M<sub>Ed</sub> / f<sub>yd</sub></span> = <b id="r_W"></b> cm³</li>
       <li><b>Profilo</b><br><span id="r_prof"></span></li>
     </ol>
+    <svg id="sezA" class="fig" viewBox="0 0 560 190" role="img" aria-label="Sezione del profilo scelto in scala e confronto tra momento sollecitante e momento resistente"></svg>
     <p class="nota">Il peso proprio del profilo va compreso in g₁. La verifica a deformazione (SLE), il taglio e la stabilità sono rimandati alla lezione sull'acciaio: qui si dimensiona solo a flessione.</p>
     <div class="scroll"><table aria-label="Profili IPE vicini al minimo"><thead><tr><th>Profilo</th><th>W<sub>el,y</sub> [cm³]</th><th>Utilizzo W<sub>min</sub>/W</th><th>Massa [kg/m]</th></tr></thead><tbody id="tab"></tbody></table></div>
   </div>
@@ -114,6 +127,50 @@
       righe += '<tr' + (p === prof ? ' style="background:#f4f2ed;font-weight:700"' : '') + '><td>' + p[0] + '</td><td>' + F(p[2], 0) + '</td><td class="' + (ok ? 'ok' : 'ko') + '">' + F(u, 2) + '</td><td>' + F(p[4], 1) + '</td></tr>';
     }
     $('tab').innerHTML = righe;
+    disegnaA(L, g1, g2, q, pd, M, beta, vinc, prof, fyd);
+  }
+
+  function disegnaA(L, g1, g2, q, pd, M, beta, vinc, prof, fyd) {
+    var out = '', x0 = 70, x1 = 470, yb = 130, G = RT.GAMMA;
+    // carico: tre strati (SLU) sopra la trave
+    var c = [[G.G1 * g1, '#9a9a96', 'g₁'], [G.G2 * g2, '#c9c6bd', 'g₂'], [G.Q * q, '#1f5c8b', 'q']], tot = pd, k = 52 / Math.max(tot, 20), y = yb - 6;
+    out += '<text x="10" y="16" font-size="12" font-weight="700" fill="#121212">Schema statico</text>';
+    c.forEach(function (b) { var h = b[0] * k; y -= h; out += '<rect x="' + x0 + '" y="' + y + '" width="' + (x1 - x0) + '" height="' + h + '" fill="' + b[1] + '" fill-opacity=".85"/>'; if (h > 9) out += '<text x="' + (x0 + 6) + '" y="' + (y + h / 2 + 4) + '" font-size="10" fill="#fff" font-weight="700">' + b[2] + '</text>'; });
+    for (var i = 0; i <= 14; i++) { var xa = x0 + (x1 - x0) * i / 14; out += '<line x1="' + xa + '" x2="' + xa + '" y1="' + (y - 14) + '" y2="' + (y - 1) + '" stroke="#121212" stroke-width="1.2"/><path d="M' + (xa - 3) + ',' + (y - 5) + ' L' + xa + ',' + (y - 1) + ' L' + (xa + 3) + ',' + (y - 5) + '" fill="none" stroke="#121212" stroke-width="1.2"/>'; }
+    out += '<line x1="' + x0 + '" x2="' + x1 + '" y1="' + (y - 14) + '" y2="' + (y - 14) + '" stroke="#121212" stroke-width="1.2"/>';
+    out += '<text x="' + ((x0 + x1) / 2) + '" y="' + (y - 20) + '" text-anchor="middle" font-size="12" font-weight="700" fill="#d1382b">p_d = ' + F(pd, 1) + ' kN/m</text>';
+    // trave
+    out += '<line x1="' + x0 + '" x2="' + x1 + '" y1="' + yb + '" y2="' + yb + '" stroke="#d1382b" stroke-width="6"/>';
+    function cerniera(x) { return '<path d="M' + x + ',' + (yb + 3) + ' l-11,18 h22 z" fill="#fff" stroke="#121212" stroke-width="1.6"/><line x1="' + (x - 15) + '" x2="' + (x + 15) + '" y1="' + (yb + 22) + '" y2="' + (yb + 22) + '" stroke="#121212" stroke-width="1.6"/>'; }
+    function incastro(x, lato) { var xx = lato < 0 ? x - 12 : x; var o = '<rect x="' + xx + '" y="' + (yb - 20) + '" width="12" height="40" fill="#e0ded7" stroke="#121212" stroke-width="1.4"/>'; return o; }
+    if (vinc === 'incastro') out += incastro(x0, -1) + incastro(x1, 1);
+    else { out += cerniera(x0) + cerniera(x1) + '<circle cx="' + x1 + '" cy="' + (yb + 26) + '" r="0"/>'; if (vinc === 'semi') out += '<path d="M' + (x0 + 14) + ',' + (yb - 14) + ' a10,10 0 1 1 -2,16" fill="none" stroke="#6e6e6e" stroke-width="1.5"/><path d="M' + (x1 - 14) + ',' + (yb - 14) + ' a10,10 0 1 0 2,16" fill="none" stroke="#6e6e6e" stroke-width="1.5"/>'; }
+    out += '<line x1="' + x0 + '" x2="' + x1 + '" y1="' + (yb + 38) + '" y2="' + (yb + 38) + '" stroke="#6e6e6e"/><text x="' + ((x0 + x1) / 2) + '" y="' + (yb + 52) + '" text-anchor="middle" font-size="12" fill="#6e6e6e">L = ' + F(L, 1) + ' m</text>';
+    out += '<text x="' + (x1 + 12) + '" y="' + (yb + 4) + '" font-size="11" fill="#6e6e6e">' + (vinc === 'appoggiata' ? 'appoggiata' : (vinc === 'semi' ? 'semi-incastro' : 'incastro')) + '</text>';
+    // momento flettente
+    var yb2 = 236, hM = 62;
+    out += '<text x="10" y="205" font-size="12" font-weight="700" fill="#121212">Momento flettente (domanda)</text>';
+    out += '<line x1="' + x0 + '" x2="' + x1 + '" y1="' + yb2 + '" y2="' + yb2 + '" stroke="#6e6e6e"/>';
+    var d = 'M' + x0 + ',' + yb2;
+    for (var j = 0; j <= 40; j++) { var t = j / 40; d += ' L' + (x0 + (x1 - x0) * t).toFixed(1) + ',' + (yb2 + hM * 4 * t * (1 - t)).toFixed(1); }
+    out += '<path d="' + d + ' Z" fill="#d1382b" fill-opacity=".18" stroke="#d1382b" stroke-width="2"/>';
+    out += '<text x="' + ((x0 + x1) / 2) + '" y="' + (yb2 + hM + 18) + '" text-anchor="middle" font-size="12" font-weight="700" fill="#d1382b">M_Ed = p_d·L²/' + beta + ' = ' + F(M, 1) + ' kN·m</text>';
+    $('schemaA').innerHTML = out;
+
+    // sezione scelta in scala e confronto M_Ed / M_Rd
+    var o2 = '', MRd = prof ? prof[2] * fyd / 1000 : 0;
+    o2 += '<text x="10" y="16" font-size="12" font-weight="700" fill="#121212">Sezione scelta, in scala</text>';
+    if (prof) {
+      var h = prof[1], b = h * 0.5, tf = Math.max(8, h * 0.065), tw = Math.max(5, h * 0.04), sc = 120 / 400 * 1.0, hh = h * sc, bb = b * sc, tfs = tf * sc, tws = tw * sc, xx = 40, yy = 28;
+      o2 += '<path d="M' + xx + ',' + yy + ' h' + bb + ' v' + tfs + ' h-' + (bb / 2 - tws / 2) + ' v' + (hh - 2 * tfs) + ' h' + (bb / 2 - tws / 2) + ' v' + tfs + ' h-' + bb + ' v-' + tfs + ' h' + (bb / 2 - tws / 2) + ' v-' + (hh - 2 * tfs) + ' h-' + (bb / 2 - tws / 2) + ' z" fill="#d1382b"/>';
+      o2 += '<text x="' + (xx + bb + 10) + '" y="' + (yy + hh / 2) + '" font-size="12" font-weight="700">' + prof[0] + '</text><text x="' + (xx + bb + 10) + '" y="' + (yy + hh / 2 + 15) + '" font-size="11" fill="#6e6e6e">h = ' + h + ' mm</text>';
+    }
+    var mx = Math.max(M, MRd, 1), sb = 240 / mx;
+    o2 += '<text x="300" y="46" font-size="12" font-weight="700">Domanda e capacità</text>';
+    o2 += '<rect x="300" y="58" width="' + (M * sb) + '" height="22" fill="#d1382b"/><text x="304" y="74" font-size="11" fill="#fff" font-weight="700">M_Ed = ' + F(M, 1) + '</text>';
+    o2 += '<rect x="300" y="92" width="' + (MRd * sb) + '" height="22" fill="#1f5c8b"/><text x="304" y="108" font-size="11" fill="#fff" font-weight="700">M_Rd = W·f_yd = ' + F(MRd, 1) + ' kN·m</text>';
+    o2 += '<text x="300" y="138" font-size="12" fill="' + (MRd >= M ? '#2d7d46' : '#d1382b') + '" font-weight="700">' + (MRd >= M ? 'Capacità ≥ domanda: verificato' : 'Capacità < domanda: non basta') + '</text>';
+    $('sezA').innerHTML = o2;
   }
 
   function sicurezza() {
@@ -163,5 +220,7 @@
   esempio(); sicurezza(); unita();
 })();
 </script>
+<script src="assets/js/i18n-en.js"></script>
+<script src="assets/js/i18n.js"></script>
 </body>
 </html>

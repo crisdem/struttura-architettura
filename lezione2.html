@@ -14,14 +14,21 @@
  .sel dt{color:var(--grigio);font-size:.85rem}
  .sel dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums}
  .mappa{display:grid;gap:3px;margin:.4rem 0}
- .mappa div{background:var(--carta);padding:.3rem .2rem;text-align:center;font-size:.8rem;font-variant-numeric:tabular-nums;border-radius:3px}
+ .mappa div{background:var(--carta);padding:.35rem .2rem;text-align:center;font-size:.8rem;font-variant-numeric:tabular-nums;border-radius:3px;cursor:pointer;border:2px solid transparent}
+ .mappa div small{display:block;color:var(--grigio);font-size:.7rem}
+ .mappa div.angolo{background:#dbe7f1}.mappa div.bordo{background:#dcecdf}.mappa div.interno{background:#f6dcd9}
+ .mappa div.sel{border-color:#d1382b;box-shadow:0 0 0 2px #d1382b inset;font-weight:700}
+ .leg{display:flex;gap:1rem;flex-wrap:wrap;font-size:.8rem;margin:.3rem 0}
+ .leg i{display:inline-block;width:.8rem;height:.8rem;border-radius:2px;margin-right:.3rem;vertical-align:-1px}
+ table.conf td.on,table.conf th.on{background:#fbe9e7;font-weight:700}
+ table.conf{margin:.4rem 0}
 </style>
 </head>
 <body>
 <header class="sito"><div class="in">
   <a href="index.html"><img src="assets/img/logo_romatre_bianco.png" alt="Roma Tre"></a>
   <div class="titolo">Struttura e Architettura<small>Laboratorio di Progettazione Architettonica 2 - Dipartimento di Architettura</small></div>
-  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="lezione1.html">Lezione 1</a><a href="lezione2.html" aria-current="page">Lezione 2</a><a href="telaio.html">Telaio piano</a><a href="muratura.html">Muratura</a></nav>
+  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="introduzione.html">Introduzione</a><a href="lezione1.html">Lezione 1</a><a href="lezione2.html" aria-current="page">Lezione 2</a><a href="lezione3.html">Lezione 3</a><a href="lezione4.html">Lezione 4</a><a href="telaio.html">Telaio piano</a><a href="muratura.html">Muratura</a></nav>
 </div></header>
 
 <main>
@@ -47,8 +54,10 @@
   </div>
   <div>
     <svg id="pianta" class="fig" role="group" aria-label="Pianta strutturale con travi e pilastri"></svg>
-    <p class="nota">Tratteggio rosso: area d'influenza dell'elemento selezionato. Con il solaio a una via le travi parallele all'orditura non ricevono carico dal solaio.</p>
+    <p class="nota"><b>Come leggere la pianta</b>: tratteggio rosso = area d'influenza dell'elemento selezionato; frecce grigie = direzione in cui il solaio scarica (una via); linee tratteggiate a 45° = ripartizione del solaio a due vie. Cambia il tipo di solaio e guarda come si sposta l'area rossa.</p>
     <h2>Carico concentrato sui pilastri <span class="unita">N [kN]</span></h2>
+    <p class="nota" style="margin-top:0">La griglia ha la stessa disposizione della pianta: ogni cella è il pilastro con lo stesso numero (P1, P2...). Clicca una cella per selezionare il pilastro.</p>
+    <div class="leg"><span><i style="background:#dbe7f1"></i>d'angolo</span><span><i style="background:#dcecdf"></i>di bordo</span><span><i style="background:#f6dcd9"></i>interno</span><span><i style="border:2px solid #d1382b;background:#fff"></i>selezionato</span></div>
     <div id="mappa" class="mappa"></div>
     <p class="ris" id="equilibrio" aria-live="polite"></p>
   </div>
@@ -123,15 +132,30 @@
     cur.zone.forEach(function (P) {
       out += '<polygon points="' + P.map(function (p) { return X(p[0]).toFixed(1) + ',' + Y(p[1]).toFixed(1); }).join(' ') + '" fill="url(#tr)" fill-opacity=".55" stroke="#d1382b" stroke-width="1.5"/>';
     });
-    // direzione orditura
-    if (s.ord !== 'due') {
-      var hx = s.ord === 'x';
-      for (var b = 0; b < (hx ? s.ny : s.nx); b++) {
-        var cx = X((hx ? s.nx * s.Lx / 2 : (b + .5) * s.Lx)), cy = Y((hx ? (b + .5) * s.Ly : s.ny * s.Ly / 2));
-        var dx = hx ? 22 : 0, dy = hx ? 0 : 22;
-        out += '<line x1="' + (cx - dx) + '" y1="' + (cy - dy) + '" x2="' + (cx + dx) + '" y2="' + (cy + dy) + '" stroke="#6e6e6e" stroke-width="1.4" marker-end="url(#fr)" marker-start="url(#fr)"/>';
+    // solaio: orditura (una via) o ripartizione a 45 gradi (due vie)
+    out += '<defs><marker id="fr" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L8 4 L0 8 z" fill="#8a8a86"/></marker></defs>';
+    var ci, cj;
+    for (cj = 0; cj < s.ny; cj++) for (ci = 0; ci < s.nx; ci++) {
+      var x0 = ci * s.Lx, y0 = cj * s.Ly;
+      if (s.ord === 'due') {
+        var dd = Math.min(s.Lx, s.Ly) / 2;
+        var seg = [[[0, 0], [dd, dd]], [[s.Lx, 0], [s.Lx - dd, dd]], [[0, s.Ly], [dd, s.Ly - dd]], [[s.Lx, s.Ly], [s.Lx - dd, s.Ly - dd]],
+                   s.Lx >= s.Ly ? [[dd, dd], [s.Lx - dd, dd]] : [[dd, dd], [dd, s.Ly - dd]]];
+        if (s.Lx >= s.Ly) seg[4] = [[dd, s.Ly / 2], [s.Lx - dd, s.Ly / 2]]; else seg[4] = [[s.Lx / 2, dd], [s.Lx / 2, s.Ly - dd]];
+        seg.forEach(function (sg) { out += '<line x1="' + X(x0 + sg[0][0]) + '" y1="' + Y(y0 + sg[0][1]) + '" x2="' + X(x0 + sg[1][0]) + '" y2="' + Y(y0 + sg[1][1]) + '" stroke="#8a8a86" stroke-width="1.2" stroke-dasharray="4 3"/>'; });
+        out += '<text x="' + X(x0 + s.Lx / 2) + '" y="' + (Y(y0 + s.Ly / 2) + 4) + '" text-anchor="middle" font-size="11" fill="#8a8a86">2 vie</text>';
+      } else {
+        var hx = s.ord === 'x', cx = X(x0 + s.Lx / 2), cy = Y(y0 + s.Ly / 2), L2 = (hx ? s.Lx : s.Ly) * k * 0.32;
+        [-1, 0, 1].forEach(function (o) {
+          var ox = hx ? 0 : o * s.Lx * k * 0.22, oy = hx ? o * s.Ly * k * 0.22 : 0;
+          out += '<line x1="' + (cx + ox - (hx ? L2 : 0)) + '" y1="' + (cy + oy - (hx ? 0 : L2)) + '" x2="' + (cx + ox + (hx ? L2 : 0)) + '" y2="' + (cy + oy + (hx ? 0 : L2)) + '" stroke="#8a8a86" stroke-width="1.6" marker-end="url(#fr)" marker-start="url(#fr)"/>';
+        });
       }
-      out = '<defs><marker id="fr" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L8 4 L0 8 z" fill="#6e6e6e"/></marker></defs>' + out;
+    }
+    // etichetta dell'area d'influenza del pilastro selezionato
+    if (sel.t === 'c') {
+      var Pz = cur.zone[0], axs = (Pz[0][0] + Pz[1][0]) / 2, ays = (Pz[0][1] + Pz[3][1]) / 2;
+      out += '<text x="' + X(axs) + '" y="' + (Y(ays) + 24) + '" text-anchor="middle" font-size="12" font-weight="700" fill="#d1382b">A = ' + F(cur.A, 2) + ' m²</text>';
     }
     // travi
     function trave(horiz, a, b) {
@@ -150,7 +174,7 @@
       var att = sel.t === 'c' && sel.i === i && sel.j === j;
       out += '<g data-t="c" data-i="' + i + '" data-j="' + j + '" tabindex="0" role="button" aria-label="Pilastro ' + (i + 1) + ',' + (j + 1) + '">' +
         '<rect class="hit" x="' + (X(i * s.Lx) - 11) + '" y="' + (Y(j * s.Ly) - 11) + '" width="22" height="22" fill="transparent"/>' +
-        '<rect x="' + (X(i * s.Lx) - 7) + '" y="' + (Y(j * s.Ly) - 7) + '" width="14" height="14" fill="' + (att ? '#d1382b' : '#121212') + '"/></g>';
+        '<rect x="' + (X(i * s.Lx) - 7) + '" y="' + (Y(j * s.Ly) - 7) + '" width="14" height="14" fill="' + (att ? '#d1382b' : '#121212') + '"/><text x="' + (X(i * s.Lx) + 10) + '" y="' + (Y(j * s.Ly) - 9) + '" font-size="11" font-weight="700" fill="' + (att ? '#d1382b' : '#6e6e6e') + '">P' + (j * (s.nx + 1) + i + 1) + '</text></g>';
     }
     // quote
     out += '<text x="' + X(Wm / 2) + '" y="' + (my - 14) + '" text-anchor="middle" font-size="12" fill="#6e6e6e">' + s.nx + ' × ' + F(s.Lx, 1) + ' m = ' + F(Wm, 1) + ' m</text>';
@@ -163,19 +187,28 @@
     });
   }
 
+  function tipoPil(s, i, j) { return (i === 0 || i === s.nx) && (j === 0 || j === s.ny) ? 'angolo' : ((i === 0 || i === s.nx || j === 0 || j === s.ny) ? 'bordo' : 'interno'); }
+  var NOMI = { angolo: "d'angolo", bordo: 'di bordo', interno: 'interno' };
+
   function pannelloSel() {
     var s = stato(), h;
     if (sel.t === 'c') {
-      var c = pilastro(s, sel.i, sel.j), N = s.q * c.A;
-      var tipo = (sel.i === 0 || sel.i === s.nx) && (sel.j === 0 || sel.j === s.ny) ? 'd\'angolo' : ((sel.i === 0 || sel.i === s.nx || sel.j === 0 || sel.j === s.ny) ? 'di bordo' : 'interno');
-      h = '<h3 style="margin-top:0">Pilastro ' + tipo + '</h3><dl><dt>Area d\'influenza</dt><dd>' + F(c.A, 2) + ' m²</dd><dt>Carico concentrato</dt><dd>N = q·A = ' + F(N, 1) + ' kN</dd></dl>';
+      var c = pilastro(s, sel.i, sel.j), N = s.q * c.A, tp = tipoPil(s, sel.i, sel.j);
+      h = '<h3 style="margin-top:0">Pilastro P' + (sel.j * (s.nx + 1) + sel.i + 1) + ' (' + NOMI[tp] + ')</h3>' +
+        '<dl><dt>Area d\'influenza</dt><dd>' + F(c.A, 2) + ' m²</dd><dt>Carico concentrato</dt><dd>N = q·A = ' + F(s.q, 2) + ' × ' + F(c.A, 2) + ' = ' + F(N, 1) + ' kN</dd></dl>' +
+        '<p class="nota">Il tipo di solaio cambia come il carico arriva alle travi, <b>non</b> il carico totale che arriva al pilastro: l\'area d\'influenza è la stessa (metà campata attorno al pilastro) con una via o con due vie.</p>';
     } else {
       var c2 = carica(s, sel.t, sel.i, sel.j), L = sel.t === 'bx' ? s.Lx : s.Ly, W = s.q * c2.A;
       h = '<h3 style="margin-top:0">Trave lungo ' + (sel.t === 'bx' ? 'x' : 'y') + '</h3>';
       if (c2.A === 0) h += '<p>Trave parallela all\'orditura: non riceve carico dal solaio (solo il proprio peso, qui trascurato).</p>';
-      else h += '<dl><dt>Luce della trave</dt><dd>' + F(L, 1) + ' m</dd><dt>Area d\'influenza</dt><dd>' + F(c2.A, 2) + ' m²</dd><dt>Carico totale</dt><dd>W = q·A = ' + F(W, 1) + ' kN</dd><dt>Carico lineare equivalente</dt><dd>p = W/L = ' + F(W / L, 2) + ' kN/m</dd>' +
-        (s.ord === 'due' ? '<dt>Picco del carico (triangolo/trapezio)</dt><dd>' + F(c2.picco, 2) + ' kN/m</dd>' : '') + '</dl>' +
-        (s.ord === 'due' ? '<p class="nota">Con il solaio a due vie il carico non è uniforme: il valore equivalente è utile per un primo calcolo del taglio, meno per il momento.</p>' : '');
+      else h += '<dl><dt>Luce della trave</dt><dd>' + F(L, 1) + ' m</dd><dt>Area d\'influenza</dt><dd>' + F(c2.A, 2) + ' m²</dd><dt>Carico totale</dt><dd>W = q·A = ' + F(W, 1) + ' kN</dd><dt>Carico lineare equivalente</dt><dd>p = W/L = ' + F(W / L, 2) + ' kN/m</dd></dl>';
+      // confronto tra i tre tipi di solaio per la trave selezionata
+      var modi = [['y', 'Una via, orditura y'], ['x', 'Una via, orditura x'], ['due', 'Due vie']];
+      h += '<h4 style="margin:.7rem 0 .2rem;font-size:.9rem">Come cambia il carico con il solaio</h4><table class="conf"><tr><th></th>' + modi.map(function (m) { return '<th class="' + (m[0] === s.ord ? 'on' : '') + '">' + m[1] + '</th>'; }).join('') + '</tr>';
+      var rows = modi.map(function (m) { var s2 = Object.assign({}, s, { ord: m[0] }), cc = carica(s2, sel.t, sel.i, sel.j); return { A: cc.A, p: cc.A ? s.q * cc.A / L : 0, on: m[0] === s.ord }; });
+      h += '<tr><td>Area [m²]</td>' + rows.map(function (r) { return '<td class="' + (r.on ? 'on' : '') + '">' + F(r.A, 1) + '</td>'; }).join('') + '</tr>';
+      h += '<tr><td>p [kN/m]</td>' + rows.map(function (r) { return '<td class="' + (r.on ? 'on' : '') + '">' + (r.A ? F(r.p, 1) : '0 (parallela)') + '</td>'; }).join('') + '</tr></table>';
+      h += '<p class="nota">' + (s.ord === 'due' ? 'Con due vie il carico non è uniforme (trapezio o triangolo): il valore equivalente è utile per il taglio, meno per il momento.' : 'Con una via, le travi perpendicolari all\'orditura prendono metà campata per lato; quelle parallele non ricevono carico.') + '</p>';
     }
     $('sel').innerHTML = h;
   }
@@ -185,11 +218,17 @@
     $('mappa').style.gridTemplateColumns = 'repeat(' + (s.nx + 1) + ',1fr)';
     for (var j = 0; j <= s.ny; j++) for (var i = 0; i <= s.nx; i++) {
       var N = s.q * pilastro(s, i, j).A; tot += N;
-      h += '<div' + (sel.t === 'c' && sel.i === i && sel.j === j ? ' style="background:#d1382b;color:#fff"' : '') + '>' + F(N, 0) + '</div>';
+      var on = sel.t === 'c' && sel.i === i && sel.j === j;
+      h += '<div class="' + tipoPil(s, i, j) + (on ? ' sel' : '') + '" data-i="' + i + '" data-j="' + j + '" tabindex="0" role="button"><small>P' + (j * (s.nx + 1) + i + 1) + '</small>' + F(N, 0) + ' kN</div>';
     }
     $('mappa').innerHTML = h;
+    Array.prototype.forEach.call($('mappa').querySelectorAll('div'), function (d) {
+      var f = function () { sel = { t: 'c', i: +d.dataset.i, j: +d.dataset.j }; aggiorna(); };
+      d.addEventListener('click', f);
+      d.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); f(); } });
+    });
     var att = s.q * s.nx * s.Lx * s.ny * s.Ly;
-    $('equilibrio').innerHTML = 'Σ N = ' + F(tot, 1) + ' kN &nbsp;=&nbsp; q·A<sub>tot</sub> = ' + F(s.q, 2) + ' × ' + F(s.nx * s.Lx * s.ny * s.Ly, 1) + ' m² = ' + F(att, 1) + ' kN &nbsp; <span class="' + (Math.abs(tot - att) < 1e-6 ? 'ok' : 'ko') + '">equilibrio verticale rispettato</span>';
+    $('equilibrio').innerHTML = 'Σ N = ' + F(tot, 1) + ' kN &nbsp;=&nbsp; q·A<sub>tot</sub> = ' + F(s.q, 2) + ' × ' + F(s.nx * s.Lx * s.ny * s.Ly, 1) + ' m² = ' + F(att, 1) + ' kN &nbsp; <span class="' + (Math.abs(tot - att) < 1e-6 ? 'ok' : 'ko') + '">' + (Math.abs(tot - att) < 1e-6 ? 'equilibrio verificato' : 'equilibrio NON verificato') + '</span>';
   }
 
   function aggiorna() {
@@ -204,5 +243,7 @@
   aggiorna();
 })();
 </script>
+<script src="assets/js/i18n-en.js"></script>
+<script src="assets/js/i18n.js"></script>
 </body>
 </html>

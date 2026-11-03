@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Muratura portante - predimensionamento | Struttura e Architettura</title>
-<meta name="description" content="Parete in muratura portante: cambia piani, altezza, luce del solaio, aperture e materiale e osserva lo spessore necessario, disegnato in scala.">
+<meta name="description" content="Quanto deve essere spessa una parete in muratura portante? Cambia piani, altezza, luce del solaio e tipo di muratura.">
 <link rel="stylesheet" href="assets/css/style.css">
 <style>
  .kpi{display:flex;gap:1.2rem;flex-wrap:wrap;margin:.6rem 0}
@@ -14,84 +14,83 @@
  .campo.inline{grid-template-columns:auto 1fr;gap:.5rem}
  .campo.inline input[type=checkbox]{grid-column:auto;accent-color:var(--rosso);width:1.1rem;height:1.1rem}
  th{text-transform:none;letter-spacing:0;font-size:.82rem}
- details.regole{margin:.8rem 0}
- details.regole summary{cursor:pointer;font-weight:700}
+ td.decide{background:#fbe9e7;font-weight:700}
+ .passi li{font-size:.95rem}
+ details summary{cursor:pointer;font-weight:700;margin:.8rem 0 .3rem}
 </style>
 </head>
 <body>
 <header class="sito"><div class="in">
   <a href="index.html"><img src="assets/img/logo_romatre_bianco.png" alt="Roma Tre"></a>
   <div class="titolo">Struttura e Architettura<small>Laboratorio di Progettazione Architettonica 2 - Dipartimento di Architettura</small></div>
-  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="lezione1.html">Lezione 1</a><a href="lezione2.html">Lezione 2</a><a href="telaio.html">Telaio piano</a><a href="muratura.html" aria-current="page">Muratura</a></nav>
+  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="introduzione.html">Introduzione</a><a href="lezione1.html">Lezione 1</a><a href="lezione2.html">Lezione 2</a><a href="lezione3.html">Lezione 3</a><a href="lezione4.html">Lezione 4</a><a href="telaio.html">Telaio piano</a><a href="muratura.html" aria-current="page">Muratura</a></nav>
 </div></header>
 
 <main>
-<h1>Muratura portante: predimensionamento</h1>
-<p class="sotto">Una parete portante di un edificio a più piani: lo spessore dipende dal numero di piani, dalla luce del solaio e dalla <b>snellezza</b>. Le sezioni sono disegnate in scala.</p>
+<h1>Muratura portante: quanto spessa?</h1>
+<p class="sotto">Una parete che porta i solai di più piani. Lo spessore deve rispettare <b>tre requisiti</b>: decide il più severo.</p>
+
+<ol class="passi" style="margin-bottom:1.2rem">
+  <li><b>Minimo di norma</b>: ogni muratura ha uno spessore minimo (ad esempio 24 cm per i mattoni).</li>
+  <li><b>Snellezza</b>: un muro alto e sottile si instabilizza. Lo spessore deve essere almeno l'altezza divisa per 12 (zona sismica) o per 20.</li>
+  <li><b>Resistenza</b>: A<sub>min</sub> = N<sub>Ed</sub> / (ν·f<sub>d</sub>), con ν = 0,5: più piani ci sono sopra, più carico arriva alla base e più serve spessore.</li>
+</ol>
 
 <div class="griglia due">
   <div>
     <div class="pannello">
       <h3 style="margin-top:0">Parete</h3>
       <div class="pillole" role="group" aria-label="Tipo di parete">
-        <button type="button" id="tBordo" aria-pressed="true">Di facciata (solaio da un lato)</button>
-        <button type="button" id="tSpina" aria-pressed="false">Di spina (solai ai due lati)</button>
+        <button type="button" id="tBordo" aria-pressed="true">Di facciata</button>
+        <button type="button" id="tSpina" aria-pressed="false">Interna (solai ai due lati)</button>
       </div>
       <div class="campo"><label for="n">Numero di piani</label><output id="nv"></output>
         <input type="range" id="n" min="1" max="5" step="1" value="3"></div>
-      <div class="campo"><label for="H">Altezza di interpiano <span class="unita">H [m]</span></label><output id="Hv"></output>
+      <div class="campo"><label for="H">Altezza di interpiano <span class="unita">[m]</span></label><output id="Hv"></output>
         <input type="range" id="H" min="2.6" max="5" step="0.1" value="3.2"></div>
-      <div class="campo"><label for="L1">Luce del solaio <span id="l1lab" class="unita">L [m]</span></label><output id="L1v"></output>
+      <div class="campo"><label for="L1">Luce del solaio <span class="unita">[m]</span></label><output id="L1v"></output>
         <input type="range" id="L1" min="2" max="8" step="0.1" value="5"></div>
-      <div class="campo" id="boxL2" hidden><label for="L2">Luce del solaio sull'altro lato <span class="unita">[m]</span></label><output id="L2v"></output>
-        <input type="range" id="L2" min="2" max="8" step="0.1" value="5"></div>
-      <div class="campo"><label for="ap">Aperture (finestre e porte) <span class="unita">[% della parete]</span></label><output id="apv"></output>
+      <div class="campo"><label for="ap">Finestre e porte <span class="unita">[% della parete]</span></label><output id="apv"></output>
         <input type="range" id="ap" min="0" max="50" step="5" value="25"></div>
+      <div class="campo"><label for="mur">Tipo di muratura</label><select id="mur"></select></div>
+      <div class="campo"><label for="nu">Coefficiente ν <span class="unita">A<sub>min</sub> = N<sub>Ed</sub> / (ν·f<sub>d</sub>)</span></label><output id="nuv"></output>
+        <input type="range" id="nu" min="0.2" max="0.8" step="0.05" value="0.5"></div>
+      <div class="campo inline"><input type="checkbox" id="sis" checked><label for="sis">Zona sismica (Roma): λ ≤ 12</label></div>
 
-      <h3>Carichi caratteristici <span class="unita">[kN/m²]</span></h3>
-      <div class="campo"><label for="g1">G₁ strutturali (solaio)</label><output id="g1v"></output>
-        <input type="range" id="g1" min="0.5" max="6" step="0.1" value="3.5"></div>
-      <div class="campo"><label for="g2">G₂ non strutturali</label><output id="g2v"></output>
-        <input type="range" id="g2" min="0.5" max="4" step="0.1" value="2"></div>
-      <div class="campo"><label for="q">Q sovraccarico d'uso</label><output id="qv"></output>
-        <input type="range" id="q" min="0.5" max="8" step="0.1" value="2"></div>
-      <div class="campo"><label for="neve">Q neve (copertura)</label><output id="neveV"></output>
-        <input type="range" id="neve" min="0" max="3" step="0.1" value="0.5"></div>
-
-      <h3>Muratura</h3>
-      <div class="campo"><label for="mur">Tipo di muratura</label>
-        <select id="mur"></select></div>
-      <div class="campo"><label for="gm">Coefficiente γ<sub>M</sub> (qualità dell'esecuzione e dei controlli)</label>
-        <select id="gm"><option value="2">2,0 (controlli rigorosi)</option><option value="2.2">2,2</option><option value="2.5" selected>2,5</option><option value="2.7">2,7</option><option value="3">3,0 (esecuzione corrente)</option></select></div>
-      <div class="campo inline"><input type="checkbox" id="sis" checked><label for="sis">Zona sismica (Roma): snellezza λ ≤ 12</label></div>
-      <div class="campo inline"><input type="checkbox" id="cost"><label for="cost">Spessore costante su tutti i piani</label></div>
+      <details><summary>Carichi dei solai [kN/m²]</summary>
+        <div class="campo"><label for="g1">G₁ strutturali</label><output id="g1v"></output><input type="range" id="g1" min="0.5" max="6" step="0.1" value="3.5"></div>
+        <div class="campo"><label for="g2">G₂ non strutturali</label><output id="g2v"></output><input type="range" id="g2" min="0.5" max="4" step="0.1" value="2"></div>
+        <div class="campo"><label for="q">Q sovraccarico d'uso</label><output id="qv"></output><input type="range" id="q" min="0.5" max="8" step="0.1" value="2"></div>
+        <div class="campo inline"><input type="checkbox" id="usaNeve" checked><label for="usaNeve">Considera il carico da neve in copertura</label></div>
+        <div class="campo"><label for="neve">Q neve (copertura)</label><output id="neveV"></output><input type="range" id="neve" min="0" max="3" step="0.1" value="0.5"></div>
+      </details>
     </div>
   </div>
 
   <div>
+    <div class="campo inline" style="margin:.2rem 0 .5rem"><input type="checkbox" id="carichi"><label for="carichi">Mostra i carichi sulla parete (reazione del solaio e N<sub>Ed</sub> alla base di ogni piano)</label></div>
     <svg id="fig" class="fig" role="img" aria-label="Sezione verticale della parete con lo spessore di ogni piano, in scala"></svg>
     <div class="kpi" id="kpi" aria-live="polite"></div>
     <div class="avviso" id="avvisi" hidden></div>
 
-    <h2>Verifica per interpiano <span class="unita">(striscia di 1 m di parete)</span></h2>
+    <h2>Spessore piano per piano</h2>
     <div class="scroll"><table id="tab"></table></div>
+    <p class="nota">Spessori in mm. La cella evidenziata è il requisito che decide. Lo spessore adottato è il primo spessore commerciale non inferiore al più severo, e non diminuisce scendendo.</p>
 
-    <details class="regole"><summary>Criteri usati</summary>
+    <details><summary>Ipotesi e formule</summary>
       <ul>
-        <li><b>Azioni</b>: p<sub>d</sub> = (1,3·G₁ + 1,5·G₂ + 1,5·Q)·B<sub>inf</sub>, con B<sub>inf</sub> = L/2 per la parete di facciata e (L₁ + L₂)/2 per la parete di spina; in copertura Q = neve. Si aggiunge il peso proprio della parete, 1,3·γ·t·H per interpiano.</li>
-        <li><b>Resistenza di progetto</b>: f<sub>d</sub> = f<sub>k</sub>/γ<sub>M</sub>. I valori di f<sub>k</sub> della tabella sono <em>indicativi</em>; per i progetti reali si usano le tabelle delle NTC 2018 (§ 11.10) o le prove.</li>
-        <li><b>Snellezza</b>: λ = h<sub>0</sub>/t, con h<sub>0</sub> = H (solaio rigido ai due estremi). In zona sismica λ ≤ 12, altrimenti λ ≤ 20. Quindi t ≥ H/12.</li>
-        <li><b>Spessori minimi</b> (NTC 2018, § 7.8.1.2): 240 mm per laterizio e pietra squadrata, 200 mm per blocchi in calcestruzzo, 300 mm per pietra non squadrata e tufo.</li>
-        <li><b>Compressione centrata ridotta</b>: σ = N<sub>m</sub>/(t·(1 − a)) ≤ Φ·f<sub>d</sub>, con N<sub>m</sub> a metà altezza e a = percentuale di aperture (i maschi murari portano il carico di tutta la parete).</li>
-        <li><b>Coefficiente Φ</b>: Φ = (1 − 2e/t)·exp(−u²/2), u = (λ<sub>c</sub> − 0,063)/(0,73 − 1,17·e/t), λ<sub>c</sub> = (h<sub>0</sub>/t)·√(f<sub>k</sub>/E), E = 1000·f<sub>k</sub> (forma tipo Eurocodice 6, App. G). e = e<sub>carico</sub> + h<sub>0</sub>/450, con e<sub>carico</sub> = 0,10·t/2 in facciata e 0,03·t/2 sulla parete di spina; e ≥ 0,05·t.</li>
-        <li><b>Spessori commerciali</b>: 200, 240, 250, 300, 380, 400, 500, 600, 800, 1000 mm. Lo spessore non diminuisce scendendo.</li>
+        <li><b>Carico</b>: p<sub>d</sub> = (1,3·G₁ + 1,5·G₂ + 1,5·Q)·B<sub>inf</sub>, con B<sub>inf</sub> = L/2 per la parete di facciata e L per quella interna; in copertura Q = neve. Si aggiunge il peso proprio del muro (1,3·γ·t·H).</li>
+        <li><b>Resistenza</b>: A<sub>min</sub> = N<sub>Ed</sub> / (ν·f<sub>d</sub>) per metro di parete, cioè t<sub>res</sub> = N / ((1 − a)·ν·f<sub>d</sub>), con ν = 0,5 come per i pilastri in c.a. (modificabile), a = % di aperture e f<sub>d</sub> = f<sub>k</sub>/2,5. Il coefficiente ν tiene conto in blocco di snellezza ed eccentricità.</li>
+        <li><b>Snellezza</b>: t<sub>sn</sub> = H/12 in zona sismica, H/20 altrimenti.</li>
+        <li><b>Minimi</b> (NTC 2018, § 7.8.1.2): 240 mm laterizio e pietra squadrata, 200 mm blocchi in calcestruzzo, 300 mm tufo e pietra irregolare.</li>
+        <li><b>f<sub>k</sub> indicativi</b> [MPa]: mattoni pieni 6,0; laterizio semipieno 4,7; blocchi in calcestruzzo 4,1; pietra squadrata 6,0; tufo 2,0.</li>
       </ul>
-      <p class="nota">Strumento didattico: non considera l'azione sismica orizzontale, la verifica a taglio, la resistenza fuori piano né la densità minima di pareti dell'edificio. Valori di f<sub>k</sub> e Φ da verificare sulle norme.</p>
+      <p class="nota">Strumento didattico: non considera il sisma orizzontale, il taglio, il vento né la verifica dettagliata dell'eccentricità. Per le verifiche complete si usano le NTC 2018.</p>
     </details>
   </div>
 </div>
 </main>
-<footer class="sito">Strumento didattico del Modulo Struttura e Architettura. Valori della resistenza delle murature da controllare sulle tabelle ufficiali.</footer>
+<footer class="sito">Strumento didattico del Modulo Struttura e Architettura. Valori di resistenza indicativi da controllare sulle NTC 2018 (D.M. 17 gennaio 2018).</footer>
 
 <script src="assets/js/calc.js"></script>
 <script>
@@ -99,94 +98,93 @@
   var $ = function (id) { return document.getElementById(id); };
   var F = RT.fmt, tipo = 'bordo';
 
-  Object.keys(RT.MURATURE).forEach(function (k) {
-    var m = RT.MURATURE[k], o = document.createElement('option');
-    o.value = k; o.textContent = m.nome + ' (fₖ = ' + F(m.fk, 1) + ' MPa)'; $('mur').appendChild(o);
+  Object.keys(RT.MURATURE_S).forEach(function (k) {
+    var m = RT.MURATURE_S[k], o = document.createElement('option');
+    o.value = k; o.textContent = m.nome; $('mur').appendChild(o);
   });
-
+  function v(id) { return parseFloat($(id).value); }
   function imposta(t) {
     tipo = t;
     $('tBordo').setAttribute('aria-pressed', t === 'bordo');
     $('tSpina').setAttribute('aria-pressed', t === 'spina');
-    $('boxL2').hidden = t !== 'spina';
-    $('l1lab').textContent = t === 'spina' ? 'L₁ [m]' : 'L [m]';
     calcola();
   }
-  function v(id) { return parseFloat($(id).value); }
-
   function parametri() {
-    return { n: parseInt($('n').value, 10), H: v('H'), L1: v('L1'), L2: v('L2'), tipo: tipo,
-      g1: v('g1'), g2: v('g2'), q: v('q'), neve: v('neve'), aperture: v('ap') / 100,
-      mur: $('mur').value, gammaM: parseFloat($('gm').value), sismica: $('sis').checked, costante: $('cost').checked };
+    return { n: parseInt($('n').value, 10), H: v('H'), L1: v('L1'), L2: v('L1'), tipo: tipo,
+      g1: v('g1'), g2: v('g2'), q: v('q'), neve: $('usaNeve').checked ? v('neve') : 0, aperture: v('ap') / 100, nu: v('nu'), mur: $('mur').value, sismica: $('sis').checked };
   }
 
   function disegna(p, r) {
     var W = 900, s = Math.min(70, 360 / (p.n * p.H)), sol = 0.25;
-    var my = 30, Hh = p.n * p.H * s + my + 70, yg = Hh - 40;
+    var my = 30, Hh = p.n * p.H * s + my + 70 + ($('carichi').checked ? 40 : 0), yg = Hh - 40;
     var svg = $('fig'); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + Hh);
-    var cx = W * 0.40, out = '', i;
+    var cx = W * 0.40, out = '';
     out += '<line x1="40" x2="' + (W - 40) + '" y1="' + yg + '" y2="' + yg + '" stroke="#121212" stroke-width="2"/>';
     for (var t0 = 40; t0 < W - 40; t0 += 10) out += '<line x1="' + t0 + '" x2="' + (t0 - 7) + '" y1="' + yg + '" y2="' + (yg + 8) + '" stroke="#6e6e6e"/>';
-    var sxd = p.tipo === 'spina' ? 1 : 0; // lato del solaio
     r.piani.slice().reverse().forEach(function (pi) {
       var y1 = yg - (pi.s - 1) * p.H * s, y2 = yg - pi.s * p.H * s, w = pi.t / 1000 * s;
-      var col = pi.uso <= 1 && pi.lam <= r.lamMax ? '#8c5a3c' : '#d1382b';
+      var col = pi.ok && pi.uso <= 1.0001 ? '#8c5a3c' : '#d1382b';
       out += '<rect x="' + (cx - w / 2) + '" y="' + y2 + '" width="' + w + '" height="' + (y1 - y2) + '" fill="' + col + '" stroke="#121212" stroke-width=".8"/>';
-      var Ls = Math.min(p.L1, 3) * s;
+      var Ls = Math.min(p.L1 / 2, 3) * s;
       out += '<rect x="' + (cx + w / 2) + '" y="' + (y2 - sol * s / 2) + '" width="' + Ls + '" height="' + (sol * s) + '" fill="#d9d9d6" stroke="#121212" stroke-width=".6"/>';
-      if (sxd) out += '<rect x="' + (cx - w / 2 - Math.min(p.L2, 3) * s) + '" y="' + (y2 - sol * s / 2) + '" width="' + (Math.min(p.L2, 3) * s) + '" height="' + (sol * s) + '" fill="#d9d9d6" stroke="#121212" stroke-width=".6"/>';
-      out += '<text x="' + (cx + 150) + '" y="' + ((y1 + y2) / 2 - 4) + '" font-size="17" font-weight="700" fill="#121212">t = ' + pi.t + ' mm</text>';
-      out += '<text x="' + (cx + 150) + '" y="' + ((y1 + y2) / 2 + 14) + '" font-size="13" fill="#6e6e6e">σ/(Φ·fd) = ' + F(pi.uso, 2) + ' · λ = ' + F(pi.lam, 1) + '</text>';
+      if (p.tipo === 'spina') out += '<rect x="' + (cx - w / 2 - Ls) + '" y="' + (y2 - sol * s / 2) + '" width="' + Ls + '" height="' + (sol * s) + '" fill="#d9d9d6" stroke="#121212" stroke-width=".6"/>';
+      out += '<text x="' + (cx + 170) + '" y="' + ((y1 + y2) / 2 - 2) + '" font-size="17" font-weight="700" fill="#121212">t = ' + pi.t + ' mm</text>';
+      out += '<text x="' + (cx + 170) + '" y="' + ((y1 + y2) / 2 + 15) + '" font-size="13" fill="#6e6e6e">decide: ' + pi.decide + '</text>';
     });
-    out += '<text x="' + (cx - 20) + '" y="' + (yg + 22) + '" font-size="11" text-anchor="end" fill="#6e6e6e">H = ' + F(p.H, 1) + ' m</text>';
-    out += '<text x="' + (cx + 150) + '" y="' + (yg + 22) + '" font-size="11" fill="#6e6e6e">solai disegnati fino a 3 m dal filo del muro, spessore 25 cm</text>';
+    if ($('carichi').checked) {
+      r.piani.forEach(function (pi) {
+        var y1 = yg - (pi.s - 1) * p.H * s, y2 = yg - pi.s * p.H * s, w = pi.t / 1000 * s;
+        var xs0 = cx - w / 2 - 8, yTop = y2 - sol * s / 2 - 2;
+        out += '<line x1="' + cx + '" x2="' + cx + '" y1="' + (yTop - 30) + '" y2="' + (yTop - 3) + '" stroke="#1f5c8b" stroke-width="2"/><path d="M' + (cx - 5) + ',' + (yTop - 9) + ' L' + cx + ',' + (yTop - 2) + ' L' + (cx + 5) + ',' + (yTop - 9) + '" fill="none" stroke="#1f5c8b" stroke-width="2"/>';
+        out += '<text x="' + (cx + 8) + '" y="' + (yTop - 18) + '" font-size="11" fill="#1f5c8b" font-weight="700">p = ' + F(pi.pSol, 1) + ' kN/m</text>';
+        out += '<text x="' + (cx - 14) + '" y="' + (y1 - 6) + '" font-size="11" text-anchor="end" fill="#1f5c8b" font-weight="700">N = ' + F(pi.N, 0) + ' kN/m</text>';
+      });
+    }
     var yT = yg - p.n * p.H * s;
-    out += '<line x1="' + (cx - 90) + '" x2="' + (cx - 90) + '" y1="' + yg + '" y2="' + yT + '" stroke="#6e6e6e"/><text x="' + (cx - 98) + '" y="' + ((yg + yT) / 2) + '" font-size="12" text-anchor="end" fill="#6e6e6e">' + F(p.n * p.H, 1) + ' m</text>';
+    out += '<line x1="' + (cx - 120) + '" x2="' + (cx - 120) + '" y1="' + yg + '" y2="' + yT + '" stroke="#6e6e6e"/><text x="' + (cx - 128) + '" y="' + ((yg + yT) / 2) + '" font-size="12" text-anchor="end" fill="#6e6e6e">' + F(p.n * p.H, 1) + ' m</text>';
     svg.innerHTML = out;
   }
 
   function tabella(p, r) {
-    var h = '<thead><tr><th>Interpiano</th><th>t [mm]</th><th>λ = H/t</th><th>N alla base [kN/m]</th><th>e [mm]</th><th>Φ</th><th>σ [MPa]</th><th>Φ·f<sub>d</sub> [MPa]</th><th>σ/(Φ·f<sub>d</sub>)</th></tr></thead><tbody>';
+    var h = '<thead><tr><th>Interpiano</th><th>N alla base [kN/m]</th><th>1. Minimo di norma</th><th>2. Snellezza</th><th>3. Resistenza</th><th>Spessore adottato</th><th>Sfruttamento</th></tr></thead><tbody>';
     var avv = [];
     r.piani.slice().reverse().forEach(function (x) {
-      var ok = x.uso <= 1 && x.lam <= r.lamMax + 1e-9;
-      h += '<tr><td>' + x.s + (x.s === 1 ? ' (terra)' : '') + '</td><td><b>' + x.t + '</b></td><td' + (x.lam > r.lamMax + 1e-9 ? ' class="ko"' : '') + '>' + F(x.lam, 1) + '</td><td>' + F(x.N, 0) + '</td><td>' + F(x.e, 0) + '</td><td>' + F(x.phi, 2) + '</td><td>' + F(x.sigma, 2) + '</td><td>' + F(x.Rd, 2) + '</td><td class="' + (ok ? 'ok' : 'ko') + '">' + F(x.uso, 2) + '</td></tr>';
-      if (x.uso > 1) avv.push('Interpiano ' + x.s + ': anche con t = ' + x.t + ' mm la compressione supera la resistenza. Riduci i piani o la luce del solaio, oppure scegli una muratura più resistente.');
-      if (x.lam > r.lamMax + 1e-9) avv.push('Interpiano ' + x.s + ': snellezza λ = ' + F(x.lam, 1) + ' oltre il limite ' + r.lamMax + '. Riduci l\'altezza di interpiano.');
+      var d = function (nome) { return x.decide === nome ? ' class="decide"' : ''; };
+      h += '<tr><td>' + x.s + (x.s === 1 ? ' (terra)' : '') + '</td><td>' + F(x.N, 0) + '</td><td' + d('minimo normativo') + '>' + F(x.tMin, 0) + '</td><td' + d('snellezza') + '>' + F(x.tSn, 0) + '</td><td' + d('resistenza') + '>' + F(x.tRes, 0) + '</td><td><b>' + x.t + '</b></td><td class="' + (x.ok && x.uso <= 1.0001 ? 'ok' : 'ko') + '">' + F(x.uso * 100, 0) + ' %</td></tr>';
+      if (!x.ok) avv.push('Interpiano ' + x.s + ': servirebbe uno spessore di ' + F(Math.max(x.tMin, x.tSn, x.tRes), 0) + ' mm, oltre i 1000 mm disponibili. Riduci i piani o la luce del solaio, o scegli una muratura più resistente.');
     });
     $('tab').innerHTML = h + '</tbody>';
-    var m = RT.MURATURE[p.mur], base = r.piani[r.piani.length - 1], top = r.piani[0];
-    var k = '<div><b>' + base.t + ' mm</b><span>spessore alla base</span></div>' +
-      '<div><b>' + F(r.fd, 2) + ' MPa</b><span>resistenza di progetto</span></div>' +
-      '<div><b>' + F(base.uso * 100, 0) + ' %</b><span>sfruttamento alla base</span></div>' +
-      '<div><b>' + F(r.tot.volumePerMetro, 2) + ' m³/m</b><span>muratura per metro di parete</span></div>' +
-      '<div><b>' + F(r.Linf, 2) + ' m</b><span>larghezza d\'influenza del solaio</span></div>';
-    $('kpi').innerHTML = k;
-    if (base.uso < 0.5 && base.lam > r.lamMax * 0.9) avv.push('Lo spessore è deciso dalla <b>snellezza</b> e dallo spessore minimo, non dalla resistenza: la muratura è poco sfruttata (' + F(base.uso * 100, 0) + ' %).');
+    var base = r.piani[r.piani.length - 1];
+    $('kpi').innerHTML = '<div><b>' + base.t + ' mm</b><span>spessore alla base</span></div>' +
+      '<div><b>' + base.decide + '</b><span>requisito che decide</span></div>' +
+      '<div><b>' + F(base.N, 0) + ' kN/m</b><span>carico alla base</span></div>' +
+      '<div><b>' + F(r.tot.volumePerMetro, 2) + ' m³/m</b><span>muratura per metro di parete</span></div>';
+    if (base.decide === 'snellezza') avv.push('Lo spessore è deciso dalla <b>snellezza</b>: la muratura è sfruttata solo al ' + F(base.uso * 100, 0) + ' %. Aggiungere piani costa poco finché non decide la resistenza.');
     var av = $('avvisi');
-    if (avv.length) { av.hidden = false; av.innerHTML = '<b>Osserva</b><ul style="margin:.3rem 0 0 1rem;padding:0">' + avv.slice(0, 5).map(function (a) { return '<li>' + a + '</li>'; }).join('') + '</ul>'; }
+    if (avv.length) { av.hidden = false; av.innerHTML = '<ul style="margin:0 0 0 1rem;padding:0">' + avv.slice(0, 4).map(function (a) { return '<li>' + a + '</li>'; }).join('') + '</ul>'; }
     else av.hidden = true;
   }
 
   function calcola() {
-    $('nv').textContent = $('n').value; $('Hv').textContent = F(v('H'), 1) + ' m';
-    $('L1v').textContent = F(v('L1'), 1) + ' m'; $('L2v').textContent = F(v('L2'), 1) + ' m';
-    $('apv').textContent = $('ap').value + ' %';
-    $('g1v').textContent = F(v('g1'), 1); $('g2v').textContent = F(v('g2'), 1); $('qv').textContent = F(v('q'), 1); $('neveV').textContent = F(v('neve'), 1);
-    var p = parametri(), r = RT.muratura(p);
+    $('nv').textContent = $('n').value; $('Hv').textContent = F(v('H'), 1) + ' m'; $('L1v').textContent = F(v('L1'), 1) + ' m';
+    $('apv').textContent = $('ap').value + ' %'; $('nuv').textContent = F(v('nu'), 2);
+    $('g1v').textContent = F(v('g1'), 1); $('g2v').textContent = F(v('g2'), 1); $('qv').textContent = F(v('q'), 1); $('neveV').textContent = $('usaNeve').checked ? F(v('neve'), 1) : 'esclusa'; $('neve').disabled = !$('usaNeve').checked;
+    var p = parametri(), r = RT.muraturaSemplice(p);
     disegna(p, r); tabella(p, r);
   }
 
   $('tBordo').addEventListener('click', function () { imposta('bordo'); });
   $('tSpina').addEventListener('click', function () { imposta('spina'); });
-  ['n', 'H', 'L1', 'L2', 'ap', 'g1', 'g2', 'q', 'neve', 'mur', 'gm', 'sis', 'cost'].forEach(function (id) { $(id).addEventListener('input', calcola); });
+  ['n', 'H', 'L1', 'ap', 'carichi', 'nu', 'g1', 'g2', 'q', 'neve', 'usaNeve', 'mur', 'sis'].forEach(function (id) { $(id).addEventListener('input', calcola); });
 
-  // preset da URL: ?piani=N&tipo=bordo|spina&materiale=pieno|forato|cls|pietra|tufo|storica
+  // preset da URL: ?piani=N&tipo=bordo|spina&materiale=pieno|forato|cls|pietra|tufo
   var qs = new URLSearchParams(location.search);
   if (qs.get('piani')) $('n').value = Math.min(5, Math.max(1, parseInt(qs.get('piani'), 10) || 3));
-  if (qs.get('materiale') && RT.MURATURE[qs.get('materiale')]) $('mur').value = qs.get('materiale');
+  if (qs.get('materiale') && RT.MURATURE_S[qs.get('materiale')]) $('mur').value = qs.get('materiale');
   imposta(qs.get('tipo') === 'spina' ? 'spina' : 'bordo');
 })();
 </script>
+<script src="assets/js/i18n-en.js"></script>
+<script src="assets/js/i18n.js"></script>
 </body>
 </html>

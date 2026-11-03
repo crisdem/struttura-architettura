@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lezione 4 - Calcestruzzo armato: trave e pilastro | Struttura e Architettura</title>
+<meta name="description" content="Dimensionamento guidato di una trave e di un pilastro in calcestruzzo armato, passo per passo.">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+ .kpi{display:flex;gap:1.2rem;flex-wrap:wrap;margin:.6rem 0}
+ .kpi div{background:var(--carta);border-top:3px solid var(--nero);padding:.4rem .8rem;border-radius:0 0 4px 4px}
+ .kpi b{display:block;font-size:1.25rem}
+ .kpi span{font-size:.75rem;color:var(--grigio);text-transform:uppercase;letter-spacing:.04em}
+ .campo.inline{grid-template-columns:auto 1fr;gap:.5rem}
+ .campo.inline input[type=checkbox]{grid-column:auto;accent-color:var(--rosso);width:1.1rem;height:1.1rem}
+ .passo{background:var(--bianco);border:1px solid var(--grigio-chiaro);border-left:4px solid var(--nero);padding:.6rem .9rem;margin:.7rem 0;border-radius:0 6px 6px 0}
+ .passo h3{margin:0 0 .3rem;font-size:1rem}
+ .passo p{margin:.2rem 0;font-variant-numeric:tabular-nums}
+ .passo .ris{font-size:1.05rem}
+ th{text-transform:none;letter-spacing:0;font-size:.82rem}
+</style>
+</head>
+<body>
+<header class="sito"><div class="in">
+  <a href="index.html"><img src="assets/img/logo_romatre_bianco.png" alt="Roma Tre"></a>
+  <div class="titolo">Struttura e Architettura<small>Laboratorio di Progettazione Architettonica 2 - Dipartimento di Architettura</small></div>
+  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="introduzione.html">Introduzione</a><a href="lezione1.html">Lezione 1</a><a href="lezione2.html">Lezione 2</a><a href="lezione3.html">Lezione 3</a><a href="lezione4.html" aria-current="page">Lezione 4</a><a href="telaio.html">Telaio piano</a><a href="muratura.html">Muratura</a></nav>
+</div></header>
+
+<main>
+<h1>Lezione 4: calcestruzzo armato, passo per passo</h1>
+<p class="sotto">Trave emergente o a spessore e pilastro: cambia i dati e osserva la sezione in scala.</p>
+<div class="griglia due">
+  <div class="pannello">
+    <h3 style="margin-top:0">Trave</h3>
+    <div class="campo"><label for="L1">Prima campata <span class="unita">L₁ [m]</span></label><output id="L1v"></output><input type="range" id="L1" min="2" max="9" step="0.1" value="4"></div>
+    <div class="campo"><label for="L">Seconda campata (trave studiata) <span class="unita">L [m]</span></label><output id="Lv"></output><input type="range" id="L" min="2" max="9" step="0.1" value="5.5"></div>
+    <div class="campo"><label for="B">Interasse dei telai <span class="unita">B [m]</span></label><output id="Bv"></output><input type="range" id="B" min="2.5" max="9" step="0.1" value="5"></div>
+    <div class="campo"><label for="sch">Schema</label><select id="sch"><option value="appoggiata">Appoggiata: M = pL²/8</option><option value="semi" selected>Semi-incastro: M = pL²/10</option><option value="incastro">Incastro-incastro: M = pL²/12</option></select></div>
+    <div class="campo"><label for="fck">Calcestruzzo</label><select id="fck"><option selected>C25/30</option><option>C28/35</option><option>C30/37</option></select></div>
+    <div class="campo"><label for="tipo">Trave</label><select id="tipo"><option value="emergente" selected>Emergente (b = 300 mm)</option><option value="spessore">A spessore (h = spessore solaio)</option></select></div>
+    <h3>Carichi [kN/m²]</h3>
+    <div class="campo"><label for="g1">G₁ strutturali</label><output id="g1v"></output><input type="range" id="g1" min="0.5" max="6" step="0.1" value="3.5"></div>
+    <div class="campo"><label for="g2">G₂ non strutturali</label><output id="g2v"></output><input type="range" id="g2" min="0.5" max="4" step="0.1" value="2"></div>
+    <div class="campo"><label for="q">Q variabile (o neve in copertura)</label><output id="qv"></output><input type="range" id="q" min="0" max="8" step="0.1" value="2"></div>
+    <h3>Pilastro</h3>
+    <div class="campo"><label for="pil">Pilastro studiato (al piano terra)</label><select id="pil"><option value="sx">Sinistro (di bordo)</option><option value="c" selected>Centrale (interno)</option><option value="dx">Destro (di bordo)</option></select></div>
+    <div class="campo"><label for="np">Numero di piani</label><output id="npv"></output><input type="range" id="np" min="1" max="6" step="1" value="2"></div>
+    <div class="campo"><label for="nu">Coefficiente ν</label><output id="nuv"></output><input type="range" id="nu" min="0.2" max="0.8" step="0.05" value="0.5"></div>
+  </div>
+  <div>
+    <div class="kpi" id="kpi" aria-live="polite"></div>
+    <div id="passi"></div>
+    <h2>Telaio di riferimento</h2>
+    <svg id="telaio" class="fig" role="img" aria-label="Prospetto del telaio di riferimento con travi e pilastri in scala"></svg>
+    <p class="nota" style="margin-top:.2rem">Prospetto in scala. In rosso la trave studiata e il pilastro studiato; le altre travi sono dimensionate con lo stesso procedimento, con lo stesso carico per tutti i piani.</p>
+    <h2>Area d'influenza del pilastro (pianta)</h2>
+    <svg id="pianta" class="fig" role="img" aria-label="Pianta con l'area d'influenza del pilastro studiato"></svg>
+    <h2>Sezioni in scala</h2>
+    <svg id="fig" class="fig" role="img" aria-label="Sezioni di trave e pilastro in scala"></svg>
+    <p class="nota">Peso proprio compreso in G₁. Pilastro: lato minimo 300 mm, arrotondato a 50 mm. Spessore del solaio B/25, minimo 120 mm.</p>
+  </div>
+</div>
+</main>
+<footer class="sito">Strumento didattico del Modulo Struttura e Architettura. Valori dei profili e delle classi di resistenza da controllare sulle tabelle ufficiali. Riferimento normativo: NTC 2018 (D.M. 17 gennaio 2018).</footer>
+<script src="assets/js/calc.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); }, F = RT.fmt;
+  function v(id) { return parseFloat($(id).value); }
+  function calcola() {
+    $('Lv').textContent = F(v('L'), 1) + ' m'; $('L1v').textContent = F(v('L1'), 1) + ' m'; $('Bv').textContent = F(v('B'), 1) + ' m';
+    $('g1v').textContent = F(v('g1'), 1); $('g2v').textContent = F(v('g2'), 1); $('qv').textContent = F(v('q'), 1);
+    $('npv').textContent = $('np').value; $('nuv').textContent = F(v('nu'), 2);
+    var G = RT.GAMMA, L = v('L'), B = v('B'), beta = RT.BETA[$('sch').value];
+    var fcd = RT.fcd(RT.CLS[$('fck').value]);
+    var qd = G.G1 * v('g1') + G.G2 * v('g2') + G.Q * v('q'), pd = qd * B, M = RT.momento(pd, L, beta);
+    var hs = Math.max(120, Math.ceil(B * 1000 / 25 / 10) * 10), emerg = $('tipo').value === 'emergente', b, h, d, nota;
+    if (emerg) { b = 300; d = RT.dmin_emergente(M, b, fcd); h = RT.su50(d + 40); nota = 'd<sub>min</sub> = 2,0·√(M/(b·f<sub>cd</sub>)) = ' + F(d, 0) + ' mm, h = d + 40 → ' + h + ' mm'; }
+    else { h = hs; d = h - 40; var bm = RT.bmin_spessore(M, d, fcd); b = Math.max(200, RT.su50(bm)); nota = 'h = spessore solaio = ' + h + ' mm; b<sub>min</sub> = 2,2²·M/(d²·f<sub>cd</sub>) = ' + F(bm, 0) + ' mm'; }
+    var L1 = v('L1'), tj = $('pil').value === 'sx' ? L1 / 2 : ($('pil').value === 'dx' ? L / 2 : (L1 + L) / 2), Ainf = tj * B;
+    var N = qd * Ainf * parseInt($('np').value, 10), Amin = RT.Amin_pilastro_cls(N, fcd, v('nu')), lato = Math.max(300, RT.su50(Math.sqrt(Amin)));
+    var p = '';
+    p += '<div class="passo"><h3>1. Materiali</h3><p>f<sub>cd</sub> = 0,85·' + RT.CLS[$('fck').value] + '/1,5 = <b>' + F(fcd, 1) + ' MPa</b></p></div>';
+    p += '<div class="passo"><h3>2. Carichi</h3><p>q<sub>d</sub> = 1,3·G₁ + 1,5·G₂ + 1,5·Q = <b>' + F(qd, 2) + ' kN/m²</b>; p<sub>d</sub> = q<sub>d</sub>·B = <b class="ris">' + F(pd, 1) + ' kN/m</b></p></div>';
+    p += '<div class="passo"><h3>3. Momento</h3><p>M<sub>Ed</sub> = p<sub>d</sub>·L²/β = <b class="ris">' + F(M, 1) + ' kN·m</b></p></div>';
+    p += '<div class="passo"><h3>4. Trave ' + (emerg ? 'emergente' : 'a spessore') + '</h3><p>' + nota + '</p><p>Sezione: <b class="ris">' + b + ' × ' + h + ' mm</b> (L/h = ' + F(L * 1000 / h, 1) + ')</p>' + (!emerg && b > L * 1000 / 6 * 1.5 ? '<p class="ko">Trave molto larga: valuta una trave emergente.</p>' : '') + '</div>';
+    p += '<div class="passo"><h3>5. Pilastro</h3><p>N<sub>Ed</sub> = q<sub>d</sub>·A·n = ' + F(qd, 2) + '·' + F(Ainf, 2) + '·' + $('np').value + ' = <b>' + F(N, 0) + ' kN</b></p><p>A<sub>min</sub> = N<sub>Ed</sub>/(ν·f<sub>cd</sub>) = ' + F(Amin, 0) + ' mm², lato ' + F(Math.sqrt(Amin), 0) + ' mm → <b class="ris">' + lato + ' × ' + lato + ' mm</b>' + (Math.sqrt(Amin) < 300 ? ' (decide il minimo)' : '') + '</p></div>';
+    $('passi').innerHTML = p;
+    $('kpi').innerHTML = '<div><b>' + b + '×' + h + '</b><span>trave [mm]</span></div><div><b>' + lato + '×' + lato + '</b><span>pilastro [mm]</span></div><div><b>' + F(M, 1) + ' kN·m</b><span>momento</span></div>';
+    var s = Math.min(.45, 160 / Math.max(h, lato, 1)), out = '';
+    out += '<rect x="30" y="20" width="' + b * s + '" height="' + h * s + '" fill="#d1382b"/><text x="30" y="' + (h * s + 38) + '" font-size="12">trave ' + b + '×' + h + '</text>';
+    out += '<rect x="250" y="20" width="' + lato * s + '" height="' + lato * s + '" fill="#121212"/><text x="250" y="' + (lato * s + 38) + '" font-size="12">pilastro ' + lato + '×' + lato + '</text>';
+    $('fig').setAttribute('viewBox', '0 0 600 220'); $('fig').innerHTML = out;
+    disegnaTelaio(L1, L, B, b, h, lato, qd, fcd, beta, emerg, hs, Ainf, tj);
+  }
+
+  function altezzaTrave(Ls, qd, B, beta, fcd, emerg, hs) {
+    var M = RT.momento(qd * B, Ls, beta);
+    if (emerg) return RT.su50(RT.dmin_emergente(M, 300, fcd) + 40);
+    return hs;
+  }
+  function disegnaTelaio(L1, L, B, b, h, lato, qd, fcd, beta, emerg, hs, Ainf, tj) {
+    var n = parseInt($('np').value, 10), H = 3.2, W = 640, tot = L1 + L;
+    var sc = Math.min(40, 440 / tot, 240 / (n * H)), x0 = 90, yg = 30 + n * H * sc + 20, out = '';
+    var xs = [x0, x0 + L1 * sc, x0 + tot * sc], hL1 = altezzaTrave(L1, qd, B, beta, fcd, emerg, hs);
+    out += '<line x1="' + (x0 - 30) + '" x2="' + (xs[2] + 30) + '" y1="' + yg + '" y2="' + yg + '" stroke="#121212" stroke-width="2"/>';
+    var sel = $('pil').value === 'sx' ? 0 : ($('pil').value === 'dx' ? 2 : 1);
+    for (var k = 1; k <= n; k++) {
+      var yk = yg - k * H * sc;
+      [[0, L1, hL1, false], [1, L, h, true]].forEach(function (t) {
+        var hh = t[2] / 1000 * sc;
+        out += '<rect x="' + xs[t[0]] + '" y="' + (yk - hh / 2) + '" width="' + ((t[0] ? L : L1) * sc) + '" height="' + hh + '" fill="' + (t[3] && k === n ? '#d1382b' : (t[3] ? '#e8a39c' : '#bdbdb8')) + '" stroke="#121212" stroke-width=".8"/>';
+      });
+    }
+    for (var j = 0; j < 3; j++) for (k = 1; k <= n; k++) {
+      var ww = lato / 1000 * sc, yb = yg - (k - 1) * H * sc, yt = yg - k * H * sc;
+      out += '<rect x="' + (xs[j] - ww / 2) + '" y="' + yt + '" width="' + ww + '" height="' + (yb - yt) + '" fill="' + (j === sel && k === 1 ? '#d1382b' : '#121212') + '"/>';
+    }
+    out += '<text x="' + ((xs[0] + xs[1]) / 2) + '" y="' + (yg + 18) + '" text-anchor="middle" font-size="12" fill="#6e6e6e">L₁ = ' + F(L1, 1) + ' m</text>';
+    out += '<text x="' + ((xs[1] + xs[2]) / 2) + '" y="' + (yg + 18) + '" text-anchor="middle" font-size="12" fill="#6e6e6e">L = ' + F(L, 1) + ' m</text>';
+    out += '<text x="' + ((xs[1] + xs[2]) / 2) + '" y="' + (yg - n * H * sc - 12) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#d1382b">' + b + '×' + h + '</text>';
+    out += '<text x="' + ((xs[0] + xs[1]) / 2) + '" y="' + (yg - n * H * sc - 12) + '" text-anchor="middle" font-size="11" fill="#6e6e6e">300×' + hL1 + '</text>';
+    out += '<text x="' + (xs[sel] + (sel === 2 ? 12 : -12)) + '" y="' + (yg - H * sc / 2) + '" text-anchor="' + (sel === 2 ? 'start' : 'end') + '" font-size="11" font-weight="700" fill="#d1382b">' + lato + '×' + lato + '</text>';
+    $('telaio').setAttribute('viewBox', '0 0 ' + W + ' ' + (yg + 34)); $('telaio').innerHTML = out;
+    // pianta: area d'influenza del pilastro studiato
+    var sp = Math.min(30, 430 / tot, 190 / (2 * B)), px = 90, py = 20, o2 = '';
+    var pxs = [px, px + L1 * sp, px + tot * sp], pys = [py, py + B * sp, py + 2 * B * sp];
+    var ax0 = sel === 0 ? pxs[0] : (sel === 1 ? (pxs[0] + pxs[1]) / 2 : (pxs[1] + pxs[2]) / 2), ax1 = sel === 0 ? (pxs[0] + pxs[1]) / 2 : (sel === 1 ? (pxs[1] + pxs[2]) / 2 : pxs[2]);
+    o2 += '<defs><pattern id="tr4" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#d1382b" stroke-width="2"/></pattern></defs>';
+    o2 += '<rect x="' + ax0 + '" y="' + (pys[1] - B * sp / 2) + '" width="' + (ax1 - ax0) + '" height="' + (B * sp) + '" fill="url(#tr4)" fill-opacity=".55" stroke="#d1382b" stroke-width="1.5"/>';
+    pys.forEach(function (y) { o2 += '<line x1="' + pxs[0] + '" x2="' + pxs[2] + '" y1="' + y + '" y2="' + y + '" stroke="#121212" stroke-width="2.6"/>'; });
+    pxs.forEach(function (x, i) { pys.forEach(function (y, j) { o2 += '<rect x="' + (x - 5) + '" y="' + (y - 5) + '" width="10" height="10" fill="' + (i === sel && j === 1 ? '#d1382b' : '#121212') + '"/>'; }); });
+    o2 += '<text x="' + ((ax0 + ax1) / 2) + '" y="' + (pys[1] + 4) + '" text-anchor="middle" font-size="12" font-weight="700" fill="#d1382b">A = ' + F(Ainf, 2) + ' m²</text>';
+    o2 += '<text x="' + (pxs[2] + 14) + '" y="' + ((pys[0] + pys[1]) / 2) + '" font-size="11" fill="#6e6e6e">B = ' + F(B, 1) + ' m</text>';
+    $('pianta').setAttribute('viewBox', '0 0 640 ' + (pys[2] + 24)); $('pianta').innerHTML = o2;
+  }
+  ['L', 'L1', 'B', 'sch', 'fck', 'tipo', 'g1', 'g2', 'q', 'pil', 'np', 'nu'].forEach(function (id) { $(id).addEventListener('input', calcola); });
+  calcola();
+})();
+</script>
+<script src="assets/js/i18n-en.js"></script>
+<script src="assets/js/i18n.js"></script>
+</body>
+</html>

@@ -63,3 +63,8 @@ svg text{font-family:inherit}
 footer.sito{max-width:var(--max);margin:0 auto;padding:1rem 1.2rem 2rem;color:var(--grigio);font-size:.8rem;border-top:1px solid var(--grigio-chiaro)}
 .avviso{background:#fff7e0;border:1px solid #e6c970;border-radius:var(--raggio);padding:.6rem .8rem;font-size:.85rem;margin:1rem 0}
 :focus-visible{outline:3px solid var(--blu);outline-offset:2px}
+/* selettore di lingua */
+.lang{display:flex;gap:2px;margin-left:.6rem}
+.lang button{border:1px solid var(--grigio);background:transparent;color:var(--grigio-chiaro);font:inherit;font-size:.78rem;padding:.1rem .5rem;cursor:pointer}
+.lang button:first-child{border-radius:99px 0 0 99px}.lang button:last-child{border-radius:0 99px 99px 0}
+.lang button[aria-pressed=true]{background:var(--bianco);color:var(--nero);border-color:var(--bianco)}
