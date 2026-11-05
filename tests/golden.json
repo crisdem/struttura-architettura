@@ -367,6 +367,86 @@
     3.978,
     0
    ]
+  },
+  "acciaio vuoto con sbalzi dalle travi vicine": {
+   "travi": [
+    "1: IPE 300/resistenza | IPE 330/resistenza | IPE 300/resistenza | IPE 300/resistenza",
+    "2: IPE 300/resistenza | -- | IPE 300/resistenza | IPE 300/resistenza + int IPE 300/resistenza,IPE 240/resistenza",
+    "3: IPE 270/resistenza | IPE 300/resistenza | IPE 270/resistenza | IPE 270/resistenza"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P2 [1-1 N=709.5 dN=147 A=77.5 L0=3.2 imin=32 K=250 HEB 160 resistenza] [2-2 N=455.125 dN=147 A=50 L0=3.2 imin=32 K=200 HEB 140 resistenza] [3-3 N=192.5 dN=0 A=27.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P3 [1-1 N=668.1563 dN=105.6562 A=75 L0=3.2 imin=32 K=250 HEB 160 resistenza] [2-2 N=413.7813 dN=105.6562 A=47.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=192.5 dN=0 A=27.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P4 [1-1 N=637.5 dN=0 A=75 L0=3.2 imin=32 K=250 HEB 160 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P5 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+   ],
+   "alto": "3,3,3,3,3",
+   "avvisi": [],
+   "tot": [
+    4188.79,
+    0,
+    0
+   ]
+  },
+  "c.a. vuoto con sbalzi oltre il limite (a + b > L)": {
+   "travi": [
+    "1: 300x450 | -- | 300x450 + int 300x850,300x250",
+    "2: 300x450 | 300x450 | 300x450",
+    "3: 300x400 | 300x400 | 300x400"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=367.5 dN=0 A=37.5 L0=3.2 imin=32 K=350 300 resistenza] [2-2 N=235.625 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [3-3 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]",
+    "P2 [1-1 N=982.525 dN=379.4 A=82.5 L0=3.2 imin=32 K=500 400 resistenza] [2-2 N=471.25 dN=0 A=50 L0=3.2 imin=32 K=400 300 resistenza] [3-3 N=207.5 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza]",
+    "P3 [1-1 N=677.65 dN=74.525 A=67.5 L0=3.2 imin=32 K=450 350 resistenza] [2-2 N=471.25 dN=0 A=50 L0=3.2 imin=32 K=400 300 resistenza] [3-3 N=207.5 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza]",
+    "P4 [1-1 N=367.5 dN=0 A=37.5 L0=3.2 imin=32 K=350 300 resistenza] [2-2 N=235.625 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [3-3 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]"
+   ],
+   "alto": "3,3,3,3",
+   "avvisi": [],
+   "tot": [
+    0,
+    10.054,
+    0
+   ]
+  },
+  "acciaio sbalzi con lunghezze individuali": {
+   "travi": [
+    "1: IPE 300/resistenza | IPE 300/resistenza + sb IPE 240/resistenza,IPE 300/resistenza",
+    "2: IPE 300/resistenza | IPE 300/resistenza + sb IPE 140/resistenza,IPE 300/resistenza",
+    "3: IPE 270/resistenza | IPE 270/resistenza + sb IPE 200/resistenza,IPE 330/resistenza"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=537.7013 dN=218.9513 A=56.5 L0=3.2 imin=32 K=200 HEB 140 resistenza] [2-2 N=316.42 dN=113.295 A=36.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=147.875 dN=60.375 A=20 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P2 [1-1 N=637.5 dN=0 A=75 L0=3.2 imin=32 K=250 HEB 160 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P3 [1-1 N=749.25 dN=430.5 A=72.5 L0=3.2 imin=32 K=250 HEB 180 resistenza] [2-2 N=486.625 dN=283.5 A=50 L0=3.2 imin=32 K=200 HEB 140 resistenza] [3-3 N=224 dN=136.5 A=27.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+   ],
+   "alto": "3,3,3",
+   "avvisi": [],
+   "tot": [
+    2666.11,
+    0,
+    0
+   ]
+  },
+  "legno sbalzo nel vuoto senza trave da prolungare": {
+   "travi": [
+    "1: -- | 160x520/resistenza + int 160x560/resistenza",
+    "2: 160x440/resistenza | 160x440/resistenza"
+   ],
+   "pilastri": [
+    "P1 [1-2 N=61.875 dN=0 A=12.5 L0=6.4 imin=64 K=200 450 stabilità]",
+    "P2 [1-1 N=336.15 dN=122.4 A=47.5 L0=3.2 imin=32 K=200 300 resistenza] [2-2 N=123.75 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità]",
+    "P3 [1-1 N=151.875 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità] [2-2 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 K=200 250 stabilità]"
+   ],
+   "alto": "2,2,2",
+   "avvisi": [
+    "Pilastro 1: doppia altezza (interpiani 1–2), lunghezza libera 6,4 m: L₀ cresce e la sezione deve essere più grande per la stabilità."
+   ],
+   "tot": [
+    0,
+    0,
+    3.4832
+   ]
   }
  },
  "funzioni": {
@@ -775,6 +855,78 @@
     17216.0935,
     73.1246,
     172.1609
+   ]
+  },
+  "acciaio vuoto con sbalzi dalle travi vicine": {
+   "quantita": [
+    0,
+    302.5,
+    60.5
+   ],
+   "senzaSolaio": [
+    7288.4946,
+    16755.16,
+    0
+   ],
+   "conSolaio": [
+    23472.2446,
+    54265.16,
+    77.5942,
+    179.389
+   ]
+  },
+  "c.a. vuoto con sbalzi oltre il limite (a + b > L)": {
+   "quantita": [
+    103.3,
+    225,
+    45
+   ],
+   "senzaSolaio": [
+    3141.875,
+    9932.37,
+    0
+   ],
+   "conSolaio": [
+    15179.375,
+    37832.37,
+    67.4639,
+    168.1439
+   ]
+  },
+  "acciaio sbalzi con lunghezze individuali": {
+   "quantita": [
+    0,
+    204,
+    40.8
+   ],
+   "senzaSolaio": [
+    4639.0314,
+    10664.44,
+    0
+   ],
+   "conSolaio": [
+    15553.0314,
+    35960.44,
+    76.2403,
+    176.2767
+   ]
+  },
+  "legno sbalzo nel vuoto senza trave da prolungare": {
+   "quantita": [
+    0,
+    85,
+    17
+   ],
+   "senzaSolaio": [
+    522.48,
+    4876.48,
+    2441.3749
+   ],
+   "conSolaio": [
+    5069.98,
+    15416.48,
+    59.6468,
+    181.3704
    ]
   }
  }

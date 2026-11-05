@@ -20,7 +20,15 @@
  table.mx th,table.mx td{padding:.15rem .5rem;text-align:center}
  table.mx th[scope=row]{text-align:left;white-space:nowrap}
  table.mx input{accent-color:var(--rosso);width:1.1rem;height:1.1rem}
+ [hidden]{display:none !important}
  .tg{cursor:pointer}
+ .vista{position:relative}
+ .tasto-schermo{font:inherit;font-size:.75rem;border:1px solid var(--grigio);background:rgba(255,255,255,.94);border-radius:99px;padding:.15rem .65rem;cursor:pointer}
+ .vista>.tasto-schermo{position:absolute;top:.45rem;right:.45rem;z-index:2}
+ .riga-vista{display:flex;justify-content:space-between;align-items:center;gap:.6rem;margin:.2rem 0 .5rem}
+ .vista:fullscreen,.vista.schermo-intero{background:#fff;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.5rem;overflow:auto}
+ .vista.schermo-intero{position:fixed;inset:0;z-index:1000}
+ .vista:fullscreen svg.fig,.vista.schermo-intero svg.fig{flex:1 1 auto;min-height:0;height:100%;width:100%}
  tr.corrente td{background:var(--carta)}
  .tg:hover{opacity:.75}
  .tcol{cursor:not-allowed}
@@ -69,7 +77,7 @@
       <div class="campo inline"><input type="checkbox" id="bordo"><label for="bordo">Telaio di bordo (area d'influenza B/2)</label></div>
 
       <h3>Travi presenti <span class="unita">togli una trave per fare un vuoto</span></h3>
-      <p class="nota" style="margin-top:-.2rem" data-en="A removed beam is a void: no beam and no floor slab in that span, at that level (double height). The cantilever is the extension of the adjacent beam: without that beam there is none. You can also click the beam in the drawing.">Una trave tolta è un vuoto: niente trave e niente solaio in quella campata, a quel livello (doppia altezza). Lo sbalzo è il prolungamento della trave adiacente: senza quella trave non c'è. Si può anche cliccare sulla trave nel disegno.</p>
+      <p class="nota" style="margin-top:-.2rem" data-en="A removed beam is a void: no beam and no floor slab in that span, at that level (double height). The cantilever is the extension of the adjacent beam: without that beam there is none. You can also click the beam in the drawing; clicking the void you can add &lt;b&gt;cantilevers&lt;/b&gt; from the neighbouring beams (only if the beam to extend exists), and clicking a cantilever changes its length.">Una trave tolta è un vuoto: niente trave e niente solaio in quella campata, a quel livello (doppia altezza). Lo sbalzo è il prolungamento della trave adiacente: senza quella trave non c'è. Si può anche cliccare sulla trave nel disegno; cliccando sul vuoto si possono mettere <b>sbalzi</b> dalle travi vicine (solo se la trave da prolungare esiste), e cliccando su uno sbalzo se ne cambia la lunghezza.</p>
       <div id="matrice" class="scroll" role="group" aria-label="Travi presenti"></div>
       <h3>Pilastri presenti <span class="unita">si tolgono solo dall'alto</span></h3>
       <p class="nota" style="margin-top:-.2rem" data-en="A column can be removed only if it has a &lt;b&gt;free top&lt;/b&gt;: no column above and no beam (or cantilever) connected at the top. First remove the beams at the node, then the column.">Un pilastro si può togliere solo se ha la <b>testa libera</b>: nessun pilastro sopra e nessuna trave (né sbalzo) collegata in cima. Prima si tolgono le travi del nodo, poi il pilastro.</p>
@@ -123,13 +131,33 @@
   <div>
     <div class="campo inline" style="margin:.2rem 0 .1rem"><input type="checkbox" id="carichi"><label for="carichi">Mostra i carichi sulla struttura (p<sub>d</sub> sulle travi, N<sub>Ed</sub> alla base dei pilastri)</label></div>
     <div class="campo inline" style="margin:.1rem 0 .5rem"><input type="checkbox" id="omini" checked><label for="omini">Mostra una persona alta 1,75 m nelle campate con la trave, per le proporzioni</label></div>
-    <svg id="fig" class="fig" role="img" aria-label="Prospetto del telaio con le sezioni di travi e pilastri in scala"></svg>
-    <p class="avviso" id="msgFig" aria-live="polite" hidden></p>
+    <div class="vista" id="vistaFig">
+      <button type="button" class="tasto-schermo" data-vista="vistaFig" aria-pressed="false">⤢ Schermo intero</button>
+      <svg id="fig" class="fig" role="img" aria-label="Prospetto del telaio con le sezioni di travi e pilastri in scala"></svg>
+      <p class="avviso" id="msgFig" aria-live="polite" hidden></p>
+      <div class="pannello" id="pannelloSbalzi" hidden style="margin:.6rem 0">
+        <h3 style="margin-top:0" id="titoloSbalzi"></h3>
+        <div class="campo"><label for="sbA" id="etichettaA">Sbalzo da sinistra <span class="unita">[m]</span></label><output id="sbAv"></output>
+          <input type="range" id="sbA" min="0" max="1" step="0.1" value="0"></div>
+        <div class="campo" id="rigaB"><label for="sbB">Sbalzo da destra <span class="unita">[m]</span></label><output id="sbBv"></output>
+          <input type="range" id="sbB" min="0" max="1" step="0.1" value="0"></div>
+        <p class="nota" id="notaSbalzi"></p>
+        <div class="pillole">
+          <button type="button" id="rimettiTrave">Rimetti la trave</button>
+          <button type="button" id="valoreComune">Valore comune</button>
+          <button type="button" id="togliSbalzo">Togli lo sbalzo</button>
+          <button type="button" id="chiudiPannello">Chiudi</button>
+        </div>
+      </div>
+    </div>
 
     <h2>Pianta: luce fuori piano e area d'influenza</h2>
-    <p style="margin:.2rem 0 .5rem"><label for="livPianta">Livello della pianta </label><select id="livPianta"></select></p>
-    <svg id="pianta" class="fig" role="img" aria-label="Pianta del telaio con la luce fuori piano B e l'area d'influenza delle travi"></svg>
-    <p class="nota" id="notaPianta"></p>
+    <div class="vista" id="vistaPianta">
+      <div class="riga-vista"><span><label for="livPianta">Livello della pianta </label><select id="livPianta"></select></span>
+        <button type="button" class="tasto-schermo" data-vista="vistaPianta" aria-pressed="false">⤢ Schermo intero</button></div>
+      <svg id="pianta" class="fig" role="img" aria-label="Pianta del telaio con la luce fuori piano B e l'area d'influenza delle travi"></svg>
+      <p class="nota" id="notaPianta"></p>
+    </div>
     <div class="kpi" id="kpi" aria-live="polite"></div>
     <div class="avviso" id="avvisi" hidden></div>
 
@@ -181,6 +209,7 @@
 &lt;li&gt;&lt;b&gt;Actions&lt;/b&gt;: p&lt;sub&gt;d&lt;/sub&gt; = (1,3·G₁ + 1,5·G₂ + 1,5·Q)·B&lt;sub&gt;inf&lt;/sub&gt;; on the roof Q = snow. The floor slab works in one direction, orthogonal to the frame.&lt;/li&gt;
 &lt;li&gt;&lt;b&gt;Moment&lt;/b&gt;: M&lt;sub&gt;Ed&lt;/sub&gt; = p&lt;sub&gt;d&lt;/sub&gt;·L²/β, with β = 8, 10, 12.&lt;/li&gt;
 &lt;li&gt;&lt;b&gt;Cantilevers&lt;/b&gt;: bracket, M&lt;sub&gt;Ed&lt;/sub&gt; = p&lt;sub&gt;d&lt;/sub&gt;·L&lt;sub&gt;s&lt;/sub&gt;²/2, with the balcony live load on the floors and snow on the roof. For level 1 and for the deflection limit the equivalent length 2·L&lt;sub&gt;s&lt;/sub&gt; is used. On the end column the reaction p·L&lt;sub&gt;s&lt;/sub&gt;·(1 + L&lt;sub&gt;s&lt;/sub&gt;/2L) is added. The real beam is a single one: the larger section between span and cantilever is adopted.&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Cantilevers in a void&lt;/b&gt;: in a removed span the neighbouring beam on the left (cantilever «from the left») and/or the one on the right (cantilever «from the right») can be extended. They exist only if the beam to extend exists and they never leave the void: the sum of the two cantilevers does not exceed the span of the removed beam. They are calculated like the end cantilevers (bracket with the balcony live load; reaction on the column they start from). The end cantilevers can have a different length at each level (click the cantilever); the «Cantilever» slider sets the common value.&lt;/li&gt;
 &lt;li&gt;&lt;b&gt;Columns removed&lt;/b&gt;: only from the top and only with a free top, i.e. with no column above and no beams (or cantilevers) connected at the top. Without a column there are no beams arriving at it; the cantilever exists only if the adjacent beam exists. One storey at a time is removed, starting from the highest; it is put back starting from the lowest.&lt;/li&gt;
 &lt;li&gt;&lt;b&gt;Beams removed&lt;/b&gt;: a removed beam is a void (double height): no beam and no floor load in that span and at that level, so the adjacent column carries less. A node is restrained if at least one beam (or cantilever) arrives at it; the free length of the column is the distance between restrained nodes: L₀ = β·H free, with β = 1 (pinned); if the top is free β = 2. The void is assumed to hold in the orthogonal direction too: the out-of-plane restraint is missing. The horizontal stiffness (wind and earthquake) is &lt;b&gt;not&lt;/b&gt; calculated: removing beams reduces it.&lt;/li&gt;
 &lt;li&gt;&lt;b&gt;Steel, beams&lt;/b&gt;: level 1 h = L/20 (simply supported), L/25 (semi-fixed), L/30 (fixed); level 2 W&lt;sub&gt;min&lt;/sub&gt; = M&lt;sub&gt;Ed&lt;/sub&gt;/f&lt;sub&gt;yd&lt;/sub&gt;, f&lt;sub&gt;yd&lt;/sub&gt; = f&lt;sub&gt;yk&lt;/sub&gt;/1,05, first IPE with W&lt;sub&gt;el&lt;/sub&gt; ≥ W&lt;sub&gt;min&lt;/sub&gt;; &lt;b&gt;the deflection is checked&lt;/b&gt; with the inertia of that section (characteristic loads, δ ≤ L/250, E = 210 GPa) and, if it is not enough, the next section is taken.&lt;/li&gt;
@@ -195,6 +224,7 @@
         <li><b>Azioni</b>: p<sub>d</sub> = (1,3·G₁ + 1,5·G₂ + 1,5·Q)·B<sub>inf</sub>; in copertura Q = neve. Il solaio lavora in una direzione, ortogonale al telaio.</li>
         <li><b>Momento</b>: M<sub>Ed</sub> = p<sub>d</sub>·L²/β, con β = 8, 10, 12.</li>
         <li><b>Sbalzi</b>: mensola, M<sub>Ed</sub> = p<sub>d</sub>·L<sub>s</sub>²/2, con il sovraccarico dei balconi ai piani e la neve in copertura. Per il livello 1 e per il limite di freccia si usa la luce equivalente 2·L<sub>s</sub>. Sul pilastro di estremità si somma la reazione p·L<sub>s</sub>·(1 + L<sub>s</sub>/2L). La trave reale è unica: si adotta la sezione più grande tra campata e sbalzo.</li>
+        <li><b>Sbalzi nel vuoto</b>: in una campata tolta si può prolungare la trave vicina a sinistra (sbalzo «da sinistra») e/o quella a destra (sbalzo «da destra»). Esistono solo se la trave da prolungare esiste e non escono dal vuoto: la somma dei due sbalzi non supera la luce della trave tolta. Si calcolano come gli sbalzi di estremità (mensola con il sovraccarico dei balconi; reazione sul pilastro di partenza). Gli sbalzi di estremità possono avere una lunghezza diversa a ogni livello (clic sullo sbalzo); il cursore «Sbalzo» fissa il valore comune.</li>
         <li><b>Pilastri tolti</b>: solo dall'alto e solo con la testa libera, cioè senza pilastro sopra e senza travi (né sbalzi) collegate in cima. Senza pilastro non ci sono le travi che vi arrivano; lo sbalzo esiste solo se esiste la trave adiacente. Si toglie un interpiano alla volta, dal più alto; si rimette dal più basso.</li>
         <li><b>Travi tolte</b>: una trave tolta è un vuoto (doppia altezza): nessuna trave e nessun carico di solaio in quella campata e a quel livello, quindi il pilastro adiacente scarica meno. Un nodo è trattenuto se vi arriva almeno una trave (o uno sbalzo); la lunghezza libera del pilastro è la distanza tra nodi trattenuti: L₀ = β·H libera, con β = 1 (cerniere); se la testa è libera β = 2. Si assume che il vuoto valga anche nella direzione ortogonale: manca il ritegno fuori piano. La rigidezza orizzontale (vento e sisma) <b>non</b> è calcolata: togliere travi la riduce.</li>
         <li><b>Acciaio, travi</b>: livello 1 h = L/20 (appoggiata), L/25 (semi-incastro), L/30 (incastro); livello 2 W<sub>min</sub> = M<sub>Ed</sub>/f<sub>yd</sub>, f<sub>yd</sub> = f<sub>yk</sub>/1,05, primo IPE con W<sub>el</sub> ≥ W<sub>min</sub>; <b>la freccia si verifica</b> con l'inerzia di quel profilo (carichi caratteristici, δ ≤ L/250, E = 210 GPa) e, se non basta, si passa al profilo successivo.</li>

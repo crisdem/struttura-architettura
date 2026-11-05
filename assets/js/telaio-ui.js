@@ -11,6 +11,9 @@
   var luci = [5, 5, 5, 5, 5];
   var senza = {};                                  // travi tolte: chiavi 'k:i' oppure 'k:sx', 'k:dx'
   var colSenza = {};                               // tratti di pilastro tolti: chiavi 'j:s' (solo dall'alto)
+  var vuoti = {};                                  // sbalzi dentro i vuoti: chiavi 'k:i' -> {a, b} [m]
+  var lung = {};                                   // lunghezze individuali degli sbalzi di estremita': chiavi 'k:sx' e 'k:dx' -> m
+  var sel = null;                                  // elemento scelto per il pannello: 'k:i' (vuoto) oppure 'k:sx' / 'k:dx' (sbalzo di estremita')
   var CHI = { acciaio: 0.5, legno: 0.3, ca: 0.5 };
   var DEF = { acciaio: { g1: 2.5, g2: 2.0, q: 2.0, neve: 0.5 }, legno: { g1: 1.5, g2: 1.5, q: 2.0, neve: 0.5 }, ca: { g1: 3.5, g2: 2.0, q: 2.0, neve: 0.5 } };
   var ROSSO = '#d1382b', BLU = '#1f5c8b', NERO = '#121212', GRIGIO = '#6e6e6e';
@@ -25,7 +28,7 @@
       n: intero('n'), spans: luci.slice(0, nc), H: leggi('H'), B: leggi('B'), bordo: $('bordo').checked,
       g1: leggi('g1'), g2: leggi('g2'), q: leggi('q'), neve: $('usaNeve').checked ? leggi('neve') : 0, qb: leggi('qb'), sx: leggi('sx'), dx: leggi('dx'),
       mat: materiale, acciaio: $('acc').value, serie: $('serie').value, classeLegno: $('cleg').value, bLegno: parseInt($('bleg').value, 10),
-      chi: leggi('chi'), fck: $('fck').value, vincolo: $('vinc').value, travaTipo: $('tipoTrave').value, senza: senza, colSenza: colSenza
+      chi: leggi('chi'), fck: $('fck').value, vincolo: $('vinc').value, travaTipo: $('tipoTrave').value, senza: senza, colSenza: colSenza, sbalziVuoto: vuoti, sbalziLivello: lung
     };
   }
 
@@ -90,6 +93,11 @@
       var pr = key.split(':'), jj = parseInt(pr[0], 10), ss = parseInt(pr[1], 10);
       if (!(jj >= 0 && jj <= nc && ss >= 1 && ss <= n)) delete colSenza[key];
     });
+    Object.keys(vuoti).forEach(function (key) { if (!senza[key]) delete vuoti[key]; });          // gli sbalzi nel vuoto esistono solo con la trave tolta
+    Object.keys(lung).forEach(function (key) {
+      var pr = key.split(':');
+      if (parseInt(pr[0], 10) > n || (pr[1] === 'sx' && !hasSx) || (pr[1] === 'dx' && !hasDx)) delete lung[key];
+    });
   }
 
   function htmlMatriceTravi(st, n, nc, hasSx, hasDx) {
@@ -149,6 +157,7 @@
     var pr = key.split(':'), st = RT.telaioStato(parametri());
     if (!st.disponibile(parseInt(pr[0], 10), /^\d+$/.test(pr[1]) ? parseInt(pr[1], 10) : pr[1])) { msg('Questa trave non può esserci: manca un pilastro a quel livello, o (per lo sbalzo) manca la trave adiacente.'); costruisciMatrice(); return; }
     if (senza[key]) delete senza[key]; else senza[key] = true;
+    if (!senza[key]) delete vuoti[key];                      // trave rimessa: niente sbalzi nel vuoto
     msg(''); costruisciMatrice(); calcola();
   }
 
@@ -171,12 +180,19 @@
   }
 
   // misure del disegno: scala (px per metro), ascisse dei pilastri, quota del terreno
-  function misureDisegno(p) {
+  function estensioneSbalzo(p, lato) {              // lunghezza massima dello sbalzo ai vari livelli (per le misure del disegno)
+    var m = p[lato] || 0;
+    if (m > 0) Object.keys(p.sbalziLivello || {}).forEach(function (key) { if (key.split(':')[1] === lato) m = Math.max(m, p.sbalziLivello[key]); });
+    return m;
+  }
+
+  // conTerrazza: c'e' spazio sopra la copertura per le persone sugli sbalzi dell'ultimo piano
+  function misureDisegno(p, conTerrazza) {
     var nc = p.spans.length, tot = p.spans.reduce(function (a, b) { return a + b; }, 0);
-    var sx = p.sx || 0, dx = p.dx || 0, totale = tot + sx + dx;
+    var sx = estensioneSbalzo(p, 'sx'), dx = estensioneSbalzo(p, 'dx'), totale = tot + sx + dx;
     var W = 900, mx = 70, my = 34;
     var s = Math.min(70, (W - 2 * mx) / totale, 320 / (p.n * p.H));
-    var Hh = p.n * p.H * s + 2 * my + 30 + ($('carichi').checked ? 50 : 0);
+    var Hh = p.n * p.H * s + 2 * my + 30 + ($('carichi').checked ? 50 : 0) + (conTerrazza ? 1.85 * s : 0);
     var xStart = (W - totale * s) / 2, x0 = xStart + sx * s, yg = Hh - my - 14;
     var xs = [x0]; for (var i = 0; i < nc; i++) xs.push(xs[i] + p.spans[i] * s);
     return { nc: nc, sx: sx, dx: dx, totale: totale, W: W, Hh: Hh, s: s, H: p.H, xStart: xStart, yg: yg, xs: xs };
@@ -257,7 +273,8 @@
     return o + '</g>';
   }
 
-  // al centro di ogni campata con la trave, a quota del primo solaio presente sotto (o del terreno); il tipo di gruppo dipende solo dalla posizione
+  // al centro di ogni campata con la trave, a quota del primo solaio presente sotto (o del terreno); il tipo di gruppo dipende solo dalla posizione.
+  // Anche sugli sbalzi (di estremita' e nei vuoti): in piedi sul solaio dello sbalzo, se e' lungo almeno 0,6 m.
   function svgOmini(g, p, r) {
     var o = '', hp = function (k, i) { var t = r.livelli[k - 1].travi[i]; return t && !t.assente ? t : null; };
     for (var i = 0; i < g.nc; i++) {
@@ -268,40 +285,65 @@
         o += omino(GRUPPI[(i * 2 + k) % GRUPPI.length], cx, yPiedi, g.s);
       }
     }
+    r.livelli.forEach(function (lv) {
+      var yl = g.yg - lv.k * g.H * g.s, elenco = [];
+      lv.sbalzi.forEach(function (t) { if (!t.assente) elenco.push({ t: t, xa: t.lato === 'sx' ? g.xs[0] - t.L * g.s : g.xs[g.nc] }); });
+      lv.sbalziInt.forEach(function (t) { elenco.push({ t: t, xa: t.verso === 'a' ? g.xs[t.i] : g.xs[t.i + 1] - t.L * g.s }); });
+      elenco.forEach(function (c, q) {
+        if (c.t.L < 0.6) return;
+        var yp = yl - ((c.t.h || 600) / 1000) * g.s / 2, gruppo = c.t.L >= 1.6 ? GRUPPI[3 + (lv.k % 2)] : GRUPPI[(lv.k + q) % 3];
+        o += omino(gruppo, c.xa + c.t.L * g.s / 2, yp, g.s);
+      });
+    });
     return o;
   }
 
-  function svgTravi(g, r) {
+  function haTerrazza(r) {                           // sbalzi presenti in copertura: servono spazio sopra e un po' di aria per le persone
+    var lv = r.livelli[r.livelli.length - 1];
+    return lv.sbalzi.some(function (t) { return !t.assente && t.L >= 0.6; }) || lv.sbalziInt.some(function (t) { return t.L >= 0.6; });
+  }
+
+  function svgTravi(g, r, st) {
     var o = '';
     r.livelli.forEach(function (lv) {
       var yl = g.yg - lv.k * g.H * g.s;
       lv.travi.forEach(function (t, i) {
-        var key = lv.k + ':' + i, tit = '<title>Clicca per ' + (t.assente ? 'rimettere' : 'togliere') + ' la trave</title>';
+        var key = lv.k + ':' + i;
         if (t.assente) {
           if (t.perPilastro) return;
-          var h0 = 0.35 * g.s;
-          o += '<rect class="tg" data-key="' + key + '" x="' + (g.xs[i] + 1) + '" y="' + (yl - h0 / 2) + '" width="' + (g.xs[i + 1] - g.xs[i] - 2) + '" height="' + h0 + '" fill="rgba(209,56,43,.07)" stroke="' + ROSSO + '" stroke-width="1.2" stroke-dasharray="5 4">' + tit + '</rect>';
-          o += '<text x="' + ((g.xs[i] + g.xs[i + 1]) / 2) + '" y="' + (yl + 4) + '" font-size="11" text-anchor="middle" fill="' + ROSSO + '" pointer-events="none">vuoto</text>';
+          var sv = st.vuoto(lv.k, i), h0 = 0.35 * g.s, xa0 = g.xs[i] + sv.a * g.s, xb0 = g.xs[i + 1] - sv.b * g.s, scelto = (sel === key);
+          if (xb0 - xa0 > 4) {                         // il vuoto che resta fra gli eventuali sbalzi: si clicca per metterli o per rimettere la trave
+            o += '<rect class="tg" data-vuoto="' + key + '" x="' + (xa0 + 1) + '" y="' + (yl - h0 / 2) + '" width="' + (xb0 - xa0 - 2) + '" height="' + h0 + '" fill="rgba(209,56,43,' + (scelto ? '.16' : '.07') + ')" stroke="' + ROSSO + '" stroke-width="' + (scelto ? 2.2 : 1.2) + '" stroke-dasharray="5 4"><title>Clicca per mettere sbalzi nel vuoto o rimettere la trave</title></rect>';
+            if (xb0 - xa0 > 44) o += '<text x="' + ((xa0 + xb0) / 2) + '" y="' + (yl + 4) + '" font-size="11" text-anchor="middle" fill="' + ROSSO + '" pointer-events="none">vuoto</text>';
+          }
           return;
         }
         var hh = ((t.h || 600) / 1000) * g.s;
-        o += '<rect class="tg" data-key="' + key + '" x="' + g.xs[i] + '" y="' + (yl - hh / 2) + '" width="' + (g.xs[i + 1] - g.xs[i]) + '" height="' + hh + '" fill="' + ROSSO + '">' + tit + '</rect>';
+        o += '<rect class="tg" data-key="' + key + '" x="' + g.xs[i] + '" y="' + (yl - hh / 2) + '" width="' + (g.xs[i + 1] - g.xs[i]) + '" height="' + hh + '" fill="' + ROSSO + '"><title>Clicca per togliere la trave</title></rect>';
         o += '<text x="' + ((g.xs[i] + g.xs[i + 1]) / 2) + '" y="' + (yl - hh / 2 - 5) + '" font-size="11" text-anchor="middle" fill="' + NERO + '" font-weight="700" pointer-events="none">' + etichettaTrave(t) + '</text>';
       });
       lv.sbalzi.forEach(function (t) {
-        var key = lv.k + ':' + t.lato, L = t.L * g.s, xa = t.lato === 'sx' ? g.xs[0] - L : g.xs[g.nc], tit = '<title>Clicca per ' + (t.assente ? 'rimettere' : 'togliere') + ' lo sbalzo</title>';
+        var key = lv.k + ':' + t.lato, L = t.L * g.s, xa = t.lato === 'sx' ? g.xs[0] - L : g.xs[g.nc];
         if (t.assente) {
           if (t.perPilastro) return;
           var h1 = 0.3 * g.s;
-          o += '<rect class="tg" data-key="' + key + '" x="' + xa + '" y="' + (yl - h1 / 2) + '" width="' + L + '" height="' + h1 + '" fill="rgba(31,92,139,.07)" stroke="' + BLU + '" stroke-width="1.2" stroke-dasharray="5 4">' + tit + '</rect>';
+          o += '<rect class="tg" data-key="' + key + '" x="' + xa + '" y="' + (yl - h1 / 2) + '" width="' + L + '" height="' + h1 + '" fill="rgba(31,92,139,.07)" stroke="' + BLU + '" stroke-width="1.2" stroke-dasharray="5 4"><title>Clicca per rimettere lo sbalzo</title></rect>';
           return;
         }
-        var hh = ((t.h || 600) / 1000) * g.s;
-        o += '<rect class="tg" data-key="' + key + '" x="' + xa + '" y="' + (yl - hh / 2) + '" width="' + L + '" height="' + hh + '" fill="' + BLU + '">' + tit + '</rect>';
-        o += '<text x="' + (xa + L / 2) + '" y="' + (yl - hh / 2 - 5) + '" font-size="10" text-anchor="middle" fill="' + BLU + '" font-weight="700" pointer-events="none">' + etichettaTrave(t) + '</text>';
+        o += rettangoloSbalzo(g, t, xa, yl, key, 'data-sbalzo', 'Clicca per cambiare la lunghezza dello sbalzo o per toglierlo');
+      });
+      lv.sbalziInt.forEach(function (t) {              // sbalzi dentro i vuoti: prolungano le travi vicine
+        var L = t.L * g.s, xa = t.verso === 'a' ? g.xs[t.i] : g.xs[t.i + 1] - L;
+        o += rettangoloSbalzo(g, t, xa, yl, lv.k + ':' + t.i, 'data-vuoto', 'Clicca per cambiare gli sbalzi nel vuoto o per rimettere la trave');
       });
     });
     return o;
+  }
+
+  function rettangoloSbalzo(g, t, xa, yl, key, attributo, titolo) {
+    var L = t.L * g.s, hh = ((t.h || 600) / 1000) * g.s, scelto = (sel === key);
+    return '<rect class="tg" ' + attributo + '="' + key + '" x="' + xa + '" y="' + (yl - hh / 2) + '" width="' + L + '" height="' + hh + '" fill="' + BLU + '"' + (scelto ? ' stroke="' + NERO + '" stroke-width="2"' : '') + '><title>' + titolo + '</title></rect>' +
+      '<text x="' + (xa + L / 2) + '" y="' + (yl - hh / 2 - 5) + '" font-size="10" text-anchor="middle" fill="' + BLU + '" font-weight="700" pointer-events="none">' + etichettaTrave(t) + '</text>';
   }
 
   function svgQuote(g, p) {
@@ -310,8 +352,12 @@
       o += '<line x1="' + g.xs[i] + '" x2="' + g.xs[i + 1] + '" y1="' + (g.yg + 22) + '" y2="' + (g.yg + 22) + '" stroke="' + GRIGIO + '"/>';
       o += '<text x="' + ((g.xs[i] + g.xs[i + 1]) / 2) + '" y="' + (g.yg + 36) + '" font-size="11" text-anchor="middle" fill="' + GRIGIO + '">' + F(p.spans[i], 1) + ' m</text>';
     }
-    if (g.sx > 0) o += '<text x="' + (g.xs[0] - g.sx * g.s / 2) + '" y="' + (g.yg + 36) + '" font-size="11" text-anchor="middle" fill="' + BLU + '">sbalzo ' + F(g.sx, 1) + ' m</text>';
-    if (g.dx > 0) o += '<text x="' + (g.xs[g.nc] + g.dx * g.s / 2) + '" y="' + (g.yg + 36) + '" font-size="11" text-anchor="middle" fill="' + BLU + '">sbalzo ' + F(g.dx, 1) + ' m</text>';
+    function etichettaSbalzo(lato) {                 // valore comune; se qualche livello ha una lunghezza diversa lo si dice
+      var diverso = Object.keys(p.sbalziLivello || {}).some(function (key) { return key.split(':')[1] === lato; });
+      return 'sbalzo ' + F(p[lato], 1) + ' m' + (diverso ? ' (comune)' : '');
+    }
+    if (g.sx > 0) o += '<text x="' + (g.xs[0] - g.sx * g.s / 2) + '" y="' + (g.yg + 36) + '" font-size="11" text-anchor="middle" fill="' + BLU + '">' + etichettaSbalzo('sx') + '</text>';
+    if (g.dx > 0) o += '<text x="' + (g.xs[g.nc] + g.dx * g.s / 2) + '" y="' + (g.yg + 36) + '" font-size="11" text-anchor="middle" fill="' + BLU + '">' + etichettaSbalzo('dx') + '</text>';
     return o;
   }
 
@@ -334,6 +380,10 @@
         var hh = ((t.h || 600) / 1000) * g.s, L = t.L * g.s, xa = t.lato === 'sx' ? g.xs[0] - L : g.xs[g.nc];
         carico(yl, xa + 2, xa + L - 2, hh, t.pd);
       });
+      lv.sbalziInt.forEach(function (t) {
+        var hh = ((t.h || 600) / 1000) * g.s, L = t.L * g.s, xa = t.verso === 'a' ? g.xs[t.i] : g.xs[t.i + 1] - L;
+        carico(yl, xa + 2, xa + L - 2, hh, t.pd);
+      });
     });
     r.colonne.forEach(function (segs, j) {
       segs.forEach(function (e) {
@@ -345,11 +395,11 @@
   }
 
   function disegna(p, r) {
-    var g = misureDisegno(p), st = RT.telaioStato(p);
+    var g = misureDisegno(p, $('omini').checked && haTerrazza(r)), st = RT.telaioStato(p);
     var svg = $('fig'); svg.setAttribute('viewBox', '0 0 ' + g.W + ' ' + g.Hh);
     var o = svgTerreno(g) + svgPilastri(g, p, r, st) + svgPilastriTolti(g, p, r);
     if ($('omini').checked) o += svgOmini(g, p, r);
-    o += svgTravi(g, r) + svgQuote(g, p);
+    o += svgTravi(g, r, st) + svgQuote(g, p);
     if ($('carichi').checked) o += svgCarichi(g, p, r);
     svg.innerHTML = o;
   }
@@ -358,7 +408,7 @@
   // Un solo telaio piano: la striscia di solaio che scarica sulle sue travi e' larga B (B/2 per parte), o B/2 se il telaio e' di bordo.
   function disegnaPianta(p, r) {
     var n = p.n, k = Math.min(Math.max(parseInt($('livPianta').value, 10) || 1, 1), n), lv = r.livelli[k - 1];
-    var g = misureDisegno(p), nc = g.nc, sx = g.sx, dx = g.dx, totale = g.totale;          // stessa scala e stesse ascisse del prospetto: i due disegni restano allineati
+    var g = misureDisegno(p), st = RT.telaioStato(p), nc = g.nc, sx = g.sx, dx = g.dx, totale = g.totale;          // stessa scala e stesse ascisse del prospetto: i due disegni restano allineati
     var Bi = r.Binf, W = g.W, top = 52, bot = 56, s = g.s, xStart = g.xStart, xs = g.xs, i, o = '';
     var Hh = top + Bi * s + bot;
     var y0 = top, yAsse = p.bordo ? y0 : y0 + Bi * s / 2, y1 = y0 + Bi * s;     // striscia d'influenza da y0 a y1; asse del telaio in yAsse
@@ -368,10 +418,17 @@
       if (presente) return '<rect x="' + xa + '" y="' + y0 + '" width="' + (xb - xa) + '" height="' + (y1 - y0) + '" fill="' + BLU + '" fill-opacity="' + (sbalzo ? '.10' : '.14') + '"/>';
       return '<rect x="' + xa + '" y="' + y0 + '" width="' + (xb - xa) + '" height="' + (y1 - y0) + '" fill="url(#trattVuoto)" stroke="' + GRIGIO + '" stroke-dasharray="4 4"/>';
     }
-    // campate: striscia d'influenza, frecce del solaio verso la trave, area
+    function stricciaSbalzo(xa, xb, Lm) {             // striscia d'influenza di uno sbalzo, con la sua area
+      var o2 = striscia(xa, xb, true, true), w = xb - xa;
+      if (w > 28) o2 += '<text x="' + ((xa + xb) / 2) + '" y="' + (y1 - 8) + '" font-size="10" text-anchor="middle" fill="' + BLU + '" font-weight="700">A = ' + F(Lm * Bi, 1) + ' m²</text>';
+      return o2;
+    }
+    // campate: striscia d'influenza, frecce del solaio verso la trave, area; nei vuoti, solo gli sbalzi hanno la striscia
     for (i = 0; i < nc; i++) {
       var t = lv.travi[i], on = !t.assente, xa = xs[i], xb = xs[i + 1], xm = (xa + xb) / 2;
-      o += striscia(xa, xb, on, false);
+      var sv = (!on && !t.perPilastro) ? st.vuoto(k, i) : { a: 0, b: 0 }, xa1 = xa + sv.a * s, xb1 = xb - sv.b * s;
+      if (on) o += striscia(xa, xb, true, false);
+      else if (xb1 - xa1 > 0.5) o += striscia(xa1, xb1, false, false);
       if (on) {
         [0.25, 0.75].forEach(function (f) {
           var xf = xa + (xb - xa) * f;
@@ -380,15 +437,15 @@
         });
         o += '<text x="' + xm + '" y="' + (y1 - 8) + '" font-size="11" text-anchor="middle" fill="' + BLU + '" font-weight="700">A = ' + F(p.spans[i], 1) + ' × ' + F(Bi, 2) + ' = ' + F(p.spans[i] * Bi, 1) + ' m²</text>';
       } else {
-        o += '<text x="' + xm + '" y="' + ((y0 + y1) / 2 + 4) + '" font-size="11" text-anchor="middle" fill="' + GRIGIO + '">' + (t.perPilastro ? 'trave impossibile' : 'vuoto: niente solaio') + '</text>';
+        if (sv.a > 0) o += stricciaSbalzo(xa, xa1, sv.a);
+        if (sv.b > 0) o += stricciaSbalzo(xb1, xb, sv.b);
+        if (xb1 - xa1 > 110) o += '<text x="' + ((xa1 + xb1) / 2) + '" y="' + ((y0 + y1) / 2 + 4) + '" font-size="11" text-anchor="middle" fill="' + GRIGIO + '">' + (t.perPilastro ? 'trave impossibile' : 'vuoto: niente solaio') + '</text>';
       }
     }
-    // sbalzi
-    [['sx', sx, xs[0] - sx * s, xs[0]], ['dx', dx, xs[nc], xs[nc] + dx * s]].forEach(function (b) {
-      if (!(b[1] > 0)) return;
-      var tb = lv.sbalzi.filter(function (q) { return q.lato === b[0]; })[0], on = tb && !tb.assente;
-      o += striscia(b[2], b[3], on, true);
-      if (on) o += '<text x="' + ((b[2] + b[3]) / 2) + '" y="' + (y1 - 8) + '" font-size="10" text-anchor="middle" fill="' + BLU + '" font-weight="700">A = ' + F(b[1] * Bi, 1) + ' m²</text>';
+    // sbalzi di estremita': ciascuno con la propria lunghezza
+    lv.sbalzi.forEach(function (tb) {
+      var L = tb.L * s, xa = tb.lato === 'sx' ? xs[0] - L : xs[nc];
+      o += tb.assente ? striscia(xa, xa + L, false, true) : stricciaSbalzo(xa, xa + L, tb.L);
     });
     // limiti della striscia: a meta' tra questo telaio e il successivo (non disegnato)
     o += '<line x1="' + (xStart - 14) + '" x2="' + (xStart + totale * s + 14) + '" y1="' + y1 + '" y2="' + y1 + '" stroke="' + BLU + '" stroke-dasharray="6 4"/>';
@@ -397,13 +454,21 @@
     function larghezzaTrave(t) { return Math.max(((t.b || (t.h || 400) / 2) / 1000) * s, 4); }
     for (i = 0; i < nc; i++) {
       var tt = lv.travi[i];
-      if (tt.assente) { o += '<line x1="' + xs[i] + '" x2="' + xs[i + 1] + '" y1="' + yAsse + '" y2="' + yAsse + '" stroke="' + ROSSO + '" stroke-dasharray="5 4" stroke-opacity=".7"/>'; continue; }
+      if (tt.assente) {
+        var sv2 = tt.perPilastro ? { a: 0, b: 0 } : st.vuoto(k, i);
+        o += '<line x1="' + (xs[i] + sv2.a * s) + '" x2="' + (xs[i + 1] - sv2.b * s) + '" y1="' + yAsse + '" y2="' + yAsse + '" stroke="' + ROSSO + '" stroke-dasharray="5 4" stroke-opacity=".7"/>';
+        continue;
+      }
       var wt = larghezzaTrave(tt);
       o += '<rect x="' + xs[i] + '" y="' + (yAsse - wt / 2) + '" width="' + (xs[i + 1] - xs[i]) + '" height="' + wt + '" fill="' + ROSSO + '"/>';
     }
     lv.sbalzi.forEach(function (tb) {
       if (tb.assente) return;
       var L = tb.L * s, xa = tb.lato === 'sx' ? xs[0] - L : xs[nc], wt = larghezzaTrave(tb);
+      o += '<rect x="' + xa + '" y="' + (yAsse - wt / 2) + '" width="' + L + '" height="' + wt + '" fill="' + BLU + '"/>';
+    });
+    lv.sbalziInt.forEach(function (tb) {              // sbalzi dentro i vuoti
+      var L = tb.L * s, xa = tb.verso === 'a' ? xs[tb.i] : xs[tb.i + 1] - L, wt = larghezzaTrave(tb);
       o += '<rect x="' + xa + '" y="' + (yAsse - wt / 2) + '" width="' + L + '" height="' + wt + '" fill="' + BLU + '"/>';
     });
     for (var j = 0; j <= nc; j++) {
@@ -474,6 +539,7 @@
     r.livelli.slice().reverse().forEach(function (lv) {
       lv.travi.forEach(function (t, i) { h += riga(lv, t, 'Campata ' + (i + 1)); });
       lv.sbalzi.forEach(function (t) { h += riga(lv, t, 'Sbalzo ' + (t.lato === 'sx' ? 'sx' : 'dx')); });
+      lv.sbalziInt.forEach(function (t) { h += riga(lv, t, 'Sbalzo nel vuoto, campata ' + (t.i + 1) + ' (da ' + (t.verso === 'a' ? 'sx' : 'dx') + ')'); });
     });
     return h + '</tbody>';
   }
@@ -582,6 +648,77 @@
     $('notaImpatto').hidden = !nota;
   }
 
+  // ---------------------------------------------------------------- pannello degli sbalzi (nei vuoti e di estremita')
+  function arrotonda1(x) { return Math.round(x * 10) / 10; }
+  function estremo(chiave) { var l = chiave.split(':')[1]; return l === 'sx' || l === 'dx'; }
+
+  function mostraPannello(p) {
+    var pan = $('pannelloSbalzi');
+    if (!sel) { pan.hidden = true; return; }
+    var pr = sel.split(':'), k = parseInt(pr[0], 10), st = RT.telaioStato(p), nome = nomeLivello(k, p.n);
+    function sliderA(testo, valore, max, attivo) {
+      $('etichettaA').innerHTML = testo + ' <span class="unita">[m]</span>';
+      var el = $('sbA'); el.min = 0; el.max = max; el.value = valore; el.disabled = !attivo; $('sbAv').textContent = F(valore, 1) + ' m';
+    }
+    function sliderB(valore, max, attivo) { var el = $('sbB'); el.min = 0; el.max = max; el.value = valore; el.disabled = !attivo; $('sbBv').textContent = F(valore, 1) + ' m'; }
+    if (estremo(sel)) {                              // sbalzo di estremita' al livello k: lunghezza individuale
+      var lato = pr[1], comune = p[lato] || 0, ok = comune > 0 && st.trave(k, lato);
+      if (!ok) { sel = null; pan.hidden = true; return; }
+      var v = lung[sel] > 0 ? lung[sel] : comune;
+      $('titoloSbalzi').textContent = nome + ': sbalzo ' + (lato === 'sx' ? 'sinistro' : 'destro') + ' (valore comune ' + F(comune, 1) + ' m)';
+      sliderA('Lunghezza dello sbalzo', v, $(lato).max, true); $('sbA').min = 0.1;
+      $('rigaB').hidden = true;
+      $('notaSbalzi').textContent = 'Lo sbalzo prolunga la trave adiacente e qui può essere diverso da quello degli altri piani. Il valore comune si cambia con il cursore «Sbalzo ' + (lato === 'sx' ? 'sinistro' : 'destro') + '».';
+      $('rimettiTrave').hidden = true; $('valoreComune').hidden = !(lung[sel] > 0); $('togliSbalzo').hidden = false;
+    } else {                                         // vuoto: sbalzi dalle travi vicine
+      var i = parseInt(pr[1], 10), sv = st.vuoto(k, i);
+      if (!sv.vuoto) { sel = null; pan.hidden = true; return; }
+      $('titoloSbalzi').textContent = 'Vuoto: ' + nome + ', campata ' + (i + 1) + ' (' + F(sv.L, 1) + ' m)';
+      sliderA('Sbalzo da sinistra', sv.a, arrotonda1(sv.L - sv.b), sv.haA); sliderB(sv.b, arrotonda1(sv.L - sv.a), sv.haB);
+      $('rigaB').hidden = false;
+      var nota = 'Gli sbalzi prolungano le travi vicine e non escono dal vuoto: la somma dei due non supera la luce della trave tolta (' + F(sv.L, 1) + ' m).';
+      if (!sv.haA) nota += ' A sinistra non c\'è una trave da prolungare: niente sbalzo.';
+      if (!sv.haB) nota += ' A destra non c\'è una trave da prolungare: niente sbalzo.';
+      $('notaSbalzi').textContent = nota;
+      $('rimettiTrave').hidden = false; $('valoreComune').hidden = true; $('togliSbalzo').hidden = true;
+    }
+    pan.hidden = false;
+  }
+
+  function cambiaSbalzo(quale, valore) {
+    if (!sel) return;
+    var pr = sel.split(':'), v = arrotonda1(valore);
+    if (estremo(sel)) { if (Math.abs(v - leggi(pr[1])) < 1e-9) delete lung[sel]; else lung[sel] = Math.max(v, 0.1); }
+    else {
+      var sv = RT.telaioStato(parametri()).vuoto(parseInt(pr[0], 10), parseInt(pr[1], 10)), a = quale === 'a' ? v : sv.a, b = quale === 'b' ? v : sv.b;
+      if (a + b > sv.L) { if (quale === 'a') a = sv.L - b; else b = sv.L - a; }
+      vuoti[sel] = { a: arrotonda1(a), b: arrotonda1(b) };
+    }
+    calcola();
+  }
+
+  function scegli(chiave) { sel = chiave; calcola(); $('pannelloSbalzi').scrollIntoView({ block: 'nearest' }); }
+
+  // ---------------------------------------------------------------- schermo intero (prospetto e pianta)
+  function inSchermoIntero(el) { return document.fullscreenElement === el || el.classList.contains('schermo-intero'); }
+  function aggiornaTastiSchermo() {
+    Array.prototype.forEach.call(document.querySelectorAll('.tasto-schermo'), function (b) {
+      var attivo = inSchermoIntero($(b.getAttribute('data-vista')));
+      b.textContent = attivo ? '✕ Esci dallo schermo intero' : '⤢ Schermo intero';
+      b.setAttribute('aria-pressed', attivo);
+    });
+  }
+  function schermoIntero(id) {
+    var el = $(id);
+    if (inSchermoIntero(el)) {
+      el.classList.remove('schermo-intero');
+      if (document.fullscreenElement === el && document.exitFullscreen) document.exitFullscreen();
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () { el.classList.add('schermo-intero'); aggiornaTastiSchermo(); });   // se il browser lo rifiuta: copre la pagina
+    } else el.classList.add('schermo-intero');
+    aggiornaTastiSchermo();
+  }
+
   // ---------------------------------------------------------------- calcolo e aggiornamento
   function aggiornaEtichette() {
     $('nv').textContent = $('n').value; $('ncv').textContent = $('nc').value;
@@ -595,11 +732,11 @@
     aggiornaEtichette();
     costruisciLivelliPianta(intero('n'));
     var p = parametri(), r = RT.telaio(p);
-    disegna(p, r); disegnaPianta(p, r); tabelle(p, r); impatto(p, r);
+    disegna(p, r); disegnaPianta(p, r); tabelle(p, r); impatto(p, r); mostraPannello(p);
   }
 
   // ---------------------------------------------------------------- eventi
-  function nuovoStato(nuovaSenza, nuovaColSenza) { senza = nuovaSenza; colSenza = nuovaColSenza; msg(''); costruisciMatrice(); calcola(); }
+  function nuovoStato(nuovaSenza, nuovaColSenza) { senza = nuovaSenza; colSenza = nuovaColSenza; vuoti = {}; lung = {}; sel = null; msg(''); costruisciMatrice(); calcola(); }
   function almenoPiani(m) { if (intero('n') < m) $('n').value = m; }
 
   function collegaEventi() {
@@ -612,11 +749,28 @@
     $('uguali').addEventListener('change', function () { if (this.checked) { for (var j = 1; j < 5; j++) luci[j] = luci[0]; costruisciCampate(); calcola(); } });
     ['H', 'B', 'bordo', 'chi', 'carichi', 'omini', 'usaNeve', 'g1', 'g2', 'q', 'qb', 'neve', 'vinc', 'acc', 'serie', 'cleg', 'bleg', 'fck', 'tipoTrave', 'livPianta', 'conSolaio'].concat(IPOTESI.map(function (x) { return x[0]; })).forEach(function (id) { $(id).addEventListener('input', calcola); });
     $('ripristinaIpotesi').addEventListener('click', function () { impostaIpotesi(); calcola(); });
+    $('sbA').addEventListener('input', function () { cambiaSbalzo('a', parseFloat(this.value)); });
+    $('sbB').addEventListener('input', function () { cambiaSbalzo('b', parseFloat(this.value)); });
+    $('rimettiTrave').addEventListener('click', function () { delete senza[sel]; delete vuoti[sel]; sel = null; msg(''); costruisciMatrice(); calcola(); });
+    $('valoreComune').addEventListener('click', function () { delete lung[sel]; calcola(); });
+    $('togliSbalzo').addEventListener('click', function () { senza[sel] = true; sel = null; msg(''); costruisciMatrice(); calcola(); });
+    $('chiudiPannello').addEventListener('click', function () { sel = null; calcola(); });
+    Array.prototype.forEach.call(document.querySelectorAll('.tasto-schermo'), function (b) {
+      b.addEventListener('click', function () { schermoIntero(b.getAttribute('data-vista')); });
+    });
+    document.addEventListener('fullscreenchange', aggiornaTastiSchermo);
+    document.addEventListener('keydown', function (ev) {
+      if (ev.key !== 'Escape') return;
+      Array.prototype.forEach.call(document.querySelectorAll('.vista.schermo-intero'), function (el) { el.classList.remove('schermo-intero'); });
+      aggiornaTastiSchermo();
+    });
     $('fig').addEventListener('click', function (ev) {                   // clic sul disegno: trave, sbalzo o pilastro
       var el = ev.target;
       while (el && el !== $('fig')) {
         if (el.getAttribute && el.getAttribute('data-key')) { alterna(el.getAttribute('data-key')); return; }
         if (el.getAttribute && el.getAttribute('data-col')) { alternaCol(el.getAttribute('data-col')); return; }
+        if (el.getAttribute && el.getAttribute('data-vuoto')) { scegli(el.getAttribute('data-vuoto')); return; }
+        if (el.getAttribute && el.getAttribute('data-sbalzo')) { scegli(el.getAttribute('data-sbalzo')); return; }
         el = el.parentNode;
       }
     });
@@ -636,6 +790,7 @@
   }
 
   // preset da URL: ?materiale=acciaio|legno|ca&piani=N&campate=N&sbalzo_sx=m&sbalzo_dx=m&serie=HEA|HEB&senza=1:0,2:1&senzaPil=2:3
+  //   &sbalziVuoto=2:1:1.5:2 (livello:campata:da sinistra:da destra, in m)&sbalziLivello=2:sx:0.8 (sbalzo di estremita' di un solo livello)
   function leggiUrl() {
     var qs = new URLSearchParams(location.search);
     if (qs.get('piani')) $('n').value = Math.min(6, Math.max(1, parseInt(qs.get('piani'), 10) || 2));
@@ -645,6 +800,14 @@
     if (qs.get('serie') === 'HEA') $('serie').value = 'HEA';
     if (qs.get('senza')) qs.get('senza').split(',').forEach(function (x) { if (/^\d+:(\d+|sx|dx)$/.test(x)) senza[x] = true; });
     if (qs.get('senzaPil')) qs.get('senzaPil').split(',').forEach(function (x) { if (/^\d+:\d+$/.test(x)) colSenza[x] = true; });
+    if (qs.get('sbalziVuoto')) qs.get('sbalziVuoto').split(',').forEach(function (x) {         // k:i:a:b (m)
+      var q = /^(\d+:\d+):(\d*\.?\d+):(\d*\.?\d+)$/.exec(x);
+      if (q) vuoti[q[1]] = { a: parseFloat(q[2]), b: parseFloat(q[3]) };
+    });
+    if (qs.get('sbalziLivello')) qs.get('sbalziLivello').split(',').forEach(function (x) {      // k:sx:m oppure k:dx:m
+      var q = /^(\d+:(?:sx|dx)):(\d*\.?\d+)$/.exec(x);
+      if (q) lung[q[1]] = parseFloat(q[2]);
+    });
     var m = qs.get('materiale');
     return m === 'ca' ? 'ca' : (m === 'legno' ? 'legno' : 'acciaio');
   }
@@ -656,6 +819,7 @@
     costruisciCampate();
     costruisciMatrice();
     impostaMateriale(m, true);
+    aggiornaTastiSchermo();
   }
   avvia();
 })();

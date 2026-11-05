@@ -13,6 +13,10 @@
    colSenza: tratti di pilastro tolti, chiavi 'j:s' (pilastro j = 0..nc, interpiano s = 1..n). Si tolgono solo dall'alto e solo se in
      testa non arrivano travi (testa libera, nessun pilastro sopra): se manca l'interpiano s, mancano anche i superiori.
      Le travi che arrivano a un nodo senza pilastro sono assenti.
+   sbalziLivello: lunghezza individuale degli sbalzi di estremita', chiavi 'k:sx' e 'k:dx' (m); senza valore vale quella comune sx / dx.
+   sbalziVuoto: sbalzi dentro un vuoto, chiavi 'k:i' (la campata i al livello k deve essere tolta) con valori {a, b} in metri:
+     a = sbalzo che parte dal pilastro di sinistra (prolunga la trave a sinistra del vuoto), b = sbalzo che parte dal pilastro di destra
+     (prolunga la trave a destra). Esistono solo se la trave da prolungare esiste e non escono mai dal vuoto: a + b <= luce della campata tolta.
    Un nodo e' vincolato se vi arriva almeno una trave (o uno sbalzo); la lunghezza libera del pilastro e' la distanza fra nodi
    vincolati. L0 = beta H libera, con beta = 1 (beta = 2 se la testa e' libera, con base incastrata).
    Livello 1: h = L/x, lato = K radice(area), i_min = L0/100. Livello 2: W, A_min, freccia verificata.
@@ -38,6 +42,19 @@
       return alto[i] >= k && alto[i + 1] >= k;
     }
     function presente(k, i) { return !senza[k + ':' + i] && disponibile(k, i); }
+    var ov = p.sbalziLivello || {};
+    function lungSbalzo(k, lato) {                     // lunghezza dello sbalzo di estremita' al livello k: individuale, altrimenti quella comune
+      var comune = (lato === 'sx' ? p.sx : p.dx) || 0, v = ov[k + ':' + lato];
+      return (comune > 0 && v > 0) ? v : comune;
+    }
+    // sbalzi dentro un vuoto: lunghezze efficaci a e b (0 se manca la trave da prolungare), con a + b <= luce
+    var sv = p.sbalziVuoto || {};
+    function sbalziVuoto(k, i) {
+      var L = p.spans[i], v = sv[k + ':' + i] || {}, vuoto = !!senza[k + ':' + i] && disponibile(k, i);
+      var haA = vuoto && i >= 1 && presente(k, i - 1), haB = vuoto && i + 1 <= nc - 1 && presente(k, i + 1);
+      var a = haA ? Math.min(Math.max(v.a || 0, 0), L) : 0, b = haB ? Math.min(Math.max(v.b || 0, 0), L - a) : 0;
+      return { vuoto: vuoto, haA: haA, haB: haB, a: a, b: b, L: L };
+    }
     function nodoEsiste(j2, k) { return alto[j2] >= k; }
     function treAlNodo(j2, k) {                        // al nodo (j2, k) arriva almeno una trave o uno sbalzo
       return (j2 > 0 && presente(k, j2 - 1)) || (j2 < nc && presente(k, j2)) ||
@@ -45,7 +62,7 @@
     }
     function vincolato(j2, k) { return k === 0 || (nodoEsiste(j2, k) && treAlNodo(j2, k)); }
     return { n: n, nc: nc, alto: alto, haSx: haSx, haDx: haDx, disponibile: disponibile, presente: presente,
-             nodoEsiste: nodoEsiste, treAlNodo: treAlNodo, vincolato: vincolato };
+             nodoEsiste: nodoEsiste, treAlNodo: treAlNodo, vincolato: vincolato, sbalziVuoto: sbalziVuoto, lungSbalzo: lungSbalzo };
   }
 
   // ---------------------------------------------------------------- materiali e carichi
@@ -115,7 +132,6 @@
   function progettaTravi(p, m, geo, car, Binf, out) {
     var beta = RT.BETA[p.vincolo], kf = RT.KFRECCIA[p.vincolo];
     var xTrave = (p.mat === 'acciaio') ? RT.HLUCE[p.vincolo] : 10, xSbalzo = (p.mat === 'acciaio') ? 20 : 10;
-    var sb = { sx: p.sx || 0, dx: p.dx || 0 };
     for (var k = 1; k <= p.n; k++) {
       var ps2 = (k === p.n) ? 0 : PSI2, travi = [], sbalzi = [], presenti = 0;
       for (var i = 0; i < geo.nc; i++) {
@@ -126,13 +142,24 @@
         t.pd = pd; t.ps = ps; travi.push(t); presenti++; m.areaSol += L * Binf;
       }
       ['sx', 'dx'].forEach(function (lato) {
-        var Ls = sb[lato]; if (!(Ls > 0)) return;
+        var Ls = geo.lungSbalzo(k, lato); if (!(Ls > 0)) return;
         if (!geo.presente(k, lato)) { sbalzi.push({ assente: true, L: Ls, lato: lato, perPilastro: !geo.disponibile(k, lato) }); return; }
         var pdb = car.qdb[k] * Binf, psb = car.qsb[k] * Binf;
         var ts = dimensionaTrave(p, m, pdb * Ls * Ls / 2, 2 * Ls, xSbalzo, Ls, 2 * Ls, 48, psb, car.qvb[k] * Binf, (p.g1 + p.g2 + ps2 * car.qvb[k]) * Binf);
         ts.pd = pdb; ts.ps = psb; ts.lato = lato; sbalzi.push(ts); presenti++; m.areaSol += Ls * Binf;
       });
-      out.livelli.push({ k: k, qd: car.qd[k], qs: car.qs[k], travi: travi, sbalzi: sbalzi, nPresenti: presenti });
+      var interni = [];                                // sbalzi dentro i vuoti: prolungano le travi vicine
+      for (var iv = 0; iv < geo.nc; iv++) {
+        var sv = geo.sbalziVuoto(k, iv);
+        [['a', sv.a, iv - 1], ['b', sv.b, iv + 1]].forEach(function (c) {
+          var Ls = c[1]; if (!(Ls > 0)) return;
+          var pdb = car.qdb[k] * Binf, psb = car.qsb[k] * Binf;
+          var ti = dimensionaTrave(p, m, pdb * Ls * Ls / 2, 2 * Ls, xSbalzo, Ls, 2 * Ls, 48, psb, car.qvb[k] * Binf, (p.g1 + p.g2 + ps2 * car.qvb[k]) * Binf);
+          ti.pd = pdb; ti.ps = psb; ti.lato = 'int'; ti.verso = c[0]; ti.i = iv; ti.Ladj = p.spans[c[2]];
+          interni.push(ti); presenti++; m.areaSol += Ls * Binf;
+        });
+      }
+      out.livelli.push({ k: k, qd: car.qd[k], qs: car.qs[k], travi: travi, sbalzi: sbalzi, sbalziInt: interni, nPresenti: presenti });
       var esiste = false;
       for (var j = 0; j <= geo.nc; j++) { if (geo.nodoEsiste(j, k)) esiste = true; }
       if (presenti === 0 && esiste) out.avvisi.push((k === p.n ? 'Copertura' : 'Piano ' + k) + ': nessuna trave. I pilastri non sono collegati nel piano a questo livello.');
@@ -173,7 +200,7 @@
   }
 
   function progettaPilastri(p, m, geo, car, Binf, out) {
-    var sb = { sx: p.sx || 0, dx: p.dx || 0 }, nc = geo.nc;
+    var nc = geo.nc;
     function larg(j, k) {                       // larghezza d'influenza [m] del pilastro j al livello k (solo campate con la trave)
       var w = 0;
       if (j > 0 && geo.presente(k, j - 1)) w += p.spans[j - 1] / 2;
@@ -182,8 +209,12 @@
     }
     function sbalzoSu(j, k) {                   // reazione [kN] e area [m2] dello sbalzo sul pilastro di estremita'
       var r = 0, a = 0;
-      if (j === 0 && sb.sx > 0 && geo.presente(k, 'sx')) { r += car.qdb[k] * Binf * sb.sx * (1 + sb.sx / (2 * p.spans[0])); a += sb.sx * Binf; }
-      if (j === nc && sb.dx > 0 && geo.presente(k, 'dx')) { r += car.qdb[k] * Binf * sb.dx * (1 + sb.dx / (2 * p.spans[nc - 1])); a += sb.dx * Binf; }
+      var Lsx = geo.lungSbalzo(k, 'sx'), Ldx = geo.lungSbalzo(k, 'dx');
+      if (j === 0 && Lsx > 0 && geo.presente(k, 'sx')) { r += car.qdb[k] * Binf * Lsx * (1 + Lsx / (2 * p.spans[0])); a += Lsx * Binf; }
+      if (j === nc && Ldx > 0 && geo.presente(k, 'dx')) { r += car.qdb[k] * Binf * Ldx * (1 + Ldx / (2 * p.spans[nc - 1])); a += Ldx * Binf; }
+      out.livelli[k - 1].sbalziInt.forEach(function (t) {              // sbalzi dentro i vuoti, sul pilastro da cui partono
+        if ((t.verso === 'a' ? t.i : t.i + 1) === j) { r += t.pd * t.L * (1 + t.L / (2 * t.Ladj)); a += t.L * Binf; }
+      });
       return { N: r, A: a };
     }
     for (var s2 = 1; s2 <= p.n; s2++) out.interpiani.push({ s: s2, pilastri: [] });
@@ -240,6 +271,6 @@
         col[j][s] = e;
       }
     }
-    return { alto: geo.alto, colonne: col, trave: geo.presente, disponibile: geo.disponibile };
+    return { alto: geo.alto, colonne: col, trave: geo.presente, disponibile: geo.disponibile, vuoto: geo.sbalziVuoto };
   };
 })(typeof window !== 'undefined' ? window : this);
