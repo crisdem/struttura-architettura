@@ -213,14 +213,12 @@
         o += '<rect x="' + (x - w / 2) + '" y="' + y2 + '" width="' + w + '" height="' + (y1 - y2) + '" fill="' + NERO + '"/>';
         o += svgAreeClic(g, p, st, j, e, x);
         var extra = (e.nPiani > 1 || e.libera) ? 'L₀ = ' + F(e.L0, 1) + ' m' : '';
-        if (j === 0 || j === g.nc) {
-          var ax = j === 0 ? x - w / 2 - 4 : x + w / 2 + 4, an = j === 0 ? 'end' : 'start';
-          if ((j === 0 && g.sx > 0) || (j === g.nc && g.dx > 0)) { o += '<text x="' + x + '" y="' + (ym + 4) + '" font-size="11" text-anchor="middle" fill="#fff" pointer-events="none" transform="rotate(-90 ' + x + ' ' + ym + ')">' + etichettaPil(e) + '</text>'; return; }
-          o += '<text x="' + ax + '" y="' + (ym + 4) + '" font-size="11" text-anchor="' + an + '" fill="' + NERO + '" pointer-events="none">' + etichettaPil(e) + '</text>';
-          if (extra) o += '<text x="' + ax + '" y="' + (ym + 17) + '" font-size="10" text-anchor="' + an + '" fill="' + ROSSO + '" font-weight="700" pointer-events="none">' + extra + '</text>';
-        } else if (extra) {
-          o += '<text x="' + (x + w / 2 + 4) + '" y="' + (ym + 4) + '" font-size="10" fill="' + ROSSO + '" font-weight="700" pointer-events="none">' + etichettaPil(e) + ', ' + extra + '</text>';
-        }
+        // etichetta (sempre scura): fuori per i pilastri di estremita', dentro se c'e' lo sbalzo; a destra per quelli interni
+        var conSbalzo = (j === 0 && g.sx > 0) || (j === g.nc && g.dx > 0);
+        var verso = j === 0 ? (conSbalzo ? 1 : -1) : (j === g.nc ? (conSbalzo ? -1 : 1) : 1);
+        var ax = verso > 0 ? x + w / 2 + 4 : x - w / 2 - 4, an = verso > 0 ? 'start' : 'end';
+        o += '<text x="' + ax + '" y="' + (ym + 4) + '" font-size="11" text-anchor="' + an + '" fill="' + NERO + '" pointer-events="none">' + etichettaPil(e) + '</text>';
+        if (extra) o += '<text x="' + ax + '" y="' + (ym + 17) + '" font-size="10" text-anchor="' + an + '" fill="' + ROSSO + '" font-weight="700" pointer-events="none">' + extra + '</text>';
       });
     });
     return o;
