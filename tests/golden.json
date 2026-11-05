@@ -1,0 +1,781 @@
+{
+ "scenari": {
+  "acciaio regolare": {
+   "travi": [
+    "1: IPE 300/resistenza | IPE 300/resistenza",
+    "2: IPE 270/resistenza | IPE 270/resistenza"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P2 [1-1 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P3 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+   ],
+   "alto": "2,2,2",
+   "avvisi": [],
+   "tot": [
+    1430.04,
+    0,
+    0
+   ]
+  },
+  "acciaio HEA": {
+   "travi": [
+    "1: IPE 300/resistenza | IPE 300/resistenza",
+    "2: IPE 270/resistenza | IPE 270/resistenza"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEA 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEA 140 stabilità]",
+    "P2 [1-1 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=200 HEA 140 resistenza] [2-2 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEA 140 stabilità]",
+    "P3 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEA 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEA 140 stabilità]"
+   ],
+   "alto": "2,2,2",
+   "avvisi": [],
+   "tot": [
+    1257.24,
+    0,
+    0
+   ]
+  },
+  "acciaio appoggiata, bordo, B=7": {
+   "travi": [
+    "1: IPE 270/resistenza | IPE 270/resistenza",
+    "2: IPE 240/resistenza | IPE 240/resistenza"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=142.1875 dN=0 A=17.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=61.25 dN=0 A=8.75 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P2 [1-1 N=284.375 dN=0 A=35 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=122.5 dN=0 A=17.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P3 [1-1 N=142.1875 dN=0 A=17.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=61.25 dN=0 A=8.75 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+   ],
+   "alto": "2,2,2",
+   "avvisi": [],
+   "tot": [
+    1315.04,
+    0,
+    0
+   ]
+  },
+  "acciaio incastro, 3 campate disuguali": {
+   "travi": [
+    "1: IPE 220/resistenza | IPE 300/resistenza | IPE 300/resistenza",
+    "2: IPE 220/resistenza | IPE 300/resistenza | IPE 300/resistenza",
+    "3: IPE 200/resistenza | IPE 270/resistenza | IPE 270/resistenza"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=255 dN=0 A=30 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=162.5 dN=0 A=20 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=70 dN=0 A=10 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P2 [1-1 N=637.5 dN=0 A=75 L0=3.2 imin=32 K=250 HEB 160 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P3 [1-1 N=733.125 dN=0 A=86.25 L0=3.2 imin=32 K=250 HEB 180 resistenza] [2-2 N=467.1875 dN=0 A=57.5 L0=3.2 imin=32 K=200 HEB 140 resistenza] [3-3 N=201.25 dN=0 A=28.75 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P4 [1-1 N=350.625 dN=0 A=41.25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=223.4375 dN=0 A=27.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=96.25 dN=0 A=13.75 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+   ],
+   "alto": "3,3,3,3",
+   "avvisi": [],
+   "tot": [
+    3063.51,
+    0,
+    0
+   ]
+  },
+  "acciaio doppia altezza a sinistra": {
+   "travi": [
+    "1: -- | IPE 300/resistenza | IPE 300/resistenza",
+    "2: IPE 300/resistenza | IPE 300/resistenza | IPE 300/resistenza",
+    "3: IPE 270/resistenza | IPE 270/resistenza | IPE 270/resistenza"
+   ],
+   "pilastri": [
+    "P1 [1-2 N=203.125 dN=0 A=25 L0=6.4 imin=64 K=200 HEB 260 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P2 [1-1 N=521.875 dN=0 A=62.5 L0=3.2 imin=32 K=200 HEB 140 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P3 [1-1 N=637.5 dN=0 A=75 L0=3.2 imin=32 K=250 HEB 160 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P4 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+   ],
+   "alto": "3,3,3,3",
+   "avvisi": [
+    "Pilastro 1: doppia altezza (interpiani 1–2), lunghezza libera 6,4 m: L₀ cresce e la sezione deve essere più grande per la stabilità."
+   ],
+   "tot": [
+    3298.58,
+    0,
+    0
+   ]
+  },
+  "acciaio doppia altezza al centro": {
+   "travi": [
+    "1: IPE 300/resistenza | -- | IPE 300/resistenza",
+    "2: IPE 300/resistenza | IPE 300/resistenza | IPE 300/resistenza",
+    "3: IPE 270/resistenza | IPE 270/resistenza | IPE 270/resistenza"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P2 [1-1 N=521.875 dN=0 A=62.5 L0=3.2 imin=32 K=200 HEB 140 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P3 [1-1 N=521.875 dN=0 A=62.5 L0=3.2 imin=32 K=200 HEB 140 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P4 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+   ],
+   "alto": "3,3,3,3",
+   "avvisi": [],
+   "tot": [
+    2890.58,
+    0,
+    0
+   ]
+  },
+  "acciaio arretramento in copertura": {
+   "travi": [
+    "1: IPE 300/resistenza | IPE 300/resistenza | IPE 300/resistenza",
+    "2: IPE 300/resistenza | IPE 300/resistenza | IPE 300/resistenza",
+    "3: IPE 270/resistenza | IPE 270/resistenza | --"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P2 [1-1 N=637.5 dN=0 A=75 L0=3.2 imin=32 K=250 HEB 160 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P3 [1-1 N=550 dN=0 A=62.5 L0=3.2 imin=32 K=200 HEB 140 resistenza] [2-2 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P4 [1-1 N=231.25 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=115.625 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+   ],
+   "alto": "3,3,3,2",
+   "avvisi": [],
+   "tot": [
+    2841.72,
+    0,
+    0
+   ]
+  },
+  "acciaio copertura senza travi (testa libera)": {
+   "travi": [
+    "1: IPE 300/resistenza | IPE 300/resistenza",
+    "2: -- | --"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=115.625 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=0 dN=0 A=0 L0=6.4 imin=64 K=200 HEB 260 stabilità libera]",
+    "P2 [1-1 N=231.25 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=0 dN=0 A=0 L0=6.4 imin=64 K=200 HEB 260 stabilità libera]",
+    "P3 [1-1 N=115.625 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=0 dN=0 A=0 L0=6.4 imin=64 K=200 HEB 260 stabilità libera]"
+   ],
+   "alto": "2,2,2",
+   "avvisi": [
+    "Copertura: nessuna trave. I pilastri non sono collegati nel piano a questo livello.",
+    "Pilastro 1: testa libera al livello 2 (in cima non arrivano travi). Si può togliere dalla matrice dei pilastri, oppure serve un vincolo; qui è calcolato come mensola, L₀ = 2·(altezza libera).",
+    "Pilastro 2: testa libera al livello 2 (in cima non arrivano travi). Si può togliere dalla matrice dei pilastri, oppure serve un vincolo; qui è calcolato come mensola, L₀ = 2·(altezza libera).",
+    "Pilastro 3: testa libera al livello 2 (in cima non arrivano travi). Si può togliere dalla matrice dei pilastri, oppure serve un vincolo; qui è calcolato come mensola, L₀ = 2·(altezza libera)."
+   ],
+   "tot": [
+    1638.32,
+    0,
+    0
+   ]
+  },
+  "acciaio pilastro tolto del tutto": {
+   "travi": [
+    "1: -- | IPE 300/resistenza",
+    "2: -- | IPE 270/resistenza"
+   ],
+   "pilastri": [
+    "P1 ",
+    "P2 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P3 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+   ],
+   "alto": "0,2,2",
+   "avvisi": [],
+   "tot": [
+    822.86,
+    0,
+    0
+   ]
+  },
+  "acciaio sbalzi": {
+   "travi": [
+    "1: IPE 300/resistenza | IPE 300/resistenza + sb IPE 240/resistenza,IPE 300/resistenza",
+    "2: IPE 270/resistenza | IPE 270/resistenza + sb IPE 200/resistenza,IPE 240/resistenza"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=369.1563 dN=166.0312 A=40 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=147.875 dN=60.375 A=20 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P2 [1-1 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P3 [1-1 N=434.125 dN=231 A=45 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=171.5 dN=84 A=22.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+   ],
+   "alto": "2,2,2",
+   "avvisi": [],
+   "tot": [
+    1655.49,
+    0,
+    0
+   ]
+  },
+  "acciaio sbalzo sx tolto al piano 2": {
+   "travi": [
+    "1: IPE 300/resistenza | IPE 300/resistenza + sb IPE 240/resistenza,IPE 300/resistenza",
+    "2: IPE 270/resistenza | IPE 270/resistenza + sb --,IPE 240/resistenza"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=308.7813 dN=105.6562 A=32.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P2 [1-1 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P3 [1-1 N=434.125 dN=231 A=45 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=171.5 dN=84 A=22.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+   ],
+   "alto": "2,2,2",
+   "avvisi": [],
+   "tot": [
+    1621.89,
+    0,
+    0
+   ]
+  },
+  "acciaio sbalzo dx senza trave adiacente": {
+   "travi": [
+    "1: IPE 300/resistenza | IPE 300/resistenza + sb IPE 240/resistenza",
+    "2: IPE 270/resistenza | -- + sb --"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P2 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P3 [1-1 N=221.2813 dN=105.6562 A=20 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=0 dN=0 A=0 L0=6.4 imin=64 K=200 HEB 260 stabilità libera]"
+   ],
+   "alto": "2,2,2",
+   "avvisi": [
+    "Pilastro 3: testa libera al livello 2 (in cima non arrivano travi). Si può togliere dalla matrice dei pilastri, oppure serve un vincolo; qui è calcolato come mensola, L₀ = 2·(altezza libera)."
+   ],
+   "tot": [
+    1485.35,
+    0,
+    0
+   ]
+  },
+  "legno regolare 3 piani": {
+   "travi": [
+    "1: 160x520/resistenza | 160x520/resistenza",
+    "2: 160x520/resistenza | 160x520/resistenza",
+    "3: 160x440/resistenza | 160x440/resistenza"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=241.875 dN=0 A=37.5 L0=3.2 imin=32 K=200 300 resistenza] [2-2 N=151.875 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità] [3-3 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 K=200 250 stabilità]",
+    "P2 [1-1 N=483.75 dN=0 A=75 L0=3.2 imin=32 K=250 400 resistenza] [2-2 N=303.75 dN=0 A=50 L0=3.2 imin=32 K=200 300 resistenza] [3-3 N=123.75 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità]",
+    "P3 [1-1 N=241.875 dN=0 A=37.5 L0=3.2 imin=32 K=200 300 resistenza] [2-2 N=151.875 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità] [3-3 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 K=200 250 stabilità]"
+   ],
+   "alto": "3,3,3",
+   "avvisi": [],
+   "tot": [
+    0,
+    0,
+    4.744
+   ]
+  },
+  "legno doppia altezza": {
+   "travi": [
+    "1: -- | 160x520/resistenza | 160x520/resistenza",
+    "2: 160x520/resistenza | 160x520/resistenza | 160x520/resistenza",
+    "3: 160x440/resistenza | 160x440/resistenza | 160x440/resistenza"
+   ],
+   "pilastri": [
+    "P1 [1-2 N=151.875 dN=0 A=25 L0=6.4 imin=64 K=200 450 stabilità] [3-3 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 K=200 250 stabilità]",
+    "P2 [1-1 N=393.75 dN=0 A=62.5 L0=3.2 imin=32 K=200 350 resistenza] [2-2 N=303.75 dN=0 A=50 L0=3.2 imin=32 K=200 300 resistenza] [3-3 N=123.75 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità]",
+    "P3 [1-1 N=483.75 dN=0 A=75 L0=3.2 imin=32 K=250 400 resistenza] [2-2 N=303.75 dN=0 A=50 L0=3.2 imin=32 K=200 300 resistenza] [3-3 N=123.75 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità]",
+    "P4 [1-1 N=241.875 dN=0 A=37.5 L0=3.2 imin=32 K=200 300 resistenza] [2-2 N=151.875 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità] [3-3 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 K=200 250 stabilità]"
+   ],
+   "alto": "3,3,3,3",
+   "avvisi": [
+    "Pilastro 1: doppia altezza (interpiani 1–2), lunghezza libera 6,4 m: L₀ cresce e la sezione deve essere più grande per la stabilità."
+   ],
+   "tot": [
+    0,
+    0,
+    7.2
+   ]
+  },
+  "legno GL32h base 200": {
+   "travi": [
+    "1: 200x400/resistenza | 200x400/resistenza",
+    "2: 200x360/resistenza | 200x360/resistenza"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=151.875 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità] [2-2 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 K=200 250 stabilità]",
+    "P2 [1-1 N=303.75 dN=0 A=50 L0=3.2 imin=32 K=200 250 resistenza] [2-2 N=123.75 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità]",
+    "P3 [1-1 N=151.875 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità] [2-2 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 K=200 250 stabilità]"
+   ],
+   "alto": "2,2,2",
+   "avvisi": [],
+   "tot": [
+    0,
+    0,
+    2.72
+   ]
+  },
+  "c.a. emergente": {
+   "travi": [
+    "1: 300x450 | 300x450",
+    "2: 300x400 | 300x400"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=235.625 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [2-2 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]",
+    "P2 [1-1 N=471.25 dN=0 A=50 L0=3.2 imin=32 K=400 300 resistenza] [2-2 N=207.5 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza]",
+    "P3 [1-1 N=235.625 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [2-2 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]"
+   ],
+   "alto": "2,2,2",
+   "avvisi": [],
+   "tot": [
+    0,
+    4.278,
+    0
+   ]
+  },
+  "c.a. a spessore": {
+   "travi": [
+    "1: 1800x200 | 1800x200",
+    "2: 1400x200 | 1400x200"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=235.625 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [2-2 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]",
+    "P2 [1-1 N=471.25 dN=0 A=50 L0=3.2 imin=32 K=400 300 resistenza] [2-2 N=207.5 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza]",
+    "P3 [1-1 N=235.625 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [2-2 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]"
+   ],
+   "alto": "2,2,2",
+   "avvisi": [],
+   "tot": [
+    0,
+    8.128,
+    0
+   ]
+  },
+  "c.a. doppia altezza con sbalzo": {
+   "travi": [
+    "1: -- | 300x450 | 300x450 + sb --",
+    "2: 300x450 | 300x450 | 300x450 + sb 300x350",
+    "3: 300x400 | 300x400 | 300x400 + sb 300x300"
+   ],
+   "pilastri": [
+    "P1 [1-2 N=424.0813 dN=188.4562 A=40 L0=6.4 imin=64 K=350 450 stabilità] [3-3 N=175.3375 dN=71.5875 A=20 L0=3.2 imin=32 K=300 300 resistenza]",
+    "P2 [1-1 N=603.125 dN=0 A=62.5 L0=3.2 imin=32 K=400 300 resistenza] [2-2 N=471.25 dN=0 A=50 L0=3.2 imin=32 K=400 300 resistenza] [3-3 N=207.5 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza]",
+    "P3 [1-1 N=735 dN=0 A=75 L0=3.2 imin=32 K=450 350 resistenza] [2-2 N=471.25 dN=0 A=50 L0=3.2 imin=32 K=400 300 resistenza] [3-3 N=207.5 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza]",
+    "P4 [1-1 N=367.5 dN=0 A=37.5 L0=3.2 imin=32 K=350 300 resistenza] [2-2 N=235.625 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [3-3 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]"
+   ],
+   "alto": "3,3,3,3",
+   "avvisi": [
+    "Pilastro 1: doppia altezza (interpiani 1–2), lunghezza libera 6,4 m: L₀ cresce e la sezione deve essere più grande per la stabilità."
+   ],
+   "tot": [
+    0,
+    9.7475,
+    0
+   ]
+  },
+  "c.a. C30/37 senza neve": {
+   "travi": [
+    "1: 300x400 | 300x400",
+    "2: 300x350 | 300x350"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=226.25 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [2-2 N=94.375 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]",
+    "P2 [1-1 N=452.5 dN=0 A=50 L0=3.2 imin=32 K=400 300 resistenza] [2-2 N=188.75 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza]",
+    "P3 [1-1 N=226.25 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [2-2 N=94.375 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]"
+   ],
+   "alto": "2,2,2",
+   "avvisi": [],
+   "tot": [
+    0,
+    3.978,
+    0
+   ]
+  }
+ },
+ "funzioni": {
+  "esempio_L3_trave55": [
+   "IPE 300",
+   8.4875,
+   22
+  ],
+  "esempio_L3_trave4": [
+   "IPE 220",
+   7.1577
+  ],
+  "esempio_L3_pilastro": [
+   "HEB 160",
+   "HEA 160"
+  ],
+  "latoK": [
+   [
+    300,
+    200,
+    200
+   ],
+   [
+    450,
+    250,
+    250
+   ],
+   [
+    550,
+    300,
+    300
+   ],
+   [
+    600,
+    300,
+    300
+   ],
+   [
+    700,
+    350,
+    350
+   ]
+  ],
+  "imin": [
+   38,
+   64
+  ],
+  "hluce": {
+   "appoggiata": 20,
+   "semi": 25,
+   "incastro": 30
+  },
+  "lezione4": [
+   426.3287877848711,
+   2129.9558823529414,
+   500
+  ],
+  "stato": [
+   "3,3,3,2",
+   false,
+   true,
+   false,
+   false,
+   false,
+   false
+  ]
+ },
+ "impatto": {
+  "acciaio regolare": {
+   "quantita": [
+    0,
+    100,
+    20
+   ],
+   "senzaSolaio": [
+    2488.2696,
+    5720.16,
+    0
+   ],
+   "conSolaio": [
+    7838.2696,
+    18120.16,
+    78.3827,
+    181.2016
+   ]
+  },
+  "acciaio HEA": {
+   "quantita": [
+    0,
+    100,
+    20
+   ],
+   "senzaSolaio": [
+    2187.5976,
+    5028.96,
+    0
+   ],
+   "conSolaio": [
+    7537.5976,
+    17428.96,
+    75.376,
+    174.2896
+   ]
+  },
+  "acciaio appoggiata, bordo, B=7": {
+   "quantita": [
+    0,
+    70,
+    19.6
+   ],
+   "senzaSolaio": [
+    2288.1696,
+    5260.16,
+    0
+   ],
+   "conSolaio": [
+    7531.1696,
+    16096.16,
+    107.5881,
+    229.9451
+   ]
+  },
+  "acciaio incastro, 3 campate disuguali": {
+   "quantita": [
+    0,
+    232.5,
+    46.5
+   ],
+   "senzaSolaio": [
+    5330.5074,
+    12254.04,
+    0
+   ],
+   "conSolaio": [
+    17769.2574,
+    41084.04,
+    76.4269,
+    176.7055
+   ]
+  },
+  "acciaio doppia altezza a sinistra": {
+   "quantita": [
+    0,
+    200,
+    40
+   ],
+   "senzaSolaio": [
+    5739.5292,
+    13194.32,
+    0
+   ],
+   "conSolaio": [
+    16439.5292,
+    37994.32,
+    82.1976,
+    189.9716
+   ]
+  },
+  "acciaio doppia altezza al centro": {
+   "quantita": [
+    0,
+    200,
+    40
+   ],
+   "senzaSolaio": [
+    5029.6092,
+    11562.32,
+    0
+   ],
+   "conSolaio": [
+    15729.6092,
+    36362.32,
+    78.648,
+    181.8116
+   ]
+  },
+  "acciaio arretramento in copertura": {
+   "quantita": [
+    0,
+    200,
+    40
+   ],
+   "senzaSolaio": [
+    4944.5928,
+    11366.88,
+    0
+   ],
+   "conSolaio": [
+    15644.5928,
+    36166.88,
+    78.223,
+    180.8344
+   ]
+  },
+  "acciaio copertura senza travi (testa libera)": {
+   "quantita": [
+    0,
+    50,
+    10
+   ],
+   "senzaSolaio": [
+    2850.6768,
+    6553.28,
+    0
+   ],
+   "conSolaio": [
+    5525.6768,
+    12753.28,
+    110.5135,
+    255.0656
+   ]
+  },
+  "acciaio pilastro tolto del tutto": {
+   "quantita": [
+    0,
+    50,
+    10
+   ],
+   "senzaSolaio": [
+    1431.7764,
+    3291.44,
+    0
+   ],
+   "conSolaio": [
+    4106.7764,
+    9491.44,
+    82.1355,
+    189.8288
+   ]
+  },
+  "acciaio sbalzi": {
+   "quantita": [
+    0,
+    135,
+    27
+   ],
+   "senzaSolaio": [
+    2880.5526,
+    6621.96,
+    0
+   ],
+   "conSolaio": [
+    10103.0526,
+    23361.96,
+    74.8374,
+    173.0516
+   ]
+  },
+  "acciaio sbalzo sx tolto al piano 2": {
+   "quantita": [
+    0,
+    127.5,
+    25.5
+   ],
+   "senzaSolaio": [
+    2822.0886,
+    6487.56,
+    0
+   ],
+   "conSolaio": [
+    9643.3386,
+    22297.56,
+    75.634,
+    174.8828
+   ]
+  },
+  "acciaio sbalzo dx senza trave adiacente": {
+   "quantita": [
+    0,
+    82.5,
+    16.5
+   ],
+   "senzaSolaio": [
+    2584.509,
+    5941.4,
+    0
+   ],
+   "conSolaio": [
+    6998.259,
+    16171.4,
+    84.8274,
+    196.017
+   ]
+  },
+  "legno regolare 3 piani": {
+   "quantita": [
+    0,
+    150,
+    30
+   ],
+   "senzaSolaio": [
+    711.6,
+    6641.6,
+    3325.0696
+   ],
+   "conSolaio": [
+    8736.6,
+    25241.6,
+    58.244,
+    168.2773
+   ]
+  },
+  "legno doppia altezza": {
+   "quantita": [
+    0,
+    200,
+    40
+   ],
+   "senzaSolaio": [
+    1080,
+    10080,
+    5046.48
+   ],
+   "conSolaio": [
+    11780,
+    34880,
+    58.9,
+    174.4
+   ]
+  },
+  "legno GL32h base 200": {
+   "quantita": [
+    0,
+    100,
+    20
+   ],
+   "senzaSolaio": [
+    408,
+    3808,
+    1906.448
+   ],
+   "conSolaio": [
+    5758,
+    16208,
+    57.58,
+    162.08
+   ]
+  },
+  "c.a. emergente": {
+   "quantita": [
+    46.04,
+    100,
+    20
+   ],
+   "senzaSolaio": [
+    1336.875,
+    4324.27,
+    0
+   ],
+   "conSolaio": [
+    6686.875,
+    16724.27,
+    66.8688,
+    167.2427
+   ]
+  },
+  "c.a. a spessore": {
+   "quantita": [
+    55.04,
+    100,
+    13.6
+   ],
+   "senzaSolaio": [
+    2540,
+    6691.52,
+    0
+   ],
+   "conSolaio": [
+    6178,
+    16627.52,
+    61.78,
+    166.2752
+   ]
+  },
+  "c.a. doppia altezza con sbalzo": {
+   "quantita": [
+    99.91,
+    215,
+    43
+   ],
+   "senzaSolaio": [
+    3046.0938,
+    9618.2575,
+    0
+   ],
+   "conSolaio": [
+    14548.5938,
+    36278.2575,
+    67.6679,
+    168.7361
+   ]
+  },
+  "c.a. C30/37 senza neve": {
+   "quantita": [
+    44.04,
+    100,
+    20
+   ],
+   "senzaSolaio": [
+    1362.465,
+    4201.0935,
+    0
+   ],
+   "conSolaio": [
+    7312.465,
+    17216.0935,
+    73.1246,
+    172.1609
+   ]
+  }
+ }
+}

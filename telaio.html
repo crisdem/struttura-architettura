@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Telaio piano - predimensionamento | Struttura e Architettura</title>
-<meta name="description" content="Telaio piano in acciaio, legno o calcestruzzo armato, con sbalzi: cambia campate, piani, luci e luce fuori piano e osserva le sezioni necessarie, disegnate in scala.">
+<title>Telaio piano - predimensionamento e dimensionamento | Struttura e Architettura</title>
+<meta name="description" content="Telaio piano in acciaio, legno o calcestruzzo armato, con sbalzi e travi che si possono togliere (vuoti, doppie altezze): cambia campate, piani, luci e osserva le sezioni necessarie, disegnate in scala.">
 <link rel="stylesheet" href="assets/css/style.css">
 <style>
  .kpi{display:flex;gap:1.2rem;flex-wrap:wrap;margin:.6rem 0}
@@ -16,18 +16,30 @@
  details.regole summary{cursor:pointer;font-weight:700}
  .campo.inline{grid-template-columns:auto 1fr;gap:.5rem}
  .campo.inline input[type=checkbox]{grid-column:auto;accent-color:var(--rosso);width:1.1rem;height:1.1rem}
+ table.mx{width:auto;font-size:.8rem}
+ table.mx th,table.mx td{padding:.15rem .5rem;text-align:center}
+ table.mx th[scope=row]{text-align:left;white-space:nowrap}
+ table.mx input{accent-color:var(--rosso);width:1.1rem;height:1.1rem}
+ .tg{cursor:pointer}
+ tr.corrente td{background:var(--carta)}
+ .tg:hover{opacity:.75}
+ .tcol{cursor:not-allowed}
+ .tcol.ok{cursor:pointer}
+ .tcol.ok:hover{fill:rgba(209,56,43,.45);opacity:1}
+ tr.vuoto td{color:var(--grigio);font-style:italic}
+ .liv{display:inline-block;background:var(--rosso);color:#fff;font-size:.68rem;font-weight:700;letter-spacing:.04em;padding:.1rem .45rem;margin-right:.4rem;vertical-align:middle}
 </style>
 </head>
 <body>
 <header class="sito"><div class="in">
   <a href="index.html"><img src="assets/img/logo_romatre_bianco.png" alt="Roma Tre"></a>
   <div class="titolo">Struttura e Architettura<small>Laboratorio di Progettazione Architettonica 2 - Dipartimento di Architettura</small></div>
-  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="introduzione.html">Introduzione</a><a href="lezione1.html">Lezione 1</a><a href="lezione2.html">Lezione 2</a><a href="lezione3.html">Lezione 3</a><a href="lezione4.html">Lezione 4</a><a href="telaio.html" aria-current="page">Telaio piano</a><a href="muratura.html">Muratura</a></nav>
+  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="introduzione.html">Introduzione</a><a href="lezione1.html">Lezione 1</a><a href="lezione2.html">Lezione 2</a><a href="lezione3.html">Lezione 3</a><a href="lezione4.html">Lezione 4</a><a href="telaio.html" aria-current="page">Telaio piano</a></nav>
 </div></header>
 
 <main>
-<h1>Telaio piano: predimensionamento</h1>
-<p class="sotto">Acciaio, legno o calcestruzzo armato, con sbalzi. Le sezioni sono disegnate <b>in scala</b>, a partire dai criteri del modulo.</p>
+<h1>Telaio piano: predimensionamento e dimensionamento</h1>
+<p class="sotto" data-en="Steel, timber or reinforced concrete, with cantilevers. You can &lt;b&gt;remove beams&lt;/b&gt; to make voids and double heights. The sections are drawn &lt;b&gt;to scale&lt;/b&gt;, based on the criteria of the module: first &lt;b&gt;level 1&lt;/b&gt; (preliminary sizing, geometric criteria), then &lt;b&gt;level 2&lt;/b&gt; (sizing, simplified mechanical criteria).">Acciaio, legno o calcestruzzo armato, con sbalzi. Puoi <b>togliere travi</b> per fare vuoti e doppie altezze. Le sezioni sono disegnate <b>in scala</b>, a partire dai criteri del modulo: prima il <b>livello 1</b> (predimensionamento, criteri geometrici), poi il <b>livello 2</b> (dimensionamento, criteri meccanici semplificati).</p>
 
 <div class="griglia due">
   <div>
@@ -56,6 +68,20 @@
         <input type="range" id="B" min="2.5" max="9" step="0.1" value="5"></div>
       <div class="campo inline"><input type="checkbox" id="bordo"><label for="bordo">Telaio di bordo (area d'influenza B/2)</label></div>
 
+      <h3>Travi presenti <span class="unita">togli una trave per fare un vuoto</span></h3>
+      <p class="nota" style="margin-top:-.2rem" data-en="A removed beam is a void: no beam and no floor slab in that span, at that level (double height). The cantilever is the extension of the adjacent beam: without that beam there is none. You can also click the beam in the drawing.">Una trave tolta è un vuoto: niente trave e niente solaio in quella campata, a quel livello (doppia altezza). Lo sbalzo è il prolungamento della trave adiacente: senza quella trave non c'è. Si può anche cliccare sulla trave nel disegno.</p>
+      <div id="matrice" class="scroll" role="group" aria-label="Travi presenti"></div>
+      <h3>Pilastri presenti <span class="unita">si tolgono solo dall'alto</span></h3>
+      <p class="nota" style="margin-top:-.2rem" data-en="A column can be removed only if it has a &lt;b&gt;free top&lt;/b&gt;: no column above and no beam (or cantilever) connected at the top. First remove the beams at the node, then the column.">Un pilastro si può togliere solo se ha la <b>testa libera</b>: nessun pilastro sopra e nessuna trave (né sbalzo) collegata in cima. Prima si tolgono le travi del nodo, poi il pilastro.</p>
+      <div id="matricePil" class="scroll" role="group" aria-label="Pilastri presenti"></div>
+      <p class="nota" id="msgMatrice" aria-live="polite" style="min-height:1.2em"></p>
+      <div class="pillole" role="group" aria-label="Esempi">
+        <button type="button" id="pTutte">Tutto presente</button>
+        <button type="button" id="pSx">Doppia altezza a sinistra</button>
+        <button type="button" id="pCentro">Doppia altezza al centro</button>
+        <button type="button" id="pArretra">Arretramento in copertura</button>
+      </div>
+
       <h3>Carichi caratteristici <span class="unita">[kN/m²]</span></h3>
       <div class="campo"><label for="g1">G₁ strutturali (solaio)</label><output id="g1v"></output>
         <input type="range" id="g1" min="0.5" max="6" step="0.1" value="2.5"></div>
@@ -76,7 +102,9 @@
         <input type="range" id="chi" min="0.2" max="0.9" step="0.05" value="0.5"></div>
       <p class="nota" id="chiNota" style="margin-top:-.2rem"></p>
       <div id="optAcc"><div class="campo"><label for="acc">Acciaio</label>
-        <select id="acc"><option>S235</option><option selected>S275</option><option>S355</option></select></div></div>
+        <select id="acc"><option>S235</option><option selected>S275</option><option>S355</option></select></div>
+        <div class="campo"><label for="serie">Pilastri: serie di profili</label>
+        <select id="serie"><option value="HEB" selected>HEB</option><option value="HEA">HEA</option></select></div></div>
       <div id="optLeg" hidden>
         <div class="campo"><label for="cleg">Classe di resistenza</label>
           <select id="cleg"><option value="C24">C24 (massiccio)</option><option value="GL24h" selected>GL24h (lamellare)</option><option value="GL28h">GL28h (lamellare)</option><option value="GL32h">GL32h (lamellare)</option></select></div>
@@ -93,30 +121,92 @@
   </div>
 
   <div>
-    <div class="campo inline" style="margin:.2rem 0 .5rem"><input type="checkbox" id="carichi"><label for="carichi">Mostra i carichi sulla struttura (p<sub>d</sub> sulle travi, N<sub>Ed</sub> alla base dei pilastri)</label></div>
+    <div class="campo inline" style="margin:.2rem 0 .1rem"><input type="checkbox" id="carichi"><label for="carichi">Mostra i carichi sulla struttura (p<sub>d</sub> sulle travi, N<sub>Ed</sub> alla base dei pilastri)</label></div>
+    <div class="campo inline" style="margin:.1rem 0 .5rem"><input type="checkbox" id="omini" checked><label for="omini">Mostra una persona alta 1,75 m nelle campate con la trave, per le proporzioni</label></div>
     <svg id="fig" class="fig" role="img" aria-label="Prospetto del telaio con le sezioni di travi e pilastri in scala"></svg>
+    <p class="avviso" id="msgFig" aria-live="polite" hidden></p>
+
+    <h2>Pianta: luce fuori piano e area d'influenza</h2>
+    <p style="margin:.2rem 0 .5rem"><label for="livPianta">Livello della pianta </label><select id="livPianta"></select></p>
+    <svg id="pianta" class="fig" role="img" aria-label="Pianta del telaio con la luce fuori piano B e l'area d'influenza delle travi"></svg>
+    <p class="nota" id="notaPianta"></p>
     <div class="kpi" id="kpi" aria-live="polite"></div>
     <div class="avviso" id="avvisi" hidden></div>
 
     <h2>Travi</h2>
+    <p class="nota" style="margin-top:-.4rem" data-en="&lt;span class=&quot;liv&quot;&gt;LEVEL 1&lt;/span&gt;h from the span (rule of thumb). &lt;span class=&quot;liv&quot;&gt;LEVEL 2&lt;/span&gt;moment, section modulus, section from the catalogue and &lt;b&gt;deflection check&lt;/b&gt; with the inertia of the chosen section."><span class="liv">LIVELLO 1</span>h dalla luce (regola pratica). <span class="liv">LIVELLO 2</span>momento, modulo di resistenza, sezione dal sagomario e <b>verifica</b> della freccia con l'inerzia della sezione scelta.</p>
     <div class="scroll"><table id="tTravi"></table></div>
     <h2>Pilastri</h2>
+    <p class="nota" style="margin-top:-.4rem" data-en="&lt;span class=&quot;liv&quot;&gt;LEVEL 1&lt;/span&gt;size ≈ K·√(total tributary area) and slenderness: i&lt;sub&gt;min&lt;/sub&gt; = L₀/100 for steel, side ≥ L₀/15 for r.c. and timber. &lt;span class=&quot;liv&quot;&gt;LEVEL 2&lt;/span&gt;A&lt;sub&gt;min&lt;/sub&gt; = N&lt;sub&gt;Ed&lt;/sub&gt;/(χ₀·f&lt;sub&gt;d&lt;/sub&gt;). The final section must satisfy both. L₀ = β·H free: with a double height the free length doubles."><span class="liv">LIVELLO 1</span>ingombro ≈ K·√(area d'influenza totale) e snellezza: i<sub>min</sub> = L₀/100 per l'acciaio, lato ≥ L₀/15 per c.a. e legno. <span class="liv">LIVELLO 2</span>A<sub>min</sub> = N<sub>Ed</sub>/(χ₀·f<sub>d</sub>). Il profilo o la sezione finale deve soddisfare entrambi. L₀ = β·H libera: con una doppia altezza la lunghezza libera raddoppia.</p>
     <div class="scroll"><table id="tPil"></table></div>
 
+    <h2>CO₂ e costi (stima)</h2>
+    <p class="nota" style="margin-top:-.4rem" data-en="Order of magnitude for &lt;b&gt;one frame&lt;/b&gt; (beams and columns in the figure). Emissions: material production only (modules A1–A3 of EN 15804); costs: materials in place, VAT excluded. It is not a bill of quantities nor a life-cycle assessment.">Ordine di grandezza per <b>un telaio</b> (travi e pilastri della figura). Emissioni: solo la produzione dei materiali (moduli A1–A3 della EN 15804); costi: materiali in opera, IVA esclusa. Non è un computo né un'analisi del ciclo di vita.</p>
+    <div class="campo inline" style="margin:.2rem 0 .5rem"><input type="checkbox" id="conSolaio"><label for="conSolaio">Includi il solaio in c.a. (spessore B/25, minimo 120 mm, sulle campate con la trave)</label></div>
+    <div class="scroll"><table id="tImpatto"></table></div>
+    <div class="kpi" id="kpiImpatto" aria-live="polite"></div>
+    <p class="nota" id="notaImpatto" hidden></p>
+    <h3>Lo stesso telaio in tre materiali</h3>
+    <p class="nota" style="margin-top:-.4rem">Stessa geometria e stessi carichi, cambia solo il materiale (acciaio con la serie scelta sopra, legno e c.a. con le impostazioni correnti).</p>
+    <div class="scroll"><table id="tConfronto"></table></div>
+    <details class="regole"><summary>Ipotesi e fonti (valori modificabili)</summary>
+      <div class="scroll"><table class="mx">
+        <thead><tr><th>Materiale</th><th>CO₂e</th><th>Costo in opera</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Acciaio da carpenteria</th><td><input type="number" id="iCo2Acc" min="0" step="0.05" style="width:5rem"> kg/kg</td><td><input type="number" id="iCoAcc" min="0" step="0.1" style="width:5rem"> €/kg</td></tr>
+          <tr><th scope="row">Armatura B450C</th><td><input type="number" id="iCo2Arm" min="0" step="0.05" style="width:5rem"> kg/kg</td><td><input type="number" id="iCoArm" min="0" step="0.1" style="width:5rem"> €/kg</td></tr>
+          <tr><th scope="row">Calcestruzzo C25/30</th><td><input type="number" id="iCo2Cls" min="0" step="5" style="width:5rem"> kg/m³</td><td><input type="number" id="iCoCls" min="0" step="5" style="width:5rem"> €/m³</td></tr>
+          <tr><th scope="row">Casseforme</th><td>trascurabile</td><td><input type="number" id="iCoCas" min="0" step="1" style="width:5rem"> €/m²</td></tr>
+          <tr><th scope="row">Legno lamellare</th><td><input type="number" id="iCo2Leg" min="0" step="5" style="width:5rem"> kg/m³</td><td><input type="number" id="iCoLeg" min="0" step="50" style="width:5rem"> €/m³</td></tr>
+          <tr><th scope="row">Armatura per m³ di c.a.</th><td>travi e pilastri <input type="number" id="iArmTP" min="0" step="10" style="width:4.5rem"> kg/m³</td><td>solaio <input type="number" id="iArmSol" min="0" step="10" style="width:4.5rem"> kg/m³</td></tr>
+        </tbody></table></div>
+      <p><button type="button" id="ripristinaIpotesi">Ripristina i valori predefiniti</button></p>
+      <ul data-en="&lt;li&gt;&lt;b&gt;Steel&lt;/b&gt;: 1.74 kg CO₂e/kg for hot-rolled sections (BCSA 2021 value reported by &lt;a href=&quot;https://steelconstruction.info/topics/sustainability/end-of-life-lca-and-embodied-carbon-data-for-common-framing-materials/&quot;&gt;steelconstruction.info&lt;/a&gt;); it depends strongly on the production route: from about 0.5–0.8 (electric arc furnace, scrap) to over 2 (blast furnace). Assumed cost 4 €/kg in place, painted; the FVG 2025 price list gives 4.26 €/kg for galvanized bent-sheet steelwork (&lt;a href=&quot;https://www.regione.fvg.it/rafvg/cms/RAFVG/infrastrutture-lavori-pubblici/lavori-pubblici/prezzario-2025/articolo.html?cod=20.6.HH2.02&quot;&gt;item 20.6.HH2.02&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Reinforcement&lt;/b&gt;: 0.75 kg CO₂e/kg, order of magnitude of the Italian EPDs of rebar from electric arc furnaces, from about 0.65 to 0.79 (&lt;a href=&quot;https://www.pittini.it/wp-content/uploads/Gruppo-Pittini-EPD-tondo-barre-e-rotoli-2019.pdf&quot;&gt;Gruppo Pittini 2019&lt;/a&gt;, &lt;a href=&quot;https://epditaly.it/en/wp-content/uploads/2016/12/Dichiarazione-EPD-2023-Tondo-Siderpotenza.pdf&quot;&gt;Siderpotenza 2023&lt;/a&gt;). Assumed cost 2 €/kg in place (values found between 1.4 and 2.4 €/kg). Amount of reinforcement per m³: typical literature values, from 80 to 200 kg/m³.&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Concrete&lt;/b&gt;: 200 kg CO₂e/m³ for C25/30; EPDs of Italian concretes give about 190–220 (e.g. &lt;a href=&quot;https://www.mapei.com/it/en/realta-mapei/detail/the-future-of-concrete-is-low-carbon&quot;&gt;Mapei&lt;/a&gt;). For C28/35 and C30/37 the value (and the cost) is scaled by 7.5 % and 15 %: an assumption of the laboratory. Cost 205 €/m³; the FVG 2025 price list gives 201.83 €/m³ for C25/30 elevations, reinforcement excluded (&lt;a href=&quot;https://www.regione.fvg.it/rafvg/cms/RAFVG/infrastrutture-lavori-pubblici/lavori-pubblici/prezzario-2025/&quot;&gt;2025 price list&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Formwork&lt;/b&gt;: 47 €/m² (FVG 2025 price list, formwork for beams and columns, &lt;a href=&quot;https://www.regione.fvg.it/rafvg/cms/RAFVG/infrastrutture-lavori-pubblici/lavori-pubblici/prezzario-2025/?cod=20.2.RI1.01&quot;&gt;item 20.2.RI1.01&lt;/a&gt;). Area: soffit and two sides of the beams, four sides of the columns; for the floor slab the soffit only. Emissions neglected.&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Glulam timber&lt;/b&gt;: 150 kg CO₂e/m³ from fossil sources (production, drying, gluing); glulam EPDs give about 120–150 (e.g. &lt;a href=&quot;https://cdn.byggtjeneste.no/nobb/78c67693-5206-4e05-b217-2a3eaf2149ec&quot;&gt;NOBB EPD&lt;/a&gt;, 430 kg/m³). The stored biogenic carbon (about 1.63 kg CO₂ per kg of timber) is shown separately and not subtracted. Cost 1,400 €/m³: an assumption of the laboratory, no specific price list consulted (the FVG 2025 price list gives about 1,700 €/m³ for a complete &lt;i&gt;floor&lt;/i&gt; of glulam beams, item 23.7.HI1.03).&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Limits&lt;/b&gt;: prices vary a lot with region, year, quantity and site; EPDs change with producer and plant. Consult the updated regional price lists and the EPDs of the real products. Data consulted on 5/11/2026.&lt;/li&gt;">
+        <li><b>Acciaio</b>: 1,74 kg CO₂e/kg per profili laminati a caldo (valore BCSA 2021 riportato da <a href="https://steelconstruction.info/topics/sustainability/end-of-life-lca-and-embodied-carbon-data-for-common-framing-materials/">steelconstruction.info</a>); dipende molto dal ciclo produttivo: da circa 0,5–0,8 (forno elettrico, rottame) a oltre 2 (altoforno). Costo ipotizzato 4 €/kg in opera, verniciato; il prezzario FVG 2025 dà 4,26 €/kg per carpenteria in lamiera piegata zincata (<a href="https://www.regione.fvg.it/rafvg/cms/RAFVG/infrastrutture-lavori-pubblici/lavori-pubblici/prezzario-2025/articolo.html?cod=20.6.HH2.02">voce 20.6.HH2.02</a>).</li>
+        <li><b>Armatura</b>: 0,75 kg CO₂e/kg, ordine di grandezza delle EPD italiane del tondo da forno elettrico, da circa 0,65 a 0,79 (<a href="https://www.pittini.it/wp-content/uploads/Gruppo-Pittini-EPD-tondo-barre-e-rotoli-2019.pdf">Gruppo Pittini 2019</a>, <a href="https://epditaly.it/en/wp-content/uploads/2016/12/Dichiarazione-EPD-2023-Tondo-Siderpotenza.pdf">Siderpotenza 2023</a>). Costo ipotizzato 2 €/kg posato (valori trovati tra 1,4 e 2,4 €/kg). Quantità di armatura per m³: valori tipici di letteratura, da 80 a 200 kg/m³.</li>
+        <li><b>Calcestruzzo</b>: 200 kg CO₂e/m³ per C25/30; le EPD di calcestruzzi italiani danno circa 190–220 (es. <a href="https://www.mapei.com/it/en/realta-mapei/detail/the-future-of-concrete-is-low-carbon">Mapei</a>). Per C28/35 e C30/37 il valore (e il costo) è scalato del 7,5 % e del 15 %: ipotesi del laboratorio. Costo 205 €/m³; il prezzario FVG 2025 dà 201,83 €/m³ per elevazioni C25/30, armatura esclusa (<a href="https://www.regione.fvg.it/rafvg/cms/RAFVG/infrastrutture-lavori-pubblici/lavori-pubblici/prezzario-2025/">prezzario 2025</a>).</li>
+        <li><b>Casseforme</b>: 47 €/m² (prezzario FVG 2025, casseri per travi e pilastri, <a href="https://www.regione.fvg.it/rafvg/cms/RAFVG/infrastrutture-lavori-pubblici/lavori-pubblici/prezzario-2025/?cod=20.2.RI1.01">voce 20.2.RI1.01</a>). Area: fondo e due lati delle travi, quattro lati dei pilastri; per il solaio il solo fondo. Emissioni trascurate.</li>
+        <li><b>Legno lamellare</b>: 150 kg CO₂e/m³ da fonti fossili (produzione, essiccazione, incollaggio); le EPD di lamellare danno circa 120–150 (es. <a href="https://cdn.byggtjeneste.no/nobb/78c67693-5206-4e05-b217-2a3eaf2149ec">EPD NOBB</a>, 430 kg/m³). Il carbonio biogenico immagazzinato (circa 1,63 kg CO₂ per kg di legno) è mostrato a parte e non sottratto. Costo 1.400 €/m³: ipotesi del laboratorio, nessun prezzario specifico consultato (il prezzario FVG 2025 riporta circa 1.700 €/m³ per un <i>solaio</i> completo in travi lamellari, voce 23.7.HI1.03).</li>
+        <li><b>Limiti</b>: i prezzi variano molto con regione, anno, quantità e cantiere; le EPD cambiano con produttore e stabilimento. Consultare i prezzari regionali aggiornati e le EPD dei prodotti reali. Dati consultati il 5/11/2026.</li>
+      </ul>
+    </details>
+
     <details class="regole"><summary>Criteri usati (appunti del laboratorio)</summary>
-      <ul>
+      <ul data-en="&lt;li&gt;&lt;b&gt;Levels&lt;/b&gt;: 1 preliminary sizing (geometric criteria, to draw with realistic sizes, on the generous side); 2 sizing (simplified mechanical criteria); 3 check with the full NTC 2018 criteria, not done here. Each level may give values different from the previous one.&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Actions&lt;/b&gt;: p&lt;sub&gt;d&lt;/sub&gt; = (1,3·G₁ + 1,5·G₂ + 1,5·Q)·B&lt;sub&gt;inf&lt;/sub&gt;; on the roof Q = snow. The floor slab works in one direction, orthogonal to the frame.&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Moment&lt;/b&gt;: M&lt;sub&gt;Ed&lt;/sub&gt; = p&lt;sub&gt;d&lt;/sub&gt;·L²/β, with β = 8, 10, 12.&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Cantilevers&lt;/b&gt;: bracket, M&lt;sub&gt;Ed&lt;/sub&gt; = p&lt;sub&gt;d&lt;/sub&gt;·L&lt;sub&gt;s&lt;/sub&gt;²/2, with the balcony live load on the floors and snow on the roof. For level 1 and for the deflection limit the equivalent length 2·L&lt;sub&gt;s&lt;/sub&gt; is used. On the end column the reaction p·L&lt;sub&gt;s&lt;/sub&gt;·(1 + L&lt;sub&gt;s&lt;/sub&gt;/2L) is added. The real beam is a single one: the larger section between span and cantilever is adopted.&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Columns removed&lt;/b&gt;: only from the top and only with a free top, i.e. with no column above and no beams (or cantilevers) connected at the top. Without a column there are no beams arriving at it; the cantilever exists only if the adjacent beam exists. One storey at a time is removed, starting from the highest; it is put back starting from the lowest.&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Beams removed&lt;/b&gt;: a removed beam is a void (double height): no beam and no floor load in that span and at that level, so the adjacent column carries less. A node is restrained if at least one beam (or cantilever) arrives at it; the free length of the column is the distance between restrained nodes: L₀ = β·H free, with β = 1 (pinned); if the top is free β = 2. The void is assumed to hold in the orthogonal direction too: the out-of-plane restraint is missing. The horizontal stiffness (wind and earthquake) is &lt;b&gt;not&lt;/b&gt; calculated: removing beams reduces it.&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Steel, beams&lt;/b&gt;: level 1 h = L/20 (simply supported), L/25 (semi-fixed), L/30 (fixed); level 2 W&lt;sub&gt;min&lt;/sub&gt; = M&lt;sub&gt;Ed&lt;/sub&gt;/f&lt;sub&gt;yd&lt;/sub&gt;, f&lt;sub&gt;yd&lt;/sub&gt; = f&lt;sub&gt;yk&lt;/sub&gt;/1,05, first IPE with W&lt;sub&gt;el&lt;/sub&gt; ≥ W&lt;sub&gt;min&lt;/sub&gt;; &lt;b&gt;the deflection is checked&lt;/b&gt; with the inertia of that section (characteristic loads, δ ≤ L/250, E = 210 GPa) and, if it is not enough, the next section is taken.&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Steel, columns&lt;/b&gt;: level 1 size ≈ 2,5·√ΣA [cm] (minimum 20 cm, rounded to 5 cm) and i&lt;sub&gt;min&lt;/sub&gt; = L₀/100 (slenderness 100); level 2 A&lt;sub&gt;min&lt;/sub&gt; = N&lt;sub&gt;Ed&lt;/sub&gt;/(χ₀·f&lt;sub&gt;yd&lt;/sub&gt;), χ₀ = 0,5 (editable). The first HEA or HEB with A ≥ A&lt;sub&gt;min&lt;/sub&gt; and i&lt;sub&gt;z&lt;/sub&gt; ≥ i&lt;sub&gt;min&lt;/sub&gt; is chosen. No «minimum size»: the level 1 size is a starting value.&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Timber, beams&lt;/b&gt;: level 1 h = L/20–L/15 (valid with closely spaced members: with widely spaced beams up to L/10 may be needed); f&lt;sub&gt;m,d&lt;/sub&gt; = k&lt;sub&gt;h&lt;/sub&gt;·k&lt;sub&gt;mod&lt;/sub&gt;·f&lt;sub&gt;m,k&lt;/sub&gt;/γ&lt;sub&gt;M&lt;/sub&gt; with k&lt;sub&gt;h&lt;/sub&gt; = 1, k&lt;sub&gt;mod&lt;/sub&gt; = 0,8, γ&lt;sub&gt;M&lt;/sub&gt; = 1,5; W&lt;sub&gt;min&lt;/sub&gt; = M&lt;sub&gt;Ed&lt;/sub&gt;/f&lt;sub&gt;m,d&lt;/sub&gt;, then h in steps of 40 mm; deflections are checked with the mean E: instantaneous due to Q ≤ L/300; final δ&lt;sub&gt;char.&lt;/sub&gt; + k&lt;sub&gt;def&lt;/sub&gt;·δ&lt;sub&gt;quasi-perm.&lt;/sub&gt; ≤ L/200, k&lt;sub&gt;def&lt;/sub&gt; = 0,6; if they are not enough the section is raised.&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;Timber, columns&lt;/b&gt;: level 1 size ≈ 2,5·√ΣA [cm] (minimum 20 cm, rounded to 5 cm) and side ≥ L₀/15; level 2 A&lt;sub&gt;min&lt;/sub&gt; = N&lt;sub&gt;Ed&lt;/sub&gt;/(χ₀·f&lt;sub&gt;c,0,d&lt;/sub&gt;), χ₀ = 0,30; constructional side of at least 200 mm, rounded to 50 mm.&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;R.c., projecting beams&lt;/b&gt;: level 1 h = L/10; level 2 b = 300 mm, d&lt;sub&gt;min&lt;/sub&gt; = ρ′·√(M&lt;sub&gt;Ed&lt;/sub&gt;/(b·f&lt;sub&gt;cd&lt;/sub&gt;)), ρ′ = 2,2, h = d + 40 mm rounded to 50 mm.&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;R.c., flat beams&lt;/b&gt;: level 1 b ≈ L/6 (lightly loaded beams only); level 2 h = floor slab thickness (B/25, min 120 mm), b&lt;sub&gt;min&lt;/sub&gt; = ρ′²·M&lt;sub&gt;Ed&lt;/sub&gt;/(d²·f&lt;sub&gt;cd&lt;/sub&gt;), ρ′ = 2,2.&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;R.c., columns&lt;/b&gt;: level 1 size ≈ 5·√ΣA [cm] (minimum 30 cm, rounded to 5 cm) and side ≥ L₀/15; level 2 A&lt;sub&gt;min&lt;/sub&gt; = N&lt;sub&gt;Ed&lt;/sub&gt;/(ν·f&lt;sub&gt;cd&lt;/sub&gt;), ν = 0,5; minimum constructional side 300 mm, rounded to 50 mm. f&lt;sub&gt;cd&lt;/sub&gt; = 0,85·f&lt;sub&gt;ck&lt;/sub&gt;/1,5.&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;ΣA&lt;/b&gt; is the total tributary area above the column (sum of the storeys, only spans with the beam); the K·√ΣA rule holds for regular buildings, spans up to 6 × 6 m, about 3–5 storeys, vertical loads only. The «side ≥ L₀/15» (slenderness about 50) is a teaching value of this tool.&lt;/li&gt;">
+        <li><b>Livelli</b>: 1 predimensionamento (criteri geometrici, per disegnare con ingombri verosimili, per eccesso); 2 dimensionamento (criteri meccanici semplificati); 3 verifica con i criteri completi delle NTC 2018, non fatta qui. Ogni livello può dare valori diversi dal precedente.</li>
         <li><b>Azioni</b>: p<sub>d</sub> = (1,3·G₁ + 1,5·G₂ + 1,5·Q)·B<sub>inf</sub>; in copertura Q = neve. Il solaio lavora in una direzione, ortogonale al telaio.</li>
         <li><b>Momento</b>: M<sub>Ed</sub> = p<sub>d</sub>·L²/β, con β = 8, 10, 12.</li>
-        <li><b>Sbalzi</b>: mensola, M<sub>Ed</sub> = p<sub>d</sub>·L<sub>s</sub>²/2, con il sovraccarico dei balconi ai piani e la neve in copertura. Per h indicativo e per il limite di freccia si usa la luce equivalente 2·L<sub>s</sub>. Sul pilastro di estremità si somma la reazione p·L<sub>s</sub>·(1 + L<sub>s</sub>/2L). La trave reale è unica: si adotta la sezione più grande tra campata e sbalzo.</li>
-        <li><b>Acciaio, travi</b>: h indicativo L/20–L/15; W<sub>min</sub> = M<sub>Ed</sub>/f<sub>yd</sub>, f<sub>yd</sub> = f<sub>yk</sub>/1,05; freccia con carichi caratteristici ≤ L/250, E = 210 GPa. Profilo IPE più leggero che soddisfa W e I.</li>
-        <li><b>Acciaio, pilastri</b>: A<sub>min</sub> = N<sub>Ed</sub>/(χ₀·f<sub>yd</sub>), χ₀ = 0,5 (modificabile); profilo HEB con ingombro minimo 200×200 (HEB 200).</li>
-        <li><b>Legno, travi</b>: h indicativo L/20–L/15; f<sub>m,d</sub> = k<sub>h</sub>·k<sub>mod</sub>·f<sub>m,k</sub>/γ<sub>M</sub> con k<sub>h</sub> = 1, k<sub>mod</sub> = 0,8, γ<sub>M</sub> = 1,5; W<sub>min</sub> = M<sub>Ed</sub>/f<sub>m,d</sub>. Frecce con E medio: istantanea dovuta a Q ≤ L/300; finale δ<sub>rara</sub> + k<sub>def</sub>·δ<sub>quasi perm.</sub> ≤ L/200, k<sub>def</sub> = 0,6, ψ₂ = 0,3 (neve 0). Base b scelta, altezza arrotondata a 40 mm.</li>
-        <li><b>Legno, pilastri</b>: A<sub>min</sub> = N<sub>Ed</sub>/(χ₀·f<sub>c,0,d</sub>), χ₀ = 0,30; lato minimo 300 mm, arrotondato a 50 mm.</li>
-        <li><b>C.a., travi emergenti</b>: b = 300 mm, d<sub>min</sub> = ρ′·√(M<sub>Ed</sub>/(b·f<sub>cd</sub>)), ρ′ = 2,0, h = d + 40 mm arrotondata a 50 mm; confronto con h = L/10.</li>
-        <li><b>C.a., travi a spessore</b>: h = spessore solaio (B/25, min 120 mm), b<sub>min</sub> = ρ′²·M<sub>Ed</sub>/(d²·f<sub>cd</sub>), ρ′ = 2,2.</li>
-        <li><b>C.a., pilastri</b>: A<sub>min</sub> = N<sub>Ed</sub>/(ν·f<sub>cd</sub>), ν = 0,5; lato minimo 300 mm, arrotondato a 50 mm. f<sub>cd</sub> = 0,85·f<sub>ck</sub>/1,5.</li>
+        <li><b>Sbalzi</b>: mensola, M<sub>Ed</sub> = p<sub>d</sub>·L<sub>s</sub>²/2, con il sovraccarico dei balconi ai piani e la neve in copertura. Per il livello 1 e per il limite di freccia si usa la luce equivalente 2·L<sub>s</sub>. Sul pilastro di estremità si somma la reazione p·L<sub>s</sub>·(1 + L<sub>s</sub>/2L). La trave reale è unica: si adotta la sezione più grande tra campata e sbalzo.</li>
+        <li><b>Pilastri tolti</b>: solo dall'alto e solo con la testa libera, cioè senza pilastro sopra e senza travi (né sbalzi) collegate in cima. Senza pilastro non ci sono le travi che vi arrivano; lo sbalzo esiste solo se esiste la trave adiacente. Si toglie un interpiano alla volta, dal più alto; si rimette dal più basso.</li>
+        <li><b>Travi tolte</b>: una trave tolta è un vuoto (doppia altezza): nessuna trave e nessun carico di solaio in quella campata e a quel livello, quindi il pilastro adiacente scarica meno. Un nodo è trattenuto se vi arriva almeno una trave (o uno sbalzo); la lunghezza libera del pilastro è la distanza tra nodi trattenuti: L₀ = β·H libera, con β = 1 (cerniere); se la testa è libera β = 2. Si assume che il vuoto valga anche nella direzione ortogonale: manca il ritegno fuori piano. La rigidezza orizzontale (vento e sisma) <b>non</b> è calcolata: togliere travi la riduce.</li>
+        <li><b>Acciaio, travi</b>: livello 1 h = L/20 (appoggiata), L/25 (semi-incastro), L/30 (incastro); livello 2 W<sub>min</sub> = M<sub>Ed</sub>/f<sub>yd</sub>, f<sub>yd</sub> = f<sub>yk</sub>/1,05, primo IPE con W<sub>el</sub> ≥ W<sub>min</sub>; <b>la freccia si verifica</b> con l'inerzia di quel profilo (carichi caratteristici, δ ≤ L/250, E = 210 GPa) e, se non basta, si passa al profilo successivo.</li>
+        <li><b>Acciaio, pilastri</b>: livello 1 ingombro ≈ 2,5·√ΣA [cm] (minimo 20 cm, arrotondato a 5 cm) e i<sub>min</sub> = L₀/100 (snellezza 100); livello 2 A<sub>min</sub> = N<sub>Ed</sub>/(χ₀·f<sub>yd</sub>), χ₀ = 0,5 (modificabile). Si sceglie il primo HEA o HEB con A ≥ A<sub>min</sub> e i<sub>z</sub> ≥ i<sub>min</sub>. Nessun «ingombro minimo»: l'ingombro del livello 1 è un valore di partenza.</li>
+        <li><b>Legno, travi</b>: livello 1 h = L/20–L/15 (vale con elementi ravvicinati: con travi a grande interasse può servire fino a L/10); f<sub>m,d</sub> = k<sub>h</sub>·k<sub>mod</sub>·f<sub>m,k</sub>/γ<sub>M</sub> con k<sub>h</sub> = 1, k<sub>mod</sub> = 0,8, γ<sub>M</sub> = 1,5; W<sub>min</sub> = M<sub>Ed</sub>/f<sub>m,d</sub>, poi h a passi di 40 mm; si verificano le frecce con E medio: istantanea dovuta a Q ≤ L/300; finale δ<sub>rara</sub> + k<sub>def</sub>·δ<sub>quasi perm.</sub> ≤ L/200, k<sub>def</sub> = 0,6; se non bastano si alza la sezione.</li>
+        <li><b>Legno, pilastri</b>: livello 1 ingombro ≈ 2,5·√ΣA [cm] (minimo 20 cm, arrotondato a 5 cm) e lato ≥ L₀/15; livello 2 A<sub>min</sub> = N<sub>Ed</sub>/(χ₀·f<sub>c,0,d</sub>), χ₀ = 0,30; lato costruttivo di almeno 200 mm, arrotondato a 50 mm.</li>
+        <li><b>C.a., travi emergenti</b>: livello 1 h = L/10; livello 2 b = 300 mm, d<sub>min</sub> = ρ′·√(M<sub>Ed</sub>/(b·f<sub>cd</sub>)), ρ′ = 2,2, h = d + 40 mm arrotondata a 50 mm.</li>
+        <li><b>C.a., travi a spessore</b>: livello 1 b ≈ L/6 (solo travi poco caricate); livello 2 h = spessore solaio (B/25, min 120 mm), b<sub>min</sub> = ρ′²·M<sub>Ed</sub>/(d²·f<sub>cd</sub>), ρ′ = 2,2.</li>
+        <li><b>C.a., pilastri</b>: livello 1 ingombro ≈ 5·√ΣA [cm] (minimo 30 cm, arrotondato a 5 cm) e lato ≥ L₀/15; livello 2 A<sub>min</sub> = N<sub>Ed</sub>/(ν·f<sub>cd</sub>), ν = 0,5; lato minimo costruttivo 300 mm, arrotondato a 50 mm. f<sub>cd</sub> = 0,85·f<sub>ck</sub>/1,5.</li>
+        <li><b>ΣA</b> è l'area d'influenza totale sopra il pilastro (somma dei piani, solo campate con la trave); la regola K·√ΣA vale per edifici regolari, luci fino a 6 × 6 m, circa 3–5 piani, solo carichi verticali. Il «lato ≥ L₀/15» (snellezza circa 50) è un valore didattico di questo strumento.</li>
       </ul>
-      <p class="nota">Peso proprio di travi e pilastri non aggiunto ai carichi (si assume compreso in G₁). Semi-incastro: freccia approssimata (k = 2,5 invece di 5 e 1). Per gli sbalzi il momento negativo non riduce il momento in campata (a favore di sicurezza). Strumento didattico: non sostituisce il dimensionamento né le verifiche delle NTC 2018.</p>
+      <p class="nota" data-en="Self-weight of beams and columns not added to the loads (assumed included in G₁). Semi-fixed: approximate deflection (k = 2,5 instead of 5 and 1). For cantilevers the negative moment does not reduce the span moment (on the safe side). For r.c. beams the deflection is not checked. Teaching tool: does not replace the design or the checks of NTC 2018.">Peso proprio di travi e pilastri non aggiunto ai carichi (si assume compreso in G₁). Semi-incastro: freccia approssimata (k = 2,5 invece di 5 e 1). Per gli sbalzi il momento negativo non riduce il momento in campata (a favore di sicurezza). Per le travi in c.a. la freccia non è verificata. Strumento didattico: non sostituisce il dimensionamento né le verifiche delle NTC 2018.</p>
     </details>
   </div>
 </div>
@@ -124,224 +214,9 @@
 <footer class="sito">Strumento didattico del Modulo Struttura e Architettura. Valori dei profili e delle classi di resistenza da controllare sulle tabelle ufficiali. Riferimento normativo: NTC 2018 (D.M. 17 gennaio 2018).</footer>
 
 <script src="assets/js/calc.js"></script>
-<script>
-(function () {
-  var $ = function (id) { return document.getElementById(id); };
-  var F = RT.fmt;
-  var materiale = 'acciaio';
-  var luci = [5, 5, 5, 5, 5];
-  var CHI = { acciaio: 0.5, legno: 0.3, ca: 0.5 };
-  var DEF = { acciaio: { g1: 2.5, g2: 2.0, q: 2.0, neve: 0.5 }, legno: { g1: 1.5, g2: 1.5, q: 2.0, neve: 0.5 }, ca: { g1: 3.5, g2: 2.0, q: 2.0, neve: 0.5 } };
-
-  function impostaMateriale(m, ripristina) {
-    materiale = m;
-    $('mAcc').setAttribute('aria-pressed', m === 'acciaio');
-    $('mLeg').setAttribute('aria-pressed', m === 'legno');
-    $('mCa').setAttribute('aria-pressed', m === 'ca');
-    $('optAcc').hidden = m !== 'acciaio';
-    $('optLeg').hidden = m !== 'legno';
-    $('optCa').hidden = m !== 'ca';
-    if (ripristina) { ['g1', 'g2', 'q', 'neve'].forEach(function (k) { $(k).value = DEF[m][k]; }); $('chi').value = CHI[m]; }
-    $('chiLab').innerHTML = m === 'ca' ? 'Pilastri: coefficiente ν' : 'Pilastri: coefficiente χ₀';
-    $('chiNota').innerHTML = 'A<sub>min</sub> = N<sub>Ed</sub> / (' + (m === 'ca' ? 'ν·f<sub>cd</sub>' : (m === 'legno' ? 'χ₀·f<sub>c,0,d</sub>' : 'χ₀·f<sub>yd</sub>')) + '). Valore degli appunti: ' + F(CHI[m], 2) + '. Più è basso, più il pilastro è abbondante (snellezza, instabilità).';
-    calcola();
-  }
-
-  function costruisciCampate() {
-    var nc = parseInt($('nc').value, 10), h = '';
-    for (var i = 0; i < nc; i++) {
-      h += '<div class="campo"><label for="L' + i + '">Campata ' + (i + 1) + ' <span class="unita">L [m]</span></label><output id="L' + i + 'v">' + F(luci[i], 1) + '</output>' +
-        '<input type="range" id="L' + i + '" data-i="' + i + '" min="2" max="10" step="0.1" value="' + luci[i] + '"></div>';
-    }
-    $('campate').innerHTML = h;
-    Array.prototype.forEach.call($('campate').querySelectorAll('input'), function (el) {
-      el.addEventListener('input', function () {
-        var i = parseInt(el.dataset.i, 10), v = parseFloat(el.value);
-        if ($('uguali').checked) { for (var j = 0; j < 5; j++) luci[j] = v; costruisciCampate(); }
-        else { luci[i] = v; $('L' + i + 'v').textContent = F(v, 1); }
-        calcola();
-      });
-    });
-  }
-
-  function leggi(id) { return parseFloat($(id).value); }
-
-  function parametri() {
-    var nc = parseInt($('nc').value, 10);
-    return {
-      n: parseInt($('n').value, 10), spans: luci.slice(0, nc), H: leggi('H'), B: leggi('B'), bordo: $('bordo').checked,
-      g1: leggi('g1'), g2: leggi('g2'), q: leggi('q'), neve: $('usaNeve').checked ? leggi('neve') : 0, qb: leggi('qb'), sx: leggi('sx'), dx: leggi('dx'),
-      mat: materiale, acciaio: $('acc').value, classeLegno: $('cleg').value, bLegno: parseInt($('bleg').value, 10),
-      chi: leggi('chi'), fck: $('fck').value, vincolo: $('vinc').value, travaTipo: $('tipoTrave').value
-    };
-  }
-
-  function etichettaTrave(t) {
-    if (materiale === 'acciaio') return t.prof ? t.prof[0] : '> IPE 600';
-    return t.b + '×' + t.h;
-  }
-  function etichettaPil(e) {
-    if (materiale === 'acciaio') return e.prof ? e.prof[0] : '> HEB 600';
-    return e.lato + '×' + e.lato;
-  }
-
-  function disegna(p, r) {
-    var nc = p.spans.length, tot = p.spans.reduce(function (a, b) { return a + b; }, 0);
-    var sx = p.sx || 0, dx = p.dx || 0, totale = tot + sx + dx;
-    var W = 900, mx = 70, my = 34;
-    var s = Math.min(70, (W - 2 * mx) / totale, 320 / (p.n * p.H));
-    var Hh = p.n * p.H * s + 2 * my + 30 + ($('carichi').checked ? 50 : 0);
-    var svg = $('fig'); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + Hh);
-    var xStart = (W - totale * s) / 2, x0 = xStart + sx * s, yg = Hh - my - 14;
-    var xs = [x0]; for (var i = 0; i < nc; i++) xs.push(xs[i] + p.spans[i] * s);
-    var out = '';
-    out += '<line x1="' + (xStart - 30) + '" x2="' + (xStart + totale * s + 30) + '" y1="' + yg + '" y2="' + yg + '" stroke="#121212" stroke-width="2"/>';
-    for (var t = xStart - 30; t < xStart + totale * s + 30; t += 10) out += '<line x1="' + t + '" x2="' + (t - 7) + '" y1="' + yg + '" y2="' + (yg + 8) + '" stroke="#6e6e6e"/>';
-    r.interpiani.forEach(function (ip) {
-      var y1 = yg - (ip.s - 1) * p.H * s, y2 = yg - ip.s * p.H * s;
-      ip.pilastri.forEach(function (e) {
-        var w = ((e.lato || 600) / 1000) * s, x = xs[e.j];
-        out += '<rect x="' + (x - w / 2) + '" y="' + y2 + '" width="' + w + '" height="' + (y1 - y2) + '" fill="#121212"/>';
-        if (e.j === 0 || e.j === nc) {
-          var ax = e.j === 0 ? x - w / 2 - 4 : x + w / 2 + 4, an = e.j === 0 ? 'end' : 'start';
-          if ((e.j === 0 && sx > 0) || (e.j === nc && dx > 0)) { ax = x; an = 'middle'; out += '<text x="' + ax + '" y="' + ((y1 + y2) / 2 + 4) + '" font-size="11" text-anchor="middle" fill="#fff" transform="rotate(-90 ' + ax + ' ' + ((y1 + y2) / 2) + ')">' + etichettaPil(e) + '</text>'; return; }
-          out += '<text x="' + ax + '" y="' + ((y1 + y2) / 2 + 4) + '" font-size="11" text-anchor="' + an + '" fill="#121212">' + etichettaPil(e) + '</text>';
-        }
-      });
-    });
-    r.livelli.forEach(function (lv) {
-      var yl = yg - lv.k * p.H * s;
-      lv.travi.forEach(function (t, i) {
-        var hh = ((t.h || 600) / 1000) * s;
-        out += '<rect x="' + xs[i] + '" y="' + (yl - hh / 2) + '" width="' + (xs[i + 1] - xs[i]) + '" height="' + hh + '" fill="#d1382b"/>';
-        out += '<text x="' + ((xs[i] + xs[i + 1]) / 2) + '" y="' + (yl - hh / 2 - 5) + '" font-size="11" text-anchor="middle" fill="#121212" font-weight="700">' + etichettaTrave(t) + '</text>';
-      });
-      lv.sbalzi.forEach(function (t) {
-        var hh = ((t.h || 600) / 1000) * s, L = t.L * s;
-        var xa = t.lato === 'sx' ? xs[0] - L : xs[nc];
-        out += '<rect x="' + xa + '" y="' + (yl - hh / 2) + '" width="' + L + '" height="' + hh + '" fill="#1f5c8b"/>';
-        out += '<text x="' + (xa + L / 2) + '" y="' + (yl - hh / 2 - 5) + '" font-size="10" text-anchor="middle" fill="#1f5c8b" font-weight="700">' + etichettaTrave(t) + '</text>';
-      });
-    });
-    for (i = 0; i < nc; i++) {
-      out += '<line x1="' + xs[i] + '" x2="' + xs[i + 1] + '" y1="' + (yg + 22) + '" y2="' + (yg + 22) + '" stroke="#6e6e6e"/>';
-      out += '<text x="' + ((xs[i] + xs[i + 1]) / 2) + '" y="' + (yg + 36) + '" font-size="11" text-anchor="middle" fill="#6e6e6e">' + F(p.spans[i], 1) + ' m</text>';
-    }
-    if (sx > 0) out += '<text x="' + (xs[0] - sx * s / 2) + '" y="' + (yg + 36) + '" font-size="11" text-anchor="middle" fill="#1f5c8b">sbalzo ' + F(sx, 1) + ' m</text>';
-    if (dx > 0) out += '<text x="' + (xs[nc] + dx * s / 2) + '" y="' + (yg + 36) + '" font-size="11" text-anchor="middle" fill="#1f5c8b">sbalzo ' + F(dx, 1) + ' m</text>';
-    if ($('carichi').checked) {
-      var dh = p.H * s, ah = Math.min(26, dh * 0.42);
-      r.livelli.forEach(function (lv) {
-        var yl = yg - lv.k * p.H * s;
-        function carico(xa, xb, hh, pd) {
-          var yTop = yl - hh / 2 - 17, y0 = yTop - ah, w = xb - xa, nA = Math.max(3, Math.round(w / 24));
-          out += '<line x1="' + xa + '" x2="' + xb + '" y1="' + y0 + '" y2="' + y0 + '" stroke="#1f5c8b" stroke-width="1.6"/>';
-          for (var q = 0; q <= nA; q++) {
-            var xq = xa + w * q / nA;
-            out += '<line x1="' + xq + '" x2="' + xq + '" y1="' + y0 + '" y2="' + yTop + '" stroke="#1f5c8b" stroke-width="1.2"/><path d="M' + (xq - 3) + ',' + (yTop - 5) + ' L' + xq + ',' + yTop + ' L' + (xq + 3) + ',' + (yTop - 5) + '" fill="none" stroke="#1f5c8b" stroke-width="1.2"/>';
-          }
-          out += '<text x="' + ((xa + xb) / 2) + '" y="' + (y0 - 4) + '" font-size="10" text-anchor="middle" fill="#1f5c8b" font-weight="700">p<tspan font-size="8" dy="2">d</tspan><tspan dy="-2"> = ' + F(pd, 1) + ' kN/m</tspan></text>';
-        }
-        lv.travi.forEach(function (t, i) { carico(xs[i] + 2, xs[i + 1] - 2, ((t.h || 600) / 1000) * s, t.pd); });
-        lv.sbalzi.forEach(function (t) { var hh = ((t.h || 600) / 1000) * s, L = t.L * s, xa = t.lato === 'sx' ? xs[0] - L : xs[nc]; carico(xa + 2, xa + L - 2, hh, t.pd); });
-      });
-      r.interpiani.forEach(function (ip) {
-        var yb = yg - (ip.s - 1) * p.H * s;
-        ip.pilastri.forEach(function (e) {
-          var w = ((e.lato || 600) / 1000) * s, x = xs[e.j];
-          out += '<text x="' + (x + w / 2 + 4) + '" y="' + (yb - 5) + '" font-size="10" fill="#1f5c8b" font-weight="700">N = ' + F(e.N, 0) + ' kN</text>';
-        });
-      });
-    }
-    svg.innerHTML = out;
-  }
-
-  function tabelle(p, r) {
-    var ac = materiale === 'acciaio', lg = materiale === 'legno', ca = materiale === 'ca';
-    var avv = [];
-    var h = '<thead><tr><th>Livello</th><th>Elemento</th><th>L [m]</th><th>p<sub>d</sub> [kN/m]</th><th>M<sub>Ed</sub> [kN·m]</th>' +
-      (ca ? '<th>h indicativo [mm]</th><th>d<sub>min</sub> / b<sub>min</sub> [mm]</th><th>Sezione b×h [mm]</th><th>L/h</th>'
-          : '<th>h indicativo [mm]</th><th>W<sub>min</sub> [cm³]</th><th>I<sub>min</sub> [cm⁴]</th><th>' + (ac ? 'Profilo' : 'Sezione b×h [mm]') + '</th><th>L/h</th>') + '</tr></thead><tbody>';
-    function riga(lv, t, nome) {
-      var liv = lv.k === p.n ? 'Copertura' : 'Piano ' + lv.k;
-      var Leq = t.lato ? 2 * t.L : t.L;
-      var r_ = '<tr><td>' + liv + '</td><td>' + nome + '</td><td>' + F(t.L, 1) + '</td><td>' + F(t.pd, 1) + '</td><td>' + F(t.M, 1) + '</td>';
-      if (ca) {
-        var dm = p.travaTipo === 'spessore' ? 'b<sub>min</sub> = ' + F(t.bmin, 0) : 'd<sub>min</sub> = ' + F(t.d, 0);
-        r_ += '<td>' + F(p.travaTipo === 'spessore' ? Leq * 1000 / 6 : t.hGeo, 0) + (p.travaTipo === 'spessore' ? ' (b)' : '') + '</td><td>' + dm + '</td><td><b>' + t.b + '×' + t.h + '</b></td><td>' + F(Leq * 1000 / t.h, 1) + '</td>';
-        if (p.travaTipo === 'spessore' && t.b > Leq * 1000 / 6 * 1.5) avv.push(liv + ', ' + nome.toLowerCase() + ': la trave a spessore risulta molto larga (b = ' + t.b + ' mm). Valuta una trave emergente.');
-      } else {
-        r_ += '<td>' + F(t.hMin, 0) + '–' + F(t.hMax, 0) + '</td><td>' + F(t.W, 0) + '</td><td>' + F(t.I, 0) + '</td>';
-        if (ac) {
-          if (t.prof) r_ += '<td><b>' + t.prof[0] + '</b></td><td>' + F(Leq * 1000 / t.h, 1) + '</td>';
-          else { r_ += '<td class="ko">oltre IPE 600</td><td>-</td>'; avv.push(liv + ', ' + nome.toLowerCase() + ': nessun IPE soddisfa W e freccia. Riduci la luce o la luce fuori piano, o cambia schema.'); }
-        } else {
-          r_ += '<td><b>' + t.b + '×' + t.h + '</b></td><td>' + F(Leq * 1000 / t.h, 1) + '</td>';
-          if (t.h > 1000) avv.push(liv + ', ' + nome.toLowerCase() + ': altezza di ' + t.h + ' mm: valuta una base maggiore, una classe migliore o una luce minore.');
-        }
-      }
-      return r_ + '</tr>';
-    }
-    r.livelli.slice().reverse().forEach(function (lv) {
-      lv.travi.forEach(function (t, i) { h += riga(lv, t, 'Campata ' + (i + 1)); });
-      lv.sbalzi.forEach(function (t) { h += riga(lv, t, 'Sbalzo ' + (t.lato === 'sx' ? 'sx' : 'dx')); });
-    });
-    $('tTravi').innerHTML = h + '</tbody>';
-
-    var hp = '<thead><tr><th>Interpiano</th><th>Pilastro</th><th>Area d\'influenza [m²]</th><th>N<sub>Ed</sub> alla base [kN]</th><th>A<sub>min</sub> [cm²]</th><th>' + (ac ? 'Profilo' : 'Sezione [mm]') + '</th></tr></thead><tbody>';
-    r.interpiani.slice().reverse().forEach(function (ip) {
-      ip.pilastri.forEach(function (e) {
-        hp += '<tr><td>' + ip.s + (ip.s === 1 ? ' (terra)' : '') + '</td><td>' + (e.j + 1) + '</td><td>' + F(e.tj * r.Binf, 1) + '</td><td>' + F(e.N, 0) + (e.dN > 0 ? ' <span class="unita">(di cui sbalzo ' + F(e.dN, 0) + ')</span>' : '') + '</td><td>' + F(ac ? e.A : e.A / 100, ac ? 1 : 0) + '</td>';
-        if (ac) {
-          hp += e.prof ? '<td><b>' + e.prof[0] + '</b></td>' : '<td class="ko">oltre HEB 600</td>';
-          if (!e.prof) avv.push('Interpiano ' + ip.s + ', pilastro ' + (e.j + 1) + ': nessun HEB soddisfa A min.');
-        } else hp += '<td><b>' + e.lato + '×' + e.lato + '</b></td>';
-        hp += '</tr>';
-      });
-    });
-    $('tPil').innerHTML = hp + '</tbody>';
-
-    var k = '';
-    if (ac) k += '<div><b>' + F(r.tot.massaAcciaio, 0) + ' kg</b><span>acciaio nel telaio</span></div>';
-    else if (lg) k += '<div><b>' + F(r.tot.volumeLegno, 2) + ' m³</b><span>legno di travi e pilastri</span></div>';
-    else k += '<div><b>' + F(r.tot.volumeCls, 1) + ' m³</b><span>calcestruzzo di travi e pilastri</span></div>';
-    k += '<div><b>' + F(r.Binf, 2) + ' m</b><span>larghezza d\'influenza</span></div>';
-    if (ca) k += '<div><b>' + F(r.hs, 0) + ' mm</b><span>spessore solaio (B/25)</span></div>';
-    var fval = ac ? r.fyd : (lg ? r.fmd : r.fcd), flab = ac ? 'f<sub>yd</sub>' : (lg ? 'f<sub>m,d</sub>' : 'f<sub>cd</sub>');
-    k += '<div><b>' + F(fval, 1) + ' MPa</b><span>' + flab + '</span></div>';
-    $('kpi').innerHTML = k;
-    var av = $('avvisi');
-    if (avv.length) { av.hidden = false; av.innerHTML = '<b>Attenzione</b><ul style="margin:.3rem 0 0 1rem;padding:0">' + avv.slice(0, 6).map(function (a) { return '<li>' + a + '</li>'; }).join('') + '</ul>'; }
-    else av.hidden = true;
-  }
-
-  function calcola() {
-    $('nv').textContent = $('n').value; $('ncv').textContent = $('nc').value;
-    $('Hv').textContent = F(leggi('H'), 1) + ' m'; $('Bv').textContent = F(leggi('B'), 1) + ' m';
-    $('sxv').textContent = leggi('sx') > 0 ? F(leggi('sx'), 1) + ' m' : 'assente'; $('dxv').textContent = leggi('dx') > 0 ? F(leggi('dx'), 1) + ' m' : 'assente';
-    $('g1v').textContent = F(leggi('g1'), 1); $('g2v').textContent = F(leggi('g2'), 1); $('qv').textContent = F(leggi('q'), 1); $('qbv').textContent = F(leggi('qb'), 1); $('neveV').textContent = $('usaNeve').checked ? F(leggi('neve'), 1) : 'esclusa'; $('neve').disabled = !$('usaNeve').checked; $('chiv').textContent = F(leggi('chi'), 2);
-    var p = parametri(), r = RT.telaio(p);
-    disegna(p, r); tabelle(p, r);
-  }
-
-  $('mAcc').addEventListener('click', function () { impostaMateriale('acciaio', true); });
-  $('mLeg').addEventListener('click', function () { impostaMateriale('legno', true); });
-  $('mCa').addEventListener('click', function () { impostaMateriale('ca', true); });
-  $('nc').addEventListener('input', function () { costruisciCampate(); calcola(); });
-  $('uguali').addEventListener('change', function () { if (this.checked) { for (var j = 1; j < 5; j++) luci[j] = luci[0]; costruisciCampate(); calcola(); } });
-  ['n', 'H', 'B', 'bordo', 'chi', 'carichi', 'usaNeve', 'g1', 'g2', 'q', 'qb', 'neve', 'sx', 'dx', 'vinc', 'acc', 'cleg', 'bleg', 'fck', 'tipoTrave'].forEach(function (id) { $(id).addEventListener('input', calcola); });
-
-  // preset da URL: ?materiale=acciaio|legno|ca&piani=N&campate=N&sbalzo_sx=m&sbalzo_dx=m
-  var qs = new URLSearchParams(location.search);
-  if (qs.get('piani')) $('n').value = Math.min(6, Math.max(1, parseInt(qs.get('piani'), 10) || 2));
-  if (qs.get('campate')) $('nc').value = Math.min(5, Math.max(1, parseInt(qs.get('campate'), 10) || 2));
-  if (qs.get('sbalzo_sx')) $('sx').value = Math.min(3, Math.max(0, parseFloat(qs.get('sbalzo_sx')) || 0));
-  if (qs.get('sbalzo_dx')) $('dx').value = Math.min(3, Math.max(0, parseFloat(qs.get('sbalzo_dx')) || 0));
-  costruisciCampate();
-  var m = qs.get('materiale');
-  impostaMateriale(m === 'ca' ? 'ca' : (m === 'legno' ? 'legno' : 'acciaio'), true);
-})();
-</script>
+<script src="assets/js/telaio-calc.js"></script>
+<script src="assets/js/impatto-calc.js"></script>
+<script src="assets/js/telaio-ui.js"></script>
 <script src="assets/js/i18n-en.js"></script>
 <script src="assets/js/i18n.js"></script>
 </body>

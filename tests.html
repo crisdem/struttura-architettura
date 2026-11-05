@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prove della libreria di calcolo | Struttura e Architettura</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<style>.ok{color:#2d7d46;font-weight:700}.ko{color:#d1382b;font-weight:700}pre{background:#f4f2ed;padding:.6rem;overflow:auto;font-size:.78rem}</style>
+</head>
+<body>
+<main>
+<h1>Prove della libreria di calcolo</h1>
+<p class="sotto">Confronta i risultati di <code>RT.telaio</code> e delle funzioni delle lezioni con i valori salvati in <code>tests/golden.json</code>. Pagina di servizio, non collegata al menu.</p>
+<p id="esito" class="ris">Prove in corso...</p>
+<div id="elenco"></div>
+<details><summary>Genera nuovi valori di riferimento</summary><p class="nota">Da usare solo se un cambiamento dei risultati è voluto: copia il testo in <code>tests/golden.json</code>.</p><pre id="nuovo"></pre></details>
+</main>
+<script src="assets/js/calc.js"></script>
+<script src="assets/js/telaio-calc.js"></script>
+<script src="assets/js/impatto-calc.js"></script>
+<script src="tests/scenari.js"></script>
+<script>
+(function () {
+  var out = { scenari: {}, funzioni: provaFunzioni(RT), impatto: {} };
+  SCENARI.forEach(function (s) { out.scenari[s[0]] = riassuntoTelaio(RT.telaio(s[1])); out.impatto[s[0]] = provaImpatto(RT, s[1]); });
+  var nuovo = JSON.stringify(out, null, 1);
+  document.getElementById('nuovo').textContent = nuovo;
+  fetch('tests/golden.json', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (g) {
+    var h = '', ko = 0, tot = 0;
+    function conf(nome, a, b) { tot++; var uguale = JSON.stringify(a) === JSON.stringify(b); if (!uguale) ko++; h += '<li><span class="' + (uguale ? 'ok' : 'ko') + '">' + (uguale ? 'OK' : 'DIVERSO') + '</span> ' + nome + (uguale ? '' : '<pre>atteso: ' + JSON.stringify(b, null, 1) + '\nottenuto: ' + JSON.stringify(a, null, 1) + '</pre>') + '</li>'; }
+    Object.keys(g.scenari).forEach(function (k) { conf(k, out.scenari[k], g.scenari[k]); });
+    Object.keys(g.impatto || {}).forEach(function (k) { conf('CO₂ e costi: ' + k, out.impatto[k], g.impatto[k]); });
+    conf('funzioni delle lezioni', out.funzioni, g.funzioni);
+    document.getElementById('elenco').innerHTML = '<ul>' + h + '</ul>';
+    document.getElementById('esito').innerHTML = ko ? '<span class="ko">' + ko + ' prove su ' + tot + ' non coincidono</span>' : '<span class="ok">Tutte le ' + tot + ' prove coincidono</span>';
+    window.TEST_ESITO = { ko: ko, tot: tot };
+  }).catch(function () { document.getElementById('esito').innerHTML = '<span class="ko">tests/golden.json non trovato: copia qui sotto il testo generato.</span>'; window.TEST_ESITO = { ko: -1, tot: 0 }; });
+})();
+</script>
+</body>
+</html>

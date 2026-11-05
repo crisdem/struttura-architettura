@@ -28,12 +28,12 @@
 <header class="sito"><div class="in">
   <a href="index.html"><img src="assets/img/logo_romatre_bianco.png" alt="Roma Tre"></a>
   <div class="titolo">Struttura e Architettura<small>Laboratorio di Progettazione Architettonica 2 - Dipartimento di Architettura</small></div>
-  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="introduzione.html">Introduzione</a><a href="lezione1.html">Lezione 1</a><a href="lezione2.html">Lezione 2</a><a href="lezione3.html" aria-current="page">Lezione 3</a><a href="lezione4.html">Lezione 4</a><a href="telaio.html">Telaio piano</a><a href="muratura.html">Muratura</a></nav>
+  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="introduzione.html">Introduzione</a><a href="lezione1.html">Lezione 1</a><a href="lezione2.html">Lezione 2</a><a href="lezione3.html" aria-current="page">Lezione 3</a><a href="lezione4.html">Lezione 4</a><a href="telaio.html">Telaio piano</a></nav>
 </div></header>
 
 <main>
 <h1>Lezione 3: acciaio, passo per passo</h1>
-<p class="sotto">Cambia i dati e segui i passaggi: carichi, momento, modulo di resistenza, profilo, freccia, pilastro.</p>
+<p class="sotto" data-en="Change the data and follow the steps. &lt;span class=&quot;liv&quot;&gt;LEVEL 1&lt;/span&gt;preliminary sizing: geometric rules for drawing. &lt;span class=&quot;liv&quot;&gt;LEVEL 2&lt;/span&gt;sizing: loads, moment, section modulus, section, &lt;b&gt;deflection check&lt;/b&gt;, column.">Cambia i dati e segui i passaggi. <span class="liv">LIVELLO 1</span>predimensionamento: regole geometriche per disegnare. <span class="liv">LIVELLO 2</span>dimensionamento: carichi, momento, modulo di resistenza, profilo, <b>verifica della freccia</b>, pilastro.</p>
 <div class="griglia due">
   <div class="pannello">
     <h3 style="margin-top:0">Trave</h3>
@@ -48,6 +48,11 @@
     <h3>Pilastro</h3>
     <div class="campo"><label for="A">Area d'influenza <span class="unita">[m²]</span></label><output id="Av"></output><input type="range" id="A" min="5" max="60" step="0.25" value="23.75"></div>
     <div class="campo"><label for="np">Piani che scaricano sul pilastro</label><output id="npv"></output><input type="range" id="np" min="1" max="6" step="1" value="1"></div>
+    <div class="campo"><label for="H">Altezza del pilastro <span class="unita">H [m]</span></label><output id="Hv"></output><input type="range" id="H" min="2.6" max="7" step="0.1" value="3.8"></div>
+    <div class="campo"><label for="vincPil">Vincoli del pilastro (β)</label>
+      <select id="vincPil"><option value="cc" selected>Cerniera–cerniera: β = 1</option><option value="ci">Incastro–cerniera: β = 0,7</option><option value="ii">Incastro–incastro: β = 0,5</option><option value="m">Mensola: β = 2</option></select></div>
+    <div class="campo"><label for="serie">Serie di profili</label>
+      <select id="serie"><option value="HEB" selected>HEB</option><option value="HEA">HEA</option></select></div>
     <div class="campo"><label for="chi">Coefficiente χ₀</label><output id="chiv"></output><input type="range" id="chi" min="0.2" max="0.9" step="0.05" value="0.5"></div>
   </div>
   <div>
@@ -58,7 +63,7 @@
     <div class="pillole" role="group" aria-label="Famiglia di profili"><button type="button" id="tIPE" aria-pressed="true">IPE (travi)</button><button type="button" id="tHEA" aria-pressed="false">HEA</button><button type="button" id="tHEB" aria-pressed="false">HEB (pilastri)</button></div>
     <p class="nota" id="sagNota" style="margin-top:.2rem"></p>
     <div class="scroll" id="sagBox" style="max-height:360px;overflow:auto"><table id="sag"></table></div>
-    <p class="nota">h indicativa L/20–L/15; freccia dei carichi caratteristici ≤ L/250, E = 210 GPa; pilastro con ingombro minimo 200×200 mm. Valori da controllare sul sagomario.</p>
+    <p class="nota" data-en="Level 1: h = L/20 (simply supported), L/25 (semi-fixed), L/30 (fixed-fixed); i&lt;sub&gt;min&lt;/sub&gt; = β·H/100. Level 2: the deflection (characteristic loads, «rare») is checked with the inertia of the chosen section, δ ≤ L/250, E = 210 GPa. Values to be checked against the section tables.">Livello 1: h = L/20 (appoggiata), L/25 (semi-incastro), L/30 (incastro-incastro); i<sub>min</sub> = β·H/100. Livello 2: la freccia (carichi caratteristici, «rara») si verifica con l'inerzia del profilo scelto, δ ≤ L/250, E = 210 GPa. Valori da controllare sul sagomario.</p>
   </div>
 </div>
 </main>
@@ -68,51 +73,70 @@
 (function () {
   var $ = function (id) { return document.getElementById(id); }, F = RT.fmt;
   function v(id) { return parseFloat($(id).value); }
+  var BPIL = { cc: 1, ci: 0.7, ii: 0.5, m: 2 };
+  var famiglia = 'IPE';
   function calcola() {
     $('Lv').textContent = F(v('L'), 1) + ' m'; $('Bv').textContent = F(v('B'), 1) + ' m';
     $('g1v').textContent = F(v('g1'), 1); $('g2v').textContent = F(v('g2'), 1); $('qv').textContent = F(v('q'), 1);
-    $('Av').textContent = F(v('A'), 2) + ' m²'; $('npv').textContent = $('np').value; $('chiv').textContent = F(v('chi'), 2);
-    var G = RT.GAMMA, L = v('L'), B = v('B'), beta = RT.BETA[$('sch').value], k = RT.KFRECCIA[$('sch').value];
-    var fyk = RT.ACCIAI[$('acc').value], fyd = RT.fyd(fyk);
+    $('Av').textContent = F(v('A'), 2) + ' m²'; $('npv').textContent = $('np').value; $('chiv').textContent = F(v('chi'), 2); $('Hv').textContent = F(v('H'), 1) + ' m';
+    var G = RT.GAMMA, L = v('L'), B = v('B'), vinc = $('sch').value, beta = RT.BETA[vinc], k = RT.KFRECCIA[vinc];
+    var fyk = RT.ACCIAI[$('acc').value], fyd = RT.fyd(fyk), serie = $('serie').value;
     var qd = G.G1 * v('g1') + G.G2 * v('g2') + G.Q * v('q'), pd = qd * B;
     var ps = (v('g1') + v('g2') + v('q')) * B;
-    var M = RT.momento(pd, L, beta), W = RT.Wmin(M, fyd), I = RT.Imin(k, ps, L, 250);
-    var prof = RT.sceltaIPE(W, I), hMin = L * 1000 / 20, hMax = L * 1000 / 15;
-    var N = qd * v('A') * parseInt($('np').value, 10), Aming = RT.Amin_pilastro_acc(N, fyd, v('chi'));
-    var heb = RT.sceltaHEB(Aming, 200);
+    var M = RT.momento(pd, L, beta), W = RT.Wmin(M, fyd);                       // W [cm3]
+    var sc = RT.sceltaIPEverificato(W, k, ps, L, L), prof = sc.prof, hGeo = L * 1000 / RT.HLUCE[vinc];
+    var np = parseInt($('np').value, 10), N = qd * v('A') * np, Aming = RT.Amin_pilastro_acc(N, fyd, v('chi'));
+    var L0 = BPIL[$('vincPil').value] * v('H'), imin = RT.imin(L0), he = RT.sceltaHE(serie, Aming, imin);
+    var heA = null; RT.HE[serie].some(function (r) { if (r[3] >= Aming) { heA = r; return true; } return false; });
+    var latoK = RT.latoK('acciaio', v('A') * np);
     var p = '';
-    p += '<div class="passo"><h3>1. Carichi</h3><p>q<sub>d</sub> = 1,3·G₁ + 1,5·G₂ + 1,5·Q = <b>' + F(qd, 2) + ' kN/m²</b></p><p>p<sub>d</sub> = q<sub>d</sub>·B = ' + F(qd, 2) + '·' + F(B, 1) + ' = <b class="ris">' + F(pd, 1) + ' kN/m</b></p></div>';
-    p += '<div class="passo"><h3>2. Momento</h3><p>M<sub>Ed</sub> = p<sub>d</sub>·L²/β = ' + F(pd, 1) + '·' + F(L, 1) + '²/' + beta + ' = <b class="ris">' + F(M, 1) + ' kN·m</b></p></div>';
-    p += '<div class="passo"><h3>3. Modulo di resistenza</h3><p>f<sub>yd</sub> = ' + fyk + '/1,05 = ' + F(fyd, 1) + ' MPa</p><p>W<sub>min</sub> = M<sub>Ed</sub>/f<sub>yd</sub> = <b class="ris">' + F(W, 0) + ' cm³</b></p></div>';
-    p += '<div class="passo"><h3>4. Profilo e freccia</h3>' + (prof ? '<p>p<sub>s</sub> = ' + F(ps, 1) + ' kN/m, I<sub>min</sub> = ' + F(I, 0) + ' cm⁴</p><p>Primo IPE con W ≥ W<sub>min</sub> e I ≥ I<sub>min</sub>: <b class="ris">' + prof[0] + '</b> (W = ' + F(prof[2], 0) + ' cm³, I = ' + F(prof[3], 0) + ' cm⁴)</p><p>h = ' + prof[1] + ' mm, altezza indicativa ' + F(hMin, 0) + '–' + F(hMax, 0) + ' mm: <b class="' + (prof[1] >= hMin * 0.95 && prof[1] <= hMax * 1.05 ? 'ok' : 'ko') + '">' + (prof[1] >= hMin * 0.95 && prof[1] <= hMax * 1.05 ? 'nel campo' : 'fuori campo') + '</b></p>' : '<p class="ko">Nessun IPE soddisfa W e freccia: riduci la luce o cambia schema.</p>') + '</div>';
-    p += '<div class="passo"><h3>5. Pilastro</h3><p>N<sub>Ed</sub> = q<sub>d</sub>·A·n = ' + F(qd, 2) + '·' + F(v('A'), 2) + '·' + $('np').value + ' = <b>' + F(N, 0) + ' kN</b></p><p>A<sub>min</sub> = N<sub>Ed</sub>/(χ₀·f<sub>yd</sub>) = <b>' + F(Aming, 1) + ' cm²</b></p><p>Profilo: <b class="ris">' + (heb ? heb[0] : 'oltre HEB 600') + '</b>' + (heb && Aming < heb[2] * 0.5 ? ' (decide l\'ingombro minimo 200×200 mm)' : '') + '</p></div>';
+    p += '<div class="passo"><h3><span class="liv">LIVELLO 1</span>Predimensionamento</h3><p>Trave: h ≈ L/' + RT.HLUCE[vinc] + ' = ' + F(L * 1000, 0) + '/' + RT.HLUCE[vinc] + ' = <b>' + F(hGeo, 0) + ' mm</b></p><p>Pilastro: i<sub>min</sub> ≥ β·H/100 = ' + F(BPIL[$('vincPil').value], 1) + '·' + F(v('H') * 1000, 0) + '/100 = <b>' + F(imin, 0) + ' mm</b>; ingombro ≈ 2,5·√(A·n) = <b>' + F(latoK / 10, 0) + ' cm</b></p></div>';
+    p += '<div class="passo"><h3><span class="liv">LIVELLO 2</span>1. Carichi</h3><p>q<sub>d,SLU</sub> = 1,3·G₁ + 1,5·G₂ + 1,5·Q = <b>' + F(qd, 2) + ' kN/m²</b></p><p>p<sub>d,SLU</sub> = q<sub>d</sub>·B = ' + F(qd, 2) + '·' + F(B, 1) + ' = <b class="ris">' + F(pd, 1) + ' kN/m</b>; p<sub>d,RARA</sub> = (G₁ + G₂ + Q)·B = <b>' + F(ps, 1) + ' kN/m</b></p></div>';
+    p += '<div class="passo"><h3>2. Momento</h3><p>M<sub>Ed</sub> = p<sub>d,SLU</sub>·L²/β = ' + F(pd, 1) + '·' + F(L, 1) + '²/' + beta + ' = <b class="ris">' + F(M, 1) + ' kN·m</b></p></div>';
+    p += '<div class="passo"><h3>3. Modulo di resistenza</h3><p>f<sub>yd</sub> = ' + fyk + '/1,05 = ' + F(fyd, 1) + ' MPa</p><p>W<sub>min</sub> = M<sub>Ed</sub>/f<sub>yd</sub> = ' + F(M, 1) + '·10⁶/' + F(fyd, 1) + ' = ' + F(W, 0) + '·10³ mm³ = <b class="ris">' + F(W, 0) + ' cm³</b></p></div>';
+    if (prof) {
+      var Iy = prof[3];
+      p += '<div class="passo"><h3>4. Profilo e verifica della freccia</h3><p>Primo IPE con W<sub>el,y</sub> ≥ W<sub>min</sub>: <b>' + sc.profW[0] + '</b> (W = ' + F(sc.profW[2], 0) + ' cm³)</p><p>δ = k·p<sub>d,RARA</sub>·L⁴/(384·E·I<sub>y</sub>) con I<sub>y</sub> = ' + F(Iy, 0) + ' cm⁴ = ' + F(Iy / 100, 2) + '·10⁶ mm⁴: δ = <b>' + F(sc.delta, 1) + ' mm</b> ' + (sc.delta <= sc.lim ? '≤' : '>') + ' L/250 = ' + F(sc.lim, 1) + ' mm</p>' +
+        (prof !== sc.profW ? '<p class="ko">Non basta: si passa al profilo successivo.</p>' : '') +
+        '<p>Profilo: <b class="ris">' + prof[0] + '</b> (h = ' + prof[1] + ' mm; livello 1: ' + F(hGeo, 0) + ' mm)</p></div>';
+    } else p += '<div class="passo"><h3>4. Profilo e verifica della freccia</h3><p class="ko">Nessun IPE soddisfa W e freccia: servono sezioni più grandi o un altro schema.</p></div>';
+    p += '<div class="passo"><h3>5. Pilastro</h3><p>N<sub>Ed</sub> = q<sub>d</sub>·A·n = ' + F(qd, 2) + '·' + F(v('A'), 2) + '·' + $('np').value + ' = <b>' + F(N, 0) + ' kN</b></p><p>A<sub>min</sub> = N<sub>Ed</sub>/(χ₀·f<sub>yd</sub>) = <b>' + F(Aming, 1) + ' cm²</b> → ' + (heA ? heA[0] : 'oltre ' + serie + ' 600') + '</p><p>i<sub>min</sub> = ' + F(imin, 0) + ' mm → i<sub>z</sub> ≥ ' + F(imin / 10, 1) + ' cm</p><p>Profilo: <b class="ris">' + (he ? he[0] : 'oltre ' + serie + ' 600') + '</b>' + (he ? ' (i<sub>z</sub> = ' + F(he[6], 2) + ' cm)' : '') + (he && heA && he !== heA ? ' — decide la <b>stabilità</b>, non l\'area' : '') + '</p></div>';
     $('passi').innerHTML = p;
-    $('kpi').innerHTML = '<div><b>' + (prof ? prof[0] : '-') + '</b><span>trave</span></div><div><b>' + (heb ? heb[0] : '-') + '</b><span>pilastro</span></div><div><b>' + F(M, 1) + ' kN·m</b><span>momento</span></div>';
-    var s = Math.min(1.1, 150 / Math.max(prof ? prof[1] : 200, heb ? heb[1] : 200)), out = '', x = 40;
+    $('kpi').innerHTML = '<div><b>' + (prof ? prof[0] : '-') + '</b><span>trave</span></div><div><b>' + (he ? he[0] : '-') + '</b><span>pilastro</span></div><div><b>' + F(M, 1) + ' kN·m</b><span>momento</span></div>';
+    var s = Math.min(1.1, 150 / Math.max(prof ? prof[1] : 200, he ? he[1] : 200)), out = '', x = 40;
     function ipe(h, b, x0) { var tf = Math.max(8, h * 0.065) * s, tw = Math.max(5, h * 0.04) * s, hh = h * s, bb = b * s;
       return '<path d="M' + x0 + ',10 h' + bb + ' v' + tf + ' h-' + (bb / 2 - tw / 2) + ' v' + (hh - 2 * tf) + ' h' + (bb / 2 - tw / 2) + ' v' + tf + ' h-' + bb + ' v-' + tf + ' h' + (bb / 2 - tw / 2) + ' v-' + (hh - 2 * tf) + ' h-' + (bb / 2 - tw / 2) + ' z" fill="#d1382b"/>'; }
     if (prof) { out += ipe(prof[1], prof[1] * 0.5, x); out += '<text x="' + x + '" y="' + (prof[1] * s + 30) + '" font-size="12">' + prof[0] + '</text>'; }
-    if (heb) { out += ipe(heb[1], heb[1], 200); out += '<text x="200" y="' + (heb[1] * s + 30) + '" font-size="12">' + heb[0] + '</text>'; }
+    if (he) { out += ipe(he[1], he[2], 200); out += '<text x="200" y="' + (he[1] * s + 30) + '" font-size="12">' + he[0] + '</text>'; }
     $('fig').setAttribute('viewBox', '0 0 400 200'); $('fig').innerHTML = out;
-    sagomario(W, I, Aming);
+    sagomario(W, Aming, imin, sc, prof);
   }
 
-  var famiglia = 'IPE';
-  function sagomario(W, I, Amin) {
+  function sagomario(W, Amin, imin, sc, prof) {
     var righe = RT.SAGOMARIO[famiglia], scelto = -1, h = '<thead><tr>' + RT.SAGOMARIO_COLONNE.map(function (c) { return '<th>' + c.replace(/_(\w+)/g, '<sub>$1</sub>') + '</th>'; }).join('') + '</tr></thead><tbody>';
-    var ok = function (r) { return famiglia === 'IPE' ? (r[8] >= W && r[7] >= I) : (r[5] >= Amin && r[1] >= 200); };
-    for (var i = 0; i < righe.length; i++) if (ok(righe[i])) { scelto = i; break; }
+    var ok = function (r) { return famiglia === 'IPE' ? (prof && r[0] === prof[0]) : (r[5] >= Amin && r[11] !== null && r[11] * 10 >= imin); };
+    var scarta = function (r, i) {
+      if (famiglia === 'IPE') return r[8] < W;
+      return r[5] < Amin || (r[11] !== null && r[11] * 10 < imin);
+    };
+    for (var i = 0; i < righe.length; i++) {
+      var tipo = righe[i][0];
+      if (famiglia !== 'IPE' && scelto < 0 && ok(righe[i])) scelto = i;
+      if (famiglia === 'IPE' && ok(righe[i])) scelto = i;
+    }
     righe.forEach(function (r, i) {
-      h += '<tr class="' + (i === scelto ? 'si' : (famiglia === 'IPE' ? (r[8] < W || r[7] < I ? 'no' : '') : (r[5] < Amin || r[1] < 200 ? 'no' : ''))) + '"><td>' + r[0] + '</td>' + r.slice(1).map(function (x) { return '<td>' + (x === null ? '-' : F(x, Math.abs(x) >= 100 ? 0 : 1)) + '</td>'; }).join('') + '</tr>';
+      h += '<tr class="' + (i === scelto ? 'si' : (scarta(r, i) ? 'no' : '')) + '"><td>' + r[0] + '</td>' + r.slice(1).map(function (x) { return '<td>' + (x === null ? '-' : F(x, Math.abs(x) >= 100 ? 0 : 1)) + '</td>'; }).join('') + '</tr>';
     });
     $('sag').innerHTML = h + '</tbody>';
-    $('sagNota').innerHTML = famiglia === 'IPE' ? 'In grigio i profili con W<sub>el</sub> &lt; ' + F(W, 0) + ' cm³ o I &lt; ' + F(I, 0) + ' cm⁴ (non bastano). Il primo che segue il valore è il profilo scelto.' : 'In grigio i profili con A &lt; ' + F(Amin, 1) + ' cm² o altezza &lt; 200 mm. Il primo che segue il valore è il profilo scelto.';
+    $('sagNota').innerHTML = famiglia === 'IPE'
+      ? 'In grigio i profili con W<sub>el</sub> &lt; ' + F(W, 0) + ' cm³ (non bastano per la resistenza)' + (sc && sc.profW && prof && prof !== sc.profW ? '; il profilo scelto è più grande perché la freccia non è verificata con ' + sc.profW[0] : '') + '. Il primo che segue il valore e verifica la freccia è il profilo scelto.'
+      : 'In grigio i profili con A &lt; ' + F(Amin, 1) + ' cm² o i<sub>z</sub> &lt; ' + F(imin / 10, 1) + ' cm (stabilità). Il primo che soddisfa entrambe le condizioni è il profilo scelto.';
     var el = $('sag').querySelector('tr.si');
     if (el) $('sagBox').scrollTop = Math.max(0, el.offsetTop - 120);
   }
   ['IPE', 'HEA', 'HEB'].forEach(function (f) { $('t' + f).addEventListener('click', function () {
     famiglia = f; ['IPE', 'HEA', 'HEB'].forEach(function (g) { $('t' + g).setAttribute('aria-pressed', g === f); }); calcola(); }); });
-  ['L', 'B', 'sch', 'acc', 'g1', 'g2', 'q', 'A', 'np', 'chi'].forEach(function (id) { $(id).addEventListener('input', calcola); });
+  ['L', 'B', 'sch', 'acc', 'g1', 'g2', 'q', 'A', 'np', 'chi', 'H', 'vincPil', 'serie'].forEach(function (id) { $(id).addEventListener('input', calcola); });
   calcola();
 })();
 </script>

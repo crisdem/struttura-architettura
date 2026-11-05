@@ -24,12 +24,12 @@
 <header class="sito"><div class="in">
   <a href="index.html"><img src="assets/img/logo_romatre_bianco.png" alt="Roma Tre"></a>
   <div class="titolo">Struttura e Architettura<small>Laboratorio di Progettazione Architettonica 2 - Dipartimento di Architettura</small></div>
-  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="introduzione.html">Introduzione</a><a href="lezione1.html">Lezione 1</a><a href="lezione2.html">Lezione 2</a><a href="lezione3.html">Lezione 3</a><a href="lezione4.html" aria-current="page">Lezione 4</a><a href="telaio.html">Telaio piano</a><a href="muratura.html">Muratura</a></nav>
+  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="introduzione.html">Introduzione</a><a href="lezione1.html">Lezione 1</a><a href="lezione2.html">Lezione 2</a><a href="lezione3.html">Lezione 3</a><a href="lezione4.html" aria-current="page">Lezione 4</a><a href="telaio.html">Telaio piano</a></nav>
 </div></header>
 
 <main>
 <h1>Lezione 4: calcestruzzo armato, passo per passo</h1>
-<p class="sotto">Trave emergente o a spessore e pilastro: cambia i dati e osserva la sezione in scala.</p>
+<p class="sotto" data-en="Projecting or flat beam and column: change the data and observe the section to scale. &lt;span class=&quot;liv&quot;&gt;LEVEL 1&lt;/span&gt;starting geometric sizes. &lt;span class=&quot;liv&quot;&gt;LEVEL 2&lt;/span&gt;sizing with the simplified criteria.">Trave emergente o a spessore e pilastro: cambia i dati e osserva la sezione in scala. <span class="liv">LIVELLO 1</span>ingombri geometrici di partenza. <span class="liv">LIVELLO 2</span>dimensionamento con i criteri semplificati.</p>
 <div class="griglia due">
   <div class="pannello">
     <h3 style="margin-top:0">Trave</h3>
@@ -76,12 +76,14 @@
     var fcd = RT.fcd(RT.CLS[$('fck').value]);
     var qd = G.G1 * v('g1') + G.G2 * v('g2') + G.Q * v('q'), pd = qd * B, M = RT.momento(pd, L, beta);
     var hs = Math.max(120, Math.ceil(B * 1000 / 25 / 10) * 10), emerg = $('tipo').value === 'emergente', b, h, d, nota;
-    if (emerg) { b = 300; d = RT.dmin_emergente(M, b, fcd); h = RT.su50(d + 40); nota = 'd<sub>min</sub> = 2,0·√(M/(b·f<sub>cd</sub>)) = ' + F(d, 0) + ' mm, h = d + 40 → ' + h + ' mm'; }
+    if (emerg) { b = 300; d = RT.dmin_emergente(M, b, fcd); h = RT.su50(d + 40); nota = 'd<sub>min</sub> = 2,2·√(M/(b·f<sub>cd</sub>)) = ' + F(d, 0) + ' mm, h = d + 40 → ' + h + ' mm'; }
     else { h = hs; d = h - 40; var bm = RT.bmin_spessore(M, d, fcd); b = Math.max(200, RT.su50(bm)); nota = 'h = spessore solaio = ' + h + ' mm; b<sub>min</sub> = 2,2²·M/(d²·f<sub>cd</sub>) = ' + F(bm, 0) + ' mm'; }
     var L1 = v('L1'), tj = $('pil').value === 'sx' ? L1 / 2 : ($('pil').value === 'dx' ? L / 2 : (L1 + L) / 2), Ainf = tj * B;
     var N = qd * Ainf * parseInt($('np').value, 10), Amin = RT.Amin_pilastro_cls(N, fcd, v('nu')), lato = Math.max(300, RT.su50(Math.sqrt(Amin)));
     var p = '';
-    p += '<div class="passo"><h3>1. Materiali</h3><p>f<sub>cd</sub> = 0,85·' + RT.CLS[$('fck').value] + '/1,5 = <b>' + F(fcd, 1) + ' MPa</b></p></div>';
+    var np_ = parseInt($('np').value, 10), latoK = RT.latoK('ca', Ainf * np_) / 10;
+    p += '<div class="passo"><h3><span class="liv">LIVELLO 1</span>Predimensionamento</h3><p>Trave: ' + (emerg ? 'h ≈ L/10 = ' + F(L * 100, 0) + ' mm (b = 300 mm)' : 'h = spessore del solaio ≈ B/25, b ≈ L/6 = ' + F(L * 1000 / 6, 0) + ' mm (solo travi poco caricate)') + '</p><p>Pilastro: ingombro ≈ 5·√(A·n) = 5·√(' + F(Ainf, 1) + '·' + np_ + ') = <b>' + F(latoK, 0) + ' cm</b> (minimo 30 cm, arrotondato a 5 cm)</p></div>';
+    p += '<div class="passo"><h3><span class="liv">LIVELLO 2</span>1. Materiali</h3><p>f<sub>cd</sub> = 0,85·' + RT.CLS[$('fck').value] + '/1,5 = <b>' + F(fcd, 1) + ' MPa</b></p></div>';
     p += '<div class="passo"><h3>2. Carichi</h3><p>q<sub>d</sub> = 1,3·G₁ + 1,5·G₂ + 1,5·Q = <b>' + F(qd, 2) + ' kN/m²</b>; p<sub>d</sub> = q<sub>d</sub>·B = <b class="ris">' + F(pd, 1) + ' kN/m</b></p></div>';
     p += '<div class="passo"><h3>3. Momento</h3><p>M<sub>Ed</sub> = p<sub>d</sub>·L²/β = <b class="ris">' + F(M, 1) + ' kN·m</b></p></div>';
     p += '<div class="passo"><h3>4. Trave ' + (emerg ? 'emergente' : 'a spessore') + '</h3><p>' + nota + '</p><p>Sezione: <b class="ris">' + b + ' × ' + h + ' mm</b> (L/h = ' + F(L * 1000 / h, 1) + ')</p>' + (!emerg && b > L * 1000 / 6 * 1.5 ? '<p class="ko">Trave molto larga: valuta una trave emergente.</p>' : '') + '</div>';
