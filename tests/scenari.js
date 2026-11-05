@@ -29,7 +29,11 @@
     ['c.a. emergente', base({ mat: 'ca', g1: 3.5 })],
     ['c.a. a spessore', base({ mat: 'ca', g1: 3.5, travaTipo: 'spessore' })],
     ['c.a. doppia altezza con sbalzo', base({ mat: 'ca', g1: 3.5, n: 3, spans: [5, 5, 5], sx: 1.5, senza: { '1:0': true, '1:sx': true } })],
-    ['c.a. C30/37 senza neve', base({ mat: 'ca', g1: 3.5, fck: 'C30/37', neve: 0 })]
+    ['c.a. C30/37 senza neve', base({ mat: 'ca', g1: 3.5, fck: 'C30/37', neve: 0 })],
+    ['acciaio vuoto con sbalzi dalle travi vicine', base({ n: 3, spans: [5, 6, 5, 5], senza: { '2:1': true }, sbalziVuoto: { '2:1': { a: 2, b: 1.5 } } })],
+    ['c.a. vuoto con sbalzi oltre il limite (a + b > L)', base({ mat: 'ca', g1: 3.5, n: 3, spans: [5, 5, 5], senza: { '1:1': true }, sbalziVuoto: { '1:1': { a: 4, b: 3 } } })],
+    ['acciaio sbalzi con lunghezze individuali', base({ n: 3, sx: 1.5, dx: 2, sbalziLivello: { '2:sx': 0.8, '3:dx': 3 } })],
+    ['legno sbalzo nel vuoto senza trave da prolungare', base({ mat: 'legno', g1: 1.5, g2: 1.5, chi: 0.3, n: 2, spans: [5, 5], senza: { '1:0': true }, sbalziVuoto: { '1:0': { a: 1, b: 2 } } })]
   ];
 
   // riassunto compatto di un risultato di RT.telaio
@@ -37,7 +41,7 @@
   function nomeTrave(t) { return t.assente ? '--' : (t.prof ? t.prof[0] : t.b + 'x' + t.h) + (t.gov ? '/' + t.gov : ''); }
   function riassunto(r) {
     return {
-      travi: r.livelli.map(function (l) { return l.k + ': ' + l.travi.map(nomeTrave).join(' | ') + (l.sbalzi.length ? ' + sb ' + l.sbalzi.map(nomeTrave).join(',') : ''); }),
+      travi: r.livelli.map(function (l) { return l.k + ': ' + l.travi.map(nomeTrave).join(' | ') + (l.sbalzi.length ? ' + sb ' + l.sbalzi.map(nomeTrave).join(',') : '') + (l.sbalziInt && l.sbalziInt.length ? ' + int ' + l.sbalziInt.map(nomeTrave).join(',') : ''); }),
       pilastri: r.colonne.map(function (segs, j) {
         return 'P' + (j + 1) + ' ' + segs.map(function (s) {
           return '[' + s.s0 + '-' + s.s1 + ' N=' + r6(s.N) + ' dN=' + r6(s.dN) + ' A=' + r6(s.Atot) + ' L0=' + r6(s.L0) + ' imin=' + r6(s.imin) + ' K=' + s.latoK +
