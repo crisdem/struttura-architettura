@@ -378,6 +378,8 @@ window.RT_EN = {
 "Pilastri: serie di profili": "Columns: section series",
 "Mostra una persona alta 1,75 m nelle campate con la trave, per le proporzioni": "Show a 1.75 m tall person in the spans with a beam, for proportion",
 "Persona alta 1,75 m": "Person 1.75 m tall",
+"Diavoletto alto 1,75 m": "Little devil 1.75 m tall",
+"Diavoletti attivati": "Little devils summoned",
 "Pilastro tolto: clicca per rimetterlo (si rimette dal basso)": "Column removed: click to put it back (put back from the bottom)",
 "Clicca per togliere la trave": "Click to remove the beam",
 "Clicca per rimettere la trave": "Click to put the beam back",

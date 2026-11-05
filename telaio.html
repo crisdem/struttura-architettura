@@ -16,6 +16,10 @@
  details.regole summary{cursor:pointer;font-weight:700}
  .campo.inline{grid-template-columns:auto 1fr;gap:.5rem}
  .campo.inline input[type=checkbox]{grid-column:auto;accent-color:var(--rosso);width:1.1rem;height:1.1rem}
+ .parola{display:flex;align-items:center;gap:.5rem;margin:.1rem 0 .5rem}
+ .parola label{font-size:.9rem}
+ .parola input{width:9em;padding:.2rem .4rem;border:1px solid var(--grigio);border-radius:4px;font:inherit;font-size:.9rem}
+ .parola span{font-size:.85rem;font-weight:700;color:var(--rosso)}
  table.mx{width:auto;font-size:.8rem}
  table.mx th,table.mx td{padding:.15rem .5rem;text-align:center}
  table.mx th[scope=row]{text-align:left;white-space:nowrap}
@@ -131,6 +135,7 @@
   <div>
     <div class="campo inline" style="margin:.2rem 0 .1rem"><input type="checkbox" id="carichi"><label for="carichi">Mostra i carichi sulla struttura (p<sub>d</sub> sulle travi, N<sub>Ed</sub> alla base dei pilastri)</label></div>
     <div class="campo inline" style="margin:.1rem 0 .5rem"><input type="checkbox" id="omini" checked><label for="omini">Mostra una persona alta 1,75 m nelle campate con la trave, per le proporzioni</label></div>
+    <div class="parola"><label for="parola">Password</label><input type="password" id="parola" autocomplete="off" spellcheck="false" aria-label="Password"><span id="msgParola" hidden>Diavoletti attivati</span></div>
     <div class="vista" id="vistaFig">
       <button type="button" class="tasto-schermo" data-vista="vistaFig" aria-pressed="false">⤢ Schermo intero</button>
       <svg id="fig" class="fig" role="img" aria-label="Prospetto del telaio con le sezioni di travi e pilastri in scala"></svg>

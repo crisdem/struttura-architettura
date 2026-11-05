@@ -17,6 +17,7 @@
   var CHI = { acciaio: 0.5, legno: 0.3, ca: 0.5 };
   var DEF = { acciaio: { g1: 2.5, g2: 2.0, q: 2.0, neve: 0.5 }, legno: { g1: 1.5, g2: 1.5, q: 2.0, neve: 0.5 }, ca: { g1: 3.5, g2: 2.0, q: 2.0, neve: 0.5 } };
   var ROSSO = '#d1382b', BLU = '#1f5c8b', NERO = '#121212', GRIGIO = '#6e6e6e';
+  var PAROLA = 'albanesi';                          // la parola segreta nel riquadro "Password": le persone diventano diavoletti
 
   function leggi(id) { return parseFloat($(id).value); }
   function intero(id) { return parseInt($(id).value, 10); }
@@ -262,25 +263,40 @@
     [['donna', -.22, 1], ['uomo', .2, .6]]
   ];
 
-  function omino(gruppo, cx, yPiedi, s) {
-    var o = '<g transform="translate(' + cx + ' ' + yPiedi + ') scale(' + s + ' ' + (-s) + ')" fill="' + NERO + '" fill-opacity=".26" stroke="' + NERO + '" stroke-opacity=".55" stroke-width=".9" pointer-events="none"><title>Persona alta 1,75 m</title>';
+  // corna e coda (con la punta a freccia) per la variante "diavoletto"; verso = 1 coda a destra, -1 a sinistra
+  function cornaCoda(t, verso) {
+    var cx = t[0], cy = t[1], k = t[2] / .085, f = function (a, b) { return (cx + a * k) + ' ' + (cy + b * k); };
+    var corno = function (v) {
+      return '<path vector-effect="non-scaling-stroke" d="M' + f(.07 * v, .05) + ' C' + f(.115 * v, .09) + ' ' + f(.10 * v, .16) + ' ' + f(.065 * v, .20) + ' C' + f(.05 * v, .14) + ' ' + f(.03 * v, .10) + ' ' + f(.02 * v, .075) + ' Z"/>';
+    };
+    var v = verso;
+    return corno(-1) + corno(1)
+      + '<path fill="none" vector-effect="non-scaling-stroke" d="M' + (.11 * v) + ' .86 C' + (.34 * v) + ' .80 ' + (.44 * v) + ' 1.00 ' + (.36 * v) + ' 1.12"/>'
+      + '<path vector-effect="non-scaling-stroke" d="M' + (.31 * v) + ' 1.10 L' + (.37 * v) + ' 1.21 L' + (.42 * v) + ' 1.08 Z"/>';
+  }
+
+  function omino(gruppo, cx, yPiedi, s, diavolo) {
+    var col = diavolo ? ROSSO : NERO;
+    var o = '<g transform="translate(' + cx + ' ' + yPiedi + ') scale(' + s + ' ' + (-s) + ')" fill="' + col + '" fill-opacity="' + (diavolo ? '.4' : '.26') + '" stroke="' + col + '" stroke-opacity="' + (diavolo ? '.85' : '.55') + '" stroke-width=".9" pointer-events="none"><title>' + (diavolo ? 'Diavoletto alto 1,75 m' : 'Persona alta 1,75 m') + '</title>';
     gruppo.forEach(function (q) {
       var d = SAGOME[q[0]];
-      o += '<g transform="translate(' + q[1] + ' 0) scale(' + q[2] + ')"><path vector-effect="non-scaling-stroke" d="' + d.c + '"/><circle vector-effect="non-scaling-stroke" cx="' + d.t[0] + '" cy="' + d.t[1] + '" r="' + d.t[2] + '"/></g>';
+      o += '<g transform="translate(' + q[1] + ' 0) scale(' + q[2] + ')"><path vector-effect="non-scaling-stroke" d="' + d.c + '"/><circle vector-effect="non-scaling-stroke" cx="' + d.t[0] + '" cy="' + d.t[1] + '" r="' + d.t[2] + '"/>' + (diavolo ? cornaCoda(d.t, q[1] < 0 ? -1 : 1) : '') + '</g>';
     });
     return o + '</g>';
   }
 
+  function diavoli() { var c = $('parola'); return !!c && c.value.trim().toLowerCase() === PAROLA; }
+
   // al centro di ogni campata con la trave, a quota del primo solaio presente sotto (o del terreno); il tipo di gruppo dipende solo dalla posizione.
   // Anche sugli sbalzi (di estremita' e nei vuoti): in piedi sul solaio dello sbalzo, se e' lungo almeno 0,6 m.
   function svgOmini(g, p, r) {
-    var o = '', hp = function (k, i) { var t = r.livelli[k - 1].travi[i]; return t && !t.assente ? t : null; };
+    var o = '', dv = diavoli(), hp = function (k, i) { var t = r.livelli[k - 1].travi[i]; return t && !t.assente ? t : null; };
     for (var i = 0; i < g.nc; i++) {
       for (var k = 1; k <= p.n; k++) {
         if (!hp(k, i)) continue;
         var f = k - 1; while (f >= 1 && !hp(f, i)) f--;
         var yPiedi = g.yg - f * p.H * g.s - (f >= 1 ? ((hp(f, i).h || 600) / 1000) * g.s / 2 : 0), cx = (g.xs[i] + g.xs[i + 1]) / 2;
-        o += omino(GRUPPI[(i * 2 + k) % GRUPPI.length], cx, yPiedi, g.s);
+        o += omino(GRUPPI[(i * 2 + k) % GRUPPI.length], cx, yPiedi, g.s, dv);
       }
     }
     r.livelli.forEach(function (lv) {
@@ -290,7 +306,7 @@
       elenco.forEach(function (c, q) {
         if (c.t.L < 0.6) return;
         var yp = yl - ((c.t.h || 600) / 1000) * g.s / 2, gruppo = c.t.L >= 1.6 ? GRUPPI[3 + (lv.k % 2)] : GRUPPI[(lv.k + q) % 3];
-        o += omino(gruppo, c.xa + c.t.L * g.s / 2, yp, g.s);
+        o += omino(gruppo, c.xa + c.t.L * g.s / 2, yp, g.s, dv);
       });
     });
     return o;
@@ -393,6 +409,7 @@
   }
 
   function disegna(p, r) {
+    $('msgParola').hidden = !diavoli();
     var g = misureDisegno(p, $('omini').checked && haTerrazza(r)), st = RT.telaioStato(p);
     var svg = $('fig'); svg.setAttribute('viewBox', '0 0 ' + g.W + ' ' + g.Hh);
     var o = svgTerreno(g) + svgPilastri(g, p, r, st) + svgPilastriTolti(g, p, r);
@@ -745,7 +762,7 @@
     $('n').addEventListener('input', function () { costruisciMatrice(); calcola(); });
     ['sx', 'dx'].forEach(function (id) { $(id).addEventListener('input', function () { costruisciMatrice(); calcola(); }); });
     $('uguali').addEventListener('change', function () { if (this.checked) { for (var j = 1; j < 5; j++) luci[j] = luci[0]; costruisciCampate(); calcola(); } });
-    ['H', 'B', 'bordo', 'chi', 'carichi', 'omini', 'usaNeve', 'g1', 'g2', 'q', 'qb', 'neve', 'vinc', 'acc', 'serie', 'cleg', 'bleg', 'fck', 'tipoTrave', 'livPianta', 'conSolaio'].concat(IPOTESI.map(function (x) { return x[0]; })).forEach(function (id) { $(id).addEventListener('input', calcola); });
+    ['H', 'B', 'bordo', 'chi', 'carichi', 'omini', 'parola', 'usaNeve', 'g1', 'g2', 'q', 'qb', 'neve', 'vinc', 'acc', 'serie', 'cleg', 'bleg', 'fck', 'tipoTrave', 'livPianta', 'conSolaio'].concat(IPOTESI.map(function (x) { return x[0]; })).forEach(function (id) { $(id).addEventListener('input', calcola); });
     $('ripristinaIpotesi').addEventListener('click', function () { impostaIpotesi(); calcola(); });
     $('sbA').addEventListener('input', function () { cambiaSbalzo('a', parseFloat(this.value)); });
     $('sbB').addEventListener('input', function () { cambiaSbalzo('b', parseFloat(this.value)); });
