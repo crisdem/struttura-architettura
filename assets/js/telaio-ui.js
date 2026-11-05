@@ -1,0 +1,647 @@
+/* Modulo Struttura e Architettura - interfaccia della pagina telaio.html.
+   Richiede calc.js e telaio-calc.js (libreria RT). Strumento DIDATTICO: non sostituisce la progettazione e le verifiche delle NTC 2018.
+   Sezioni: stato e parametri, controlli, travi e pilastri presenti, disegno in prospetto, pianta, tabelle, eventi e preset da URL. */
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var F = RT.fmt;
+
+  // ---------------------------------------------------------------- stato
+  var materiale = 'acciaio';
+  var luci = [5, 5, 5, 5, 5];
+  var senza = {};                                  // travi tolte: chiavi 'k:i' oppure 'k:sx', 'k:dx'
+  var colSenza = {};                               // tratti di pilastro tolti: chiavi 'j:s' (solo dall'alto)
+  var CHI = { acciaio: 0.5, legno: 0.3, ca: 0.5 };
+  var DEF = { acciaio: { g1: 2.5, g2: 2.0, q: 2.0, neve: 0.5 }, legno: { g1: 1.5, g2: 1.5, q: 2.0, neve: 0.5 }, ca: { g1: 3.5, g2: 2.0, q: 2.0, neve: 0.5 } };
+  var ROSSO = '#d1382b', BLU = '#1f5c8b', NERO = '#121212', GRIGIO = '#6e6e6e';
+
+  function leggi(id) { return parseFloat($(id).value); }
+  function intero(id) { return parseInt($(id).value, 10); }
+  function nomeLivello(k, n) { return k === n ? 'Copertura' : 'Piano ' + k; }
+
+  function parametri() {
+    var nc = intero('nc');
+    return {
+      n: intero('n'), spans: luci.slice(0, nc), H: leggi('H'), B: leggi('B'), bordo: $('bordo').checked,
+      g1: leggi('g1'), g2: leggi('g2'), q: leggi('q'), neve: $('usaNeve').checked ? leggi('neve') : 0, qb: leggi('qb'), sx: leggi('sx'), dx: leggi('dx'),
+      mat: materiale, acciaio: $('acc').value, serie: $('serie').value, classeLegno: $('cleg').value, bLegno: parseInt($('bleg').value, 10),
+      chi: leggi('chi'), fck: $('fck').value, vincolo: $('vinc').value, travaTipo: $('tipoTrave').value, senza: senza, colSenza: colSenza
+    };
+  }
+
+  // ---------------------------------------------------------------- controlli
+  function impostaMateriale(m, ripristina) {
+    materiale = m;
+    $('mAcc').setAttribute('aria-pressed', m === 'acciaio');
+    $('mLeg').setAttribute('aria-pressed', m === 'legno');
+    $('mCa').setAttribute('aria-pressed', m === 'ca');
+    $('optAcc').hidden = m !== 'acciaio';
+    $('optLeg').hidden = m !== 'legno';
+    $('optCa').hidden = m !== 'ca';
+    if (ripristina) { ['g1', 'g2', 'q', 'neve'].forEach(function (k) { $(k).value = DEF[m][k]; }); $('chi').value = CHI[m]; }
+    $('chiLab').innerHTML = m === 'ca' ? 'Pilastri: coefficiente ν' : 'Pilastri: coefficiente χ₀';
+    $('chiNota').innerHTML = 'A<sub>min</sub> = N<sub>Ed</sub> / (' + (m === 'ca' ? 'ν·f<sub>cd</sub>' : (m === 'legno' ? 'χ₀·f<sub>c,0,d</sub>' : 'χ₀·f<sub>yd</sub>')) + '). Valore degli appunti: ' + F(CHI[m], 2) + '. Più è basso, più il pilastro è abbondante (snellezza, instabilità).';
+    calcola();
+  }
+
+  function costruisciCampate() {
+    var nc = intero('nc'), h = '';
+    for (var i = 0; i < nc; i++) {
+      h += '<div class="campo"><label for="L' + i + '">Campata ' + (i + 1) + ' <span class="unita">L [m]</span></label><output id="L' + i + 'v">' + F(luci[i], 1) + '</output>' +
+        '<input type="range" id="L' + i + '" data-i="' + i + '" min="2" max="10" step="0.1" value="' + luci[i] + '"></div>';
+    }
+    $('campate').innerHTML = h;
+    Array.prototype.forEach.call($('campate').querySelectorAll('input'), function (el) {
+      el.addEventListener('input', function () {
+        var i = parseInt(el.dataset.i, 10), v = parseFloat(el.value);
+        if ($('uguali').checked) { for (var j = 0; j < 5; j++) luci[j] = v; costruisciCampate(); }
+        else { luci[i] = v; $('L' + i + 'v').textContent = F(v, 1); }
+        calcola();
+      });
+    });
+  }
+
+  // elenco dei livelli per la pianta (si conserva la scelta, se ancora valida)
+  function costruisciLivelliPianta(n) {
+    var sel = $('livPianta'), corrente = parseInt(sel.value, 10) || 1;
+    if (sel.options.length !== n) {
+      var h = '';
+      for (var k = n; k >= 1; k--) h += '<option value="' + k + '">' + nomeLivello(k, n) + '</option>';
+      sel.innerHTML = h;
+    }
+    sel.value = String(Math.min(Math.max(corrente, 1), n));
+  }
+
+  // ---------------------------------------------------------------- travi e pilastri presenti
+  // messaggio per chi clicca: nella colonna dei comandi e sotto il disegno
+  function msg(t) {
+    $('msgMatrice').innerHTML = t || '';
+    $('msgFig').innerHTML = t || '';
+    $('msgFig').hidden = !t;
+  }
+
+  function ripulisciChiavi(n, nc, hasSx, hasDx) {             // toglie le chiavi che non esistono piu'
+    Object.keys(senza).forEach(function (key) {
+      var pr = key.split(':'), kk = parseInt(pr[0], 10), ii = pr[1];
+      var ok = kk >= 1 && kk <= n && ((ii === 'sx' && hasSx) || (ii === 'dx' && hasDx) || (/^\d+$/.test(ii) && parseInt(ii, 10) < nc));
+      if (!ok) delete senza[key];
+    });
+    Object.keys(colSenza).forEach(function (key) {
+      var pr = key.split(':'), jj = parseInt(pr[0], 10), ss = parseInt(pr[1], 10);
+      if (!(jj >= 0 && jj <= nc && ss >= 1 && ss <= n)) delete colSenza[key];
+    });
+  }
+
+  function htmlMatriceTravi(st, n, nc, hasSx, hasDx) {
+    var h = '<table class="mx"><thead><tr><th></th>', i, k;
+    for (i = 0; i < nc; i++) h += '<th>Campata ' + (i + 1) + '</th>';
+    if (hasSx) h += '<th>Sbalzo sx</th>';
+    if (hasDx) h += '<th>Sbalzo dx</th>';
+    h += '</tr></thead><tbody>';
+    function cella(k2, i2, lab) {
+      var key = k2 + ':' + i2, dis = !st.disponibile(k2, i2), on = st.trave(k2, i2);
+      var why = dis ? ((i2 === 'sx' || i2 === 'dx') ? 'senza la trave adiacente (o senza il pilastro) non c\'è lo sbalzo' : 'manca un pilastro a questo livello') : '';
+      return '<td><input type="checkbox" data-key="' + key + '" aria-label="' + lab + '"' + (on ? ' checked' : '') + (dis ? ' disabled title="' + why + '"' : '') + '></td>';
+    }
+    for (k = n; k >= 1; k--) {
+      var nome = nomeLivello(k, n);
+      h += '<tr><th scope="row">' + nome + '</th>';
+      for (i = 0; i < nc; i++) h += cella(k, i, nome + ', campata ' + (i + 1));
+      if (hasSx) h += cella(k, 'sx', nome + ', sbalzo sinistro');
+      if (hasDx) h += cella(k, 'dx', nome + ', sbalzo destro');
+      h += '</tr>';
+    }
+    return h + '</tbody></table>';
+  }
+
+  function htmlMatricePilastri(st, n, nc) {
+    var h = '<table class="mx"><thead><tr><th></th>', j, s;
+    for (j = 0; j <= nc; j++) h += '<th>Pilastro ' + (j + 1) + '</th>';
+    h += '</tr></thead><tbody>';
+    for (s = n; s >= 1; s--) {
+      h += '<tr><th scope="row">Interpiano ' + s + (s === 1 ? ' (terra)' : '') + '</th>';
+      for (j = 0; j <= nc; j++) {
+        var e = st.colonne[j][s], dis = !(e.togli || e.ripristina);
+        h += '<td><input type="checkbox" data-col="' + j + ':' + s + '" aria-label="Pilastro ' + (j + 1) + ', interpiano ' + s + '"' + (e.presente ? ' checked' : '') + (dis ? ' disabled title="' + e.motivo + '"' : '') + '></td>';
+      }
+      h += '</tr>';
+    }
+    return h + '</tbody></table>';
+  }
+
+  function collega(contenitore, attributo, azione) {
+    Array.prototype.forEach.call($(contenitore).querySelectorAll('input'), function (el) {
+      el.addEventListener('change', function () { azione(el.getAttribute(attributo)); });
+    });
+  }
+
+  function costruisciMatrice() {
+    var n = intero('n'), nc = intero('nc'), hasSx = leggi('sx') > 0, hasDx = leggi('dx') > 0;
+    ripulisciChiavi(n, nc, hasSx, hasDx);
+    var st = RT.telaioStato(parametri());
+    $('matrice').innerHTML = htmlMatriceTravi(st, n, nc, hasSx, hasDx);
+    collega('matrice', 'data-key', alterna);
+    $('matricePil').innerHTML = htmlMatricePilastri(st, n, nc);
+    collega('matricePil', 'data-col', alternaCol);
+  }
+
+  function alterna(key) {
+    var pr = key.split(':'), st = RT.telaioStato(parametri());
+    if (!st.disponibile(parseInt(pr[0], 10), /^\d+$/.test(pr[1]) ? parseInt(pr[1], 10) : pr[1])) { msg('Questa trave non può esserci: manca un pilastro a quel livello, o (per lo sbalzo) manca la trave adiacente.'); costruisciMatrice(); return; }
+    if (senza[key]) delete senza[key]; else senza[key] = true;
+    msg(''); costruisciMatrice(); calcola();
+  }
+
+  function alternaCol(key) {
+    var pr = key.split(':'), j = parseInt(pr[0], 10), s2 = parseInt(pr[1], 10), st = RT.telaioStato(parametri()), e = st.colonne[j][s2];
+    if (e.presente && e.togli) { colSenza[key] = true; msg(''); }
+    else if (!e.presente && e.ripristina) { delete colSenza[key]; msg(''); }
+    else { msg('Il pilastro ' + (j + 1) + ', interpiano ' + s2 + ', non si può ' + (e.presente ? 'togliere' : 'rimettere') + ': ' + e.motivo + '. Un pilastro si toglie solo dall\'alto e solo con la testa libera (nessuna trave collegata in cima).'); costruisciMatrice(); return; }
+    costruisciMatrice(); calcola();
+  }
+
+  // ---------------------------------------------------------------- disegno in prospetto
+  function etichettaTrave(t) {
+    if (materiale === 'acciaio') return t.prof ? t.prof[0] : '> IPE 600';
+    return t.b + '×' + t.h;
+  }
+  function etichettaPil(e) {
+    if (materiale === 'acciaio') return e.prof ? e.prof[0] : '> ' + $('serie').value + ' 600';
+    return e.lato + '×' + e.lato;
+  }
+
+  // misure del disegno: scala (px per metro), ascisse dei pilastri, quota del terreno
+  function misureDisegno(p) {
+    var nc = p.spans.length, tot = p.spans.reduce(function (a, b) { return a + b; }, 0);
+    var sx = p.sx || 0, dx = p.dx || 0, totale = tot + sx + dx;
+    var W = 900, mx = 70, my = 34;
+    var s = Math.min(70, (W - 2 * mx) / totale, 320 / (p.n * p.H));
+    var Hh = p.n * p.H * s + 2 * my + 30 + ($('carichi').checked ? 50 : 0);
+    var xStart = (W - totale * s) / 2, x0 = xStart + sx * s, yg = Hh - my - 14;
+    var xs = [x0]; for (var i = 0; i < nc; i++) xs.push(xs[i] + p.spans[i] * s);
+    return { nc: nc, sx: sx, dx: dx, totale: totale, W: W, Hh: Hh, s: s, H: p.H, xStart: xStart, yg: yg, xs: xs };
+  }
+
+  function svgTerreno(g) {
+    var o = '<line x1="' + (g.xStart - 30) + '" x2="' + (g.xStart + g.totale * g.s + 30) + '" y1="' + g.yg + '" y2="' + g.yg + '" stroke="' + NERO + '" stroke-width="2"/>';
+    for (var t = g.xStart - 30; t < g.xStart + g.totale * g.s + 30; t += 10) o += '<line x1="' + t + '" x2="' + (t - 7) + '" y1="' + g.yg + '" y2="' + (g.yg + 8) + '" stroke="' + GRIGIO + '"/>';
+    return o;
+  }
+
+  // pilastri: un rettangolo per ogni tratto di lunghezza libera, con l'etichetta; sopra, un'area cliccabile per ogni interpiano
+  function svgPilastri(g, p, r, st) {
+    var o = '';
+    r.colonne.forEach(function (segs, j) {
+      segs.forEach(function (e) {
+        var y1 = g.yg - e.a * p.H * g.s, y2 = g.yg - e.b * p.H * g.s, w = ((e.lato || 600) / 1000) * g.s, x = g.xs[j], ym = (y1 + y2) / 2;
+        o += '<rect x="' + (x - w / 2) + '" y="' + y2 + '" width="' + w + '" height="' + (y1 - y2) + '" fill="' + NERO + '"/>';
+        o += svgAreeClic(g, p, st, j, e, x);
+        var extra = (e.nPiani > 1 || e.libera) ? 'L₀ = ' + F(e.L0, 1) + ' m' : '';
+        if (j === 0 || j === g.nc) {
+          var ax = j === 0 ? x - w / 2 - 4 : x + w / 2 + 4, an = j === 0 ? 'end' : 'start';
+          if ((j === 0 && g.sx > 0) || (j === g.nc && g.dx > 0)) { o += '<text x="' + x + '" y="' + (ym + 4) + '" font-size="11" text-anchor="middle" fill="#fff" pointer-events="none" transform="rotate(-90 ' + x + ' ' + ym + ')">' + etichettaPil(e) + '</text>'; return; }
+          o += '<text x="' + ax + '" y="' + (ym + 4) + '" font-size="11" text-anchor="' + an + '" fill="' + NERO + '" pointer-events="none">' + etichettaPil(e) + '</text>';
+          if (extra) o += '<text x="' + ax + '" y="' + (ym + 17) + '" font-size="10" text-anchor="' + an + '" fill="' + ROSSO + '" font-weight="700" pointer-events="none">' + extra + '</text>';
+        } else if (extra) {
+          o += '<text x="' + (x + w / 2 + 4) + '" y="' + (ym + 4) + '" font-size="10" fill="' + ROSSO + '" font-weight="700" pointer-events="none">' + etichettaPil(e) + ', ' + extra + '</text>';
+        }
+      });
+    });
+    return o;
+  }
+
+  // un'area cliccabile per ogni interpiano del tratto: si toglie solo l'ultimo, solo con la testa libera; altrimenti il clic spiega perche' no
+  function svgAreeClic(g, p, st, j, e, x) {
+    var o = '', wc = Math.max(((e.lato || 600) / 1000) * g.s, 14);
+    for (var s = e.s0; s <= e.s1; s++) {
+      var c = st.colonne[j][s], y1 = g.yg - (s - 1) * p.H * g.s, y2 = g.yg - s * p.H * g.s;
+      var tit = c.togli ? 'Clicca per togliere il pilastro (ha la testa libera)' : 'Non si può togliere: ' + c.motivo;
+      o += '<rect class="tg tcol' + (c.togli ? ' ok' : '') + '" data-col="' + j + ':' + s + '" x="' + (x - wc / 2) + '" y="' + y2 + '" width="' + wc + '" height="' + (y1 - y2) + '" fill="rgba(0,0,0,0)"><title>' + tit + '</title></rect>';
+    }
+    return o;
+  }
+
+  // pilastri tolti: sagoma tratteggiata, cliccabile per rimetterli
+  function svgPilastriTolti(g, p, r) {
+    var o = '';
+    r.alto.forEach(function (al, j) {
+      for (var s3 = al + 1; s3 <= p.n; s3++) {
+        var wg = 0.3 * g.s, y1g = g.yg - (s3 - 1) * p.H * g.s, y2g = g.yg - s3 * p.H * g.s;
+        o += '<rect class="tg" data-col="' + j + ':' + s3 + '" x="' + (g.xs[j] - wg / 2) + '" y="' + y2g + '" width="' + wg + '" height="' + (y1g - y2g) + '" fill="rgba(18,18,18,.04)" stroke="' + GRIGIO + '" stroke-width="1" stroke-dasharray="4 4"><title>Pilastro tolto: clicca per rimetterlo (si rimette dal basso)</title></rect>';
+      }
+    });
+    return o;
+  }
+
+  // persone stilizzate di 1,75 m, semi-trasparenti, al centro di ogni campata con la trave
+  function svgOmini(g, p, r) {
+    var o = '', hp = function (k, i) { var t = r.livelli[k - 1].travi[i]; return t && !t.assente ? t : null; };
+    for (var i = 0; i < g.nc; i++) {
+      for (var k = 1; k <= p.n; k++) {
+        if (!hp(k, i)) continue;
+        var f = k - 1; while (f >= 1 && !hp(f, i)) f--;             // il piano su cui si sta: il primo solaio presente sotto (o il terreno)
+        var yPiedi = g.yg - f * p.H * g.s - (f >= 1 ? ((hp(f, i).h || 600) / 1000) * g.s / 2 : 0), cx = (g.xs[i] + g.xs[i + 1]) / 2, s = g.s;
+        var Hp = 1.75 * s, rt = 0.115 * s, wt = 0.17 * s, ya = yPiedi - Hp, yv = yPiedi - 0.84 * s;
+        o += '<g fill="' + BLU + '" fill-opacity=".3" pointer-events="none"><title>Persona alta 1,75 m</title>' +
+          '<circle cx="' + cx + '" cy="' + (ya + rt) + '" r="' + rt + '"/>' +
+          '<rect x="' + (cx - wt) + '" y="' + (ya + 2 * rt + 0.02 * s) + '" width="' + (2 * wt) + '" height="' + (yv - ya - 2 * rt - 0.02 * s) + '" rx="' + (wt * 0.55) + '"/>' +
+          '<rect x="' + (cx - wt * 0.85) + '" y="' + (yv - 0.02 * s) + '" width="' + (wt * 0.8) + '" height="' + (yPiedi - yv + 0.02 * s) + '" rx="' + (wt * 0.25) + '"/>' +
+          '<rect x="' + (cx + wt * 0.05) + '" y="' + (yv - 0.02 * s) + '" width="' + (wt * 0.8) + '" height="' + (yPiedi - yv + 0.02 * s) + '" rx="' + (wt * 0.25) + '"/></g>';
+      }
+    }
+    return o;
+  }
+
+  function svgTravi(g, r) {
+    var o = '';
+    r.livelli.forEach(function (lv) {
+      var yl = g.yg - lv.k * g.H * g.s;
+      lv.travi.forEach(function (t, i) {
+        var key = lv.k + ':' + i, tit = '<title>Clicca per ' + (t.assente ? 'rimettere' : 'togliere') + ' la trave</title>';
+        if (t.assente) {
+          if (t.perPilastro) return;
+          var h0 = 0.35 * g.s;
+          o += '<rect class="tg" data-key="' + key + '" x="' + (g.xs[i] + 1) + '" y="' + (yl - h0 / 2) + '" width="' + (g.xs[i + 1] - g.xs[i] - 2) + '" height="' + h0 + '" fill="rgba(209,56,43,.07)" stroke="' + ROSSO + '" stroke-width="1.2" stroke-dasharray="5 4">' + tit + '</rect>';
+          o += '<text x="' + ((g.xs[i] + g.xs[i + 1]) / 2) + '" y="' + (yl + 4) + '" font-size="11" text-anchor="middle" fill="' + ROSSO + '" pointer-events="none">vuoto</text>';
+          return;
+        }
+        var hh = ((t.h || 600) / 1000) * g.s;
+        o += '<rect class="tg" data-key="' + key + '" x="' + g.xs[i] + '" y="' + (yl - hh / 2) + '" width="' + (g.xs[i + 1] - g.xs[i]) + '" height="' + hh + '" fill="' + ROSSO + '">' + tit + '</rect>';
+        o += '<text x="' + ((g.xs[i] + g.xs[i + 1]) / 2) + '" y="' + (yl - hh / 2 - 5) + '" font-size="11" text-anchor="middle" fill="' + NERO + '" font-weight="700" pointer-events="none">' + etichettaTrave(t) + '</text>';
+      });
+      lv.sbalzi.forEach(function (t) {
+        var key = lv.k + ':' + t.lato, L = t.L * g.s, xa = t.lato === 'sx' ? g.xs[0] - L : g.xs[g.nc], tit = '<title>Clicca per ' + (t.assente ? 'rimettere' : 'togliere') + ' lo sbalzo</title>';
+        if (t.assente) {
+          if (t.perPilastro) return;
+          var h1 = 0.3 * g.s;
+          o += '<rect class="tg" data-key="' + key + '" x="' + xa + '" y="' + (yl - h1 / 2) + '" width="' + L + '" height="' + h1 + '" fill="rgba(31,92,139,.07)" stroke="' + BLU + '" stroke-width="1.2" stroke-dasharray="5 4">' + tit + '</rect>';
+          return;
+        }
+        var hh = ((t.h || 600) / 1000) * g.s;
+        o += '<rect class="tg" data-key="' + key + '" x="' + xa + '" y="' + (yl - hh / 2) + '" width="' + L + '" height="' + hh + '" fill="' + BLU + '">' + tit + '</rect>';
+        o += '<text x="' + (xa + L / 2) + '" y="' + (yl - hh / 2 - 5) + '" font-size="10" text-anchor="middle" fill="' + BLU + '" font-weight="700" pointer-events="none">' + etichettaTrave(t) + '</text>';
+      });
+    });
+    return o;
+  }
+
+  function svgQuote(g, p) {
+    var o = '', i;
+    for (i = 0; i < g.nc; i++) {
+      o += '<line x1="' + g.xs[i] + '" x2="' + g.xs[i + 1] + '" y1="' + (g.yg + 22) + '" y2="' + (g.yg + 22) + '" stroke="' + GRIGIO + '"/>';
+      o += '<text x="' + ((g.xs[i] + g.xs[i + 1]) / 2) + '" y="' + (g.yg + 36) + '" font-size="11" text-anchor="middle" fill="' + GRIGIO + '">' + F(p.spans[i], 1) + ' m</text>';
+    }
+    if (g.sx > 0) o += '<text x="' + (g.xs[0] - g.sx * g.s / 2) + '" y="' + (g.yg + 36) + '" font-size="11" text-anchor="middle" fill="' + BLU + '">sbalzo ' + F(g.sx, 1) + ' m</text>';
+    if (g.dx > 0) o += '<text x="' + (g.xs[g.nc] + g.dx * g.s / 2) + '" y="' + (g.yg + 36) + '" font-size="11" text-anchor="middle" fill="' + BLU + '">sbalzo ' + F(g.dx, 1) + ' m</text>';
+    return o;
+  }
+
+  function svgCarichi(g, p, r) {
+    var o = '', dh = p.H * g.s, ah = Math.min(26, dh * 0.42);
+    function carico(yl, xa, xb, hh, pd) {
+      var yTop = yl - hh / 2 - 17, y0 = yTop - ah, w = xb - xa, nA = Math.max(3, Math.round(w / 24));
+      o += '<line x1="' + xa + '" x2="' + xb + '" y1="' + y0 + '" y2="' + y0 + '" stroke="' + BLU + '" stroke-width="1.6"/>';
+      for (var q = 0; q <= nA; q++) {
+        var xq = xa + w * q / nA;
+        o += '<line x1="' + xq + '" x2="' + xq + '" y1="' + y0 + '" y2="' + yTop + '" stroke="' + BLU + '" stroke-width="1.2"/><path d="M' + (xq - 3) + ',' + (yTop - 5) + ' L' + xq + ',' + yTop + ' L' + (xq + 3) + ',' + (yTop - 5) + '" fill="none" stroke="' + BLU + '" stroke-width="1.2"/>';
+      }
+      o += '<text x="' + ((xa + xb) / 2) + '" y="' + (y0 - 4) + '" font-size="10" text-anchor="middle" fill="' + BLU + '" font-weight="700">p<tspan font-size="8" dy="2">d</tspan><tspan dy="-2"> = ' + F(pd, 1) + ' kN/m</tspan></text>';
+    }
+    r.livelli.forEach(function (lv) {
+      var yl = g.yg - lv.k * p.H * g.s;
+      lv.travi.forEach(function (t, i) { if (t.assente) return; carico(yl, g.xs[i] + 2, g.xs[i + 1] - 2, ((t.h || 600) / 1000) * g.s, t.pd); });
+      lv.sbalzi.forEach(function (t) {
+        if (t.assente) return;
+        var hh = ((t.h || 600) / 1000) * g.s, L = t.L * g.s, xa = t.lato === 'sx' ? g.xs[0] - L : g.xs[g.nc];
+        carico(yl, xa + 2, xa + L - 2, hh, t.pd);
+      });
+    });
+    r.colonne.forEach(function (segs, j) {
+      segs.forEach(function (e) {
+        var w = ((e.lato || 600) / 1000) * g.s, yb = g.yg - e.a * p.H * g.s;
+        o += '<text x="' + (g.xs[j] + w / 2 + 4) + '" y="' + (yb - 5) + '" font-size="10" fill="' + BLU + '" font-weight="700" pointer-events="none">N = ' + F(e.N, 0) + ' kN</text>';
+      });
+    });
+    return o;
+  }
+
+  function disegna(p, r) {
+    var g = misureDisegno(p), st = RT.telaioStato(p);
+    var svg = $('fig'); svg.setAttribute('viewBox', '0 0 ' + g.W + ' ' + g.Hh);
+    var o = svgTerreno(g) + svgPilastri(g, p, r, st) + svgPilastriTolti(g, p, r);
+    if ($('omini').checked) o += svgOmini(g, p, r);
+    o += svgTravi(g, r) + svgQuote(g, p);
+    if ($('carichi').checked) o += svgCarichi(g, p, r);
+    svg.innerHTML = o;
+  }
+
+  // ---------------------------------------------------------------- pianta: luce fuori piano B e area d'influenza delle travi
+  // Un solo telaio piano: la striscia di solaio che scarica sulle sue travi e' larga B (B/2 per parte), o B/2 se il telaio e' di bordo.
+  function disegnaPianta(p, r) {
+    var n = p.n, k = Math.min(Math.max(parseInt($('livPianta').value, 10) || 1, 1), n), lv = r.livelli[k - 1];
+    var nc = p.spans.length, sx = p.sx || 0, dx = p.dx || 0, totale = p.spans.reduce(function (a, b) { return a + b; }, 0) + sx + dx;
+    var Bi = r.Binf, W = 900, mx = 70, top = 40, bot = 56;
+    var sEl = Math.min(70, (W - 2 * mx) / totale, 320 / (p.n * p.H));        // stessa scala del prospetto, se la pianta ci sta
+    var s = Math.min(sEl, 250 / Bi);
+    var Hh = top + Bi * s + bot, xStart = (W - totale * s) / 2, x0 = xStart + sx * s, xs = [x0], i, o = '';
+    for (i = 0; i < nc; i++) xs.push(xs[i] + p.spans[i] * s);
+    var y0 = top, yAsse = p.bordo ? y0 : y0 + Bi * s / 2, y1 = y0 + Bi * s;     // striscia d'influenza da y0 a y1; asse del telaio in yAsse
+    var svg = $('pianta'); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + Hh);
+    o += '<defs><pattern id="trattVuoto" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="' + GRIGIO + '" stroke-width="1" stroke-opacity=".5"/></pattern></defs>';
+    function striscia(xa, xb, presente, sbalzo) {
+      if (presente) return '<rect x="' + xa + '" y="' + y0 + '" width="' + (xb - xa) + '" height="' + (y1 - y0) + '" fill="' + BLU + '" fill-opacity="' + (sbalzo ? '.10' : '.14') + '"/>';
+      return '<rect x="' + xa + '" y="' + y0 + '" width="' + (xb - xa) + '" height="' + (y1 - y0) + '" fill="url(#trattVuoto)" stroke="' + GRIGIO + '" stroke-dasharray="4 4"/>';
+    }
+    // campate: striscia d'influenza, frecce del solaio verso la trave, area
+    for (i = 0; i < nc; i++) {
+      var t = lv.travi[i], on = !t.assente, xa = xs[i], xb = xs[i + 1], xm = (xa + xb) / 2;
+      o += striscia(xa, xb, on, false);
+      if (on) {
+        [0.25, 0.75].forEach(function (f) {
+          var xf = xa + (xb - xa) * f;
+          if (yAsse - y0 > 14) o += freccia(xf, y0 + 6, xf, yAsse - 8);
+          if (y1 - yAsse > 14) o += freccia(xf, y1 - 6, xf, yAsse + 8);
+        });
+        o += '<text x="' + xm + '" y="' + (y1 - 8) + '" font-size="11" text-anchor="middle" fill="' + BLU + '" font-weight="700">A = ' + F(p.spans[i], 1) + ' × ' + F(Bi, 2) + ' = ' + F(p.spans[i] * Bi, 1) + ' m²</text>';
+      } else {
+        o += '<text x="' + xm + '" y="' + ((y0 + y1) / 2 + 4) + '" font-size="11" text-anchor="middle" fill="' + GRIGIO + '">' + (t.perPilastro ? 'trave impossibile' : 'vuoto: niente solaio') + '</text>';
+      }
+    }
+    // sbalzi
+    [['sx', sx, xs[0] - sx * s, xs[0]], ['dx', dx, xs[nc], xs[nc] + dx * s]].forEach(function (b) {
+      if (!(b[1] > 0)) return;
+      var tb = lv.sbalzi.filter(function (q) { return q.lato === b[0]; })[0], on = tb && !tb.assente;
+      o += striscia(b[2], b[3], on, true);
+      if (on) o += '<text x="' + ((b[2] + b[3]) / 2) + '" y="' + (y1 - 8) + '" font-size="10" text-anchor="middle" fill="' + BLU + '" font-weight="700">A = ' + F(b[1] * Bi, 1) + ' m²</text>';
+    });
+    // limiti della striscia: a meta' tra questo telaio e il successivo (non disegnato)
+    o += '<line x1="' + (xStart - 14) + '" x2="' + (xStart + totale * s + 14) + '" y1="' + y1 + '" y2="' + y1 + '" stroke="' + BLU + '" stroke-dasharray="6 4"/>';
+    if (!p.bordo) o += '<line x1="' + (xStart - 14) + '" x2="' + (xStart + totale * s + 14) + '" y1="' + y0 + '" y2="' + y0 + '" stroke="' + BLU + '" stroke-dasharray="6 4"/>';
+    // travi del telaio (asse) e pilastri
+    function larghezzaTrave(t) { return Math.max(((t.b || (t.h || 400) / 2) / 1000) * s, 4); }
+    for (i = 0; i < nc; i++) {
+      var tt = lv.travi[i];
+      if (tt.assente) { o += '<line x1="' + xs[i] + '" x2="' + xs[i + 1] + '" y1="' + yAsse + '" y2="' + yAsse + '" stroke="' + ROSSO + '" stroke-dasharray="5 4" stroke-opacity=".7"/>'; continue; }
+      var wt = larghezzaTrave(tt);
+      o += '<rect x="' + xs[i] + '" y="' + (yAsse - wt / 2) + '" width="' + (xs[i + 1] - xs[i]) + '" height="' + wt + '" fill="' + ROSSO + '"/>';
+    }
+    lv.sbalzi.forEach(function (tb) {
+      if (tb.assente) return;
+      var L = tb.L * s, xa = tb.lato === 'sx' ? xs[0] - L : xs[nc], wt = larghezzaTrave(tb);
+      o += '<rect x="' + xa + '" y="' + (yAsse - wt / 2) + '" width="' + L + '" height="' + wt + '" fill="' + BLU + '"/>';
+    });
+    for (var j = 0; j <= nc; j++) {
+      if (r.alto[j] < k) continue;                                              // il pilastro non arriva a questo livello
+      var e = r.interpiani[k - 1].pilastri[j];
+      if (!e) continue;
+      var a = Math.max(((e.larg || e.lato || 300) / 1000) * s, 6), b2 = Math.max(((e.lato || 300) / 1000) * s, 6);
+      o += '<rect x="' + (xs[j] - b2 / 2) + '" y="' + (yAsse - a / 2) + '" width="' + b2 + '" height="' + a + '" fill="' + NERO + '"/>';
+    }
+    // quote: luce fuori piano B a sinistra, luci delle campate in basso
+    var xq = xStart - 36;
+    o += quotaV(xq, y0, y1, p.bordo ? 'B/2 = ' + F(Bi, 2) + ' m' : 'B = ' + F(p.B, 2) + ' m', p.bordo ? ['metà luce fuori piano', '(telaio di bordo)'] : ['luce fuori piano', '(telaio al centro)']);
+    for (i = 0; i < nc; i++) {
+      o += '<line x1="' + xs[i] + '" x2="' + xs[i + 1] + '" y1="' + (y1 + 18) + '" y2="' + (y1 + 18) + '" stroke="' + GRIGIO + '"/>';
+      o += '<text x="' + ((xs[i] + xs[i + 1]) / 2) + '" y="' + (y1 + 32) + '" font-size="11" text-anchor="middle" fill="' + GRIGIO + '">L = ' + F(p.spans[i], 1) + ' m</text>';
+    }
+    o += '<text x="' + xStart + '" y="' + (top - 16) + '" font-size="12" font-weight="700" fill="' + NERO + '">Pianta: ' + nomeLivello(k, n).toLowerCase() + '</text>';
+    svg.innerHTML = o;
+    $('notaPianta').innerHTML = 'Telaio con le travi in rosso (sbalzi in blu); in blu chiaro l\'<b>area d\'influenza</b> delle travi, una striscia larga ' +
+      (p.bordo ? '<b>B/2 = ' + F(Bi, 2) + ' m</b> (telaio di bordo)' : '<b>B = ' + F(p.B, 2) + ' m</b> (B/2 per parte)') + '. Le frecce mostrano il solaio che scarica sulle travi. Il carico lineare è p<sub>d</sub> = q<sub>d</sub>·' + F(Bi, 2) + ' m. I limiti della striscia sono a metà strada dal telaio successivo, non disegnato.';
+  }
+
+  function freccia(xa, ya, xb, yb) {
+    var dy = yb > ya ? 1 : -1;
+    return '<line x1="' + xa + '" y1="' + ya + '" x2="' + xb + '" y2="' + yb + '" stroke="' + BLU + '" stroke-width="1.2"/><path d="M' + (xb - 3) + ',' + (yb - 5 * dy) + ' L' + xb + ',' + yb + ' L' + (xb + 3) + ',' + (yb - 5 * dy) + '" fill="none" stroke="' + BLU + '" stroke-width="1.2"/>';
+  }
+  function quotaV(x, ya, yb, testo, sotto) {
+    var ym = (ya + yb) / 2;
+    return '<line x1="' + x + '" x2="' + x + '" y1="' + ya + '" y2="' + yb + '" stroke="' + NERO + '"/><line x1="' + (x - 5) + '" x2="' + (x + 5) + '" y1="' + ya + '" y2="' + ya + '" stroke="' + NERO + '"/><line x1="' + (x - 5) + '" x2="' + (x + 5) + '" y1="' + yb + '" y2="' + yb + '" stroke="' + NERO + '"/>' +
+      '<text x="' + (x - 6) + '" y="' + (ym - 14) + '" font-size="12" font-weight="700" text-anchor="end" fill="' + NERO + '">' + testo + '</text>' +
+      sotto.map(function (riga, i) { return '<text x="' + (x - 6) + '" y="' + (ym + i * 13) + '" font-size="10" text-anchor="end" fill="' + GRIGIO + '">' + riga + '</text>'; }).join('');
+  }
+
+  // ---------------------------------------------------------------- tabelle
+  function intestazioneTravi(p) {
+    var ac = materiale === 'acciaio', ca = materiale === 'ca';
+    return '<thead><tr><th>Livello</th><th>Elemento</th><th>L [m]</th><th>p<sub>d</sub> [kN/m]</th><th>M<sub>Ed</sub> [kN·m]</th>' +
+      (ca ? '<th>Livello 1: ' + (p.travaTipo === 'spessore' ? 'b ≈ L/6' : 'h = L/10') + ' [mm]</th><th>Livello 2: d<sub>min</sub> / b<sub>min</sub> [mm]</th><th>Sezione b×h [mm]</th><th>L/h</th>'
+          : (ac ? '<th>Livello 1: h = L/' + RT.HLUCE[p.vincolo] + ' [mm]</th><th>W<sub>min</sub> [cm³]</th><th>Profilo (livello 2)</th><th>Freccia δ / limite [mm]</th><th>L/h</th>'
+                : '<th>Livello 1: h = L/20–L/15 [mm]</th><th>W<sub>min</sub> [cm³]</th><th>Sezione b×h [mm]</th><th>Freccia: uso</th><th>L/h</th>')) + '</tr></thead><tbody>';
+  }
+
+  // le tre righe di trave (c.a., acciaio, legno) restituiscono le celle specifiche del materiale; le avvertenze vanno in avv
+  function celleTraveCa(p, t, Leq, liv, nome, avv) {
+    var spess = p.travaTipo === 'spessore', dm = spess ? 'b<sub>min</sub> = ' + F(t.bmin, 0) : 'd<sub>min</sub> = ' + F(t.d, 0);
+    if (spess && t.b > Leq * 1000 / 6 * 1.5) avv.push(liv + ', ' + nome.toLowerCase() + ': la trave a spessore risulta molto larga (b = ' + t.b + ' mm). Valuta una trave emergente.');
+    return '<td>' + F(spess ? Leq * 1000 / 6 : t.hGeo, 0) + (spess ? ' (b)' : '') + '</td><td>' + dm + '</td><td><b>' + t.b + '×' + t.h + '</b></td><td>' + F(Leq * 1000 / t.h, 1) + '</td>';
+  }
+  function celleTraveAcciaio(t, Leq, liv, nome, avv) {
+    var r_ = '<td>' + F(t.hGeo, 0) + '</td><td>' + F(t.W, 0) + '</td>';
+    if (t.prof) return r_ + '<td><b>' + t.prof[0] + '</b>' + (t.gov === 'freccia' ? ' <span class="unita">(la freccia sposta da ' + t.profW[0] + ')</span>' : '') + '</td><td>' + F(t.delta, 1) + ' / ' + F(t.dlim, 1) + '</td><td>' + F(Leq * 1000 / t.h, 1) + '</td>';
+    avv.push(liv + ', ' + nome.toLowerCase() + ': nessun IPE soddisfa W e freccia. Riduci la luce o la luce fuori piano, o cambia schema.');
+    return r_ + '<td class="ko">oltre IPE 600</td><td>-</td><td>-</td>';
+  }
+  function celleTraveLegno(t, Leq, liv, nome, avv) {
+    if (t.h > 1000) avv.push(liv + ', ' + nome.toLowerCase() + ': altezza di ' + t.h + ' mm: valuta una base maggiore, una classe migliore o una luce minore.');
+    return '<td>' + F(t.hMin, 0) + '–' + F(t.hMax, 0) + '</td><td>' + F(t.W, 0) + '</td><td><b>' + t.b + '×' + t.h + '</b>' + (t.gov === 'freccia' ? ' <span class="unita">(governa la freccia)</span>' : '') + '</td><td>' + F(t.uso, 2) + '</td><td>' + F(Leq * 1000 / t.h, 1) + '</td>';
+  }
+
+  function tabellaTravi(p, r, avv) {
+    var ncol = materiale === 'ca' ? 9 : 10, h = intestazioneTravi(p);
+    function riga(lv, t, nome) {
+      var liv = nomeLivello(lv.k, p.n);
+      if (t.assente) return '<tr class="vuoto"><td>' + liv + '</td><td>' + nome + '</td><td>' + F(t.L, 1) + '</td><td colspan="' + (ncol - 3) + '">trave tolta (vuoto)</td></tr>';
+      var Leq = t.lato ? 2 * t.L : t.L;
+      var comuni = '<tr><td>' + liv + '</td><td>' + nome + '</td><td>' + F(t.L, 1) + '</td><td>' + F(t.pd, 1) + '</td><td>' + F(t.M, 1) + '</td>';
+      var specifiche = materiale === 'ca' ? celleTraveCa(p, t, Leq, liv, nome, avv) : (materiale === 'acciaio' ? celleTraveAcciaio(t, Leq, liv, nome, avv) : celleTraveLegno(t, Leq, liv, nome, avv));
+      return comuni + specifiche + '</tr>';
+    }
+    r.livelli.slice().reverse().forEach(function (lv) {
+      lv.travi.forEach(function (t, i) { h += riga(lv, t, 'Campata ' + (i + 1)); });
+      lv.sbalzi.forEach(function (t) { h += riga(lv, t, 'Sbalzo ' + (t.lato === 'sx' ? 'sx' : 'dx')); });
+    });
+    return h + '</tbody>';
+  }
+
+  function tabellaPilastri(r, avv) {
+    var ac = materiale === 'acciaio';
+    var h = '<thead><tr><th>Interpiani</th><th>Pilastro</th><th>ΣA [m²]</th><th>N<sub>Ed</sub> alla base [kN]</th><th>L₀ [m]</th><th>Livello 1</th><th>A<sub>min</sub> [cm²]</th><th>' + (ac ? 'Profilo' : 'Sezione [mm]') + ' (livello 2)</th><th>Decide</th></tr></thead><tbody>';
+    var righe = [];
+    r.colonne.forEach(function (segs) { segs.forEach(function (sg) { righe.push(sg); }); });
+    righe.sort(function (a, b) { return (b.s1 - a.s1) || (b.s0 - a.s0) || (a.j - b.j); });
+    righe.forEach(function (e) {
+      var ip = e.s0 === e.s1 ? e.s0 + (e.s0 === 1 ? ' (terra)' : '') : e.s0 + '–' + e.s1 + ' (doppia altezza)';
+      if (e.libera) ip += ', testa libera';
+      var l1 = ac ? 'i<sub>min</sub> ≥ ' + F(e.imin, 0) + ' mm; ingombro ≈ ' + F(e.latoK / 10, 0) + ' cm'
+                  : 'ingombro ≈ ' + F(e.latoK / 10, 0) + ' cm; lato ≥ L₀/15 = ' + F(e.L0 * 1000 / RT.LATO_L0 / 10, 0) + ' cm';
+      h += '<tr><td>' + ip + '</td><td>' + (e.j + 1) + '</td><td>' + F(e.Atot, 1) + '</td><td>' + F(e.N, 0) + (e.dN > 0 ? ' <span class="unita">(di cui sbalzo ' + F(e.dN, 0) + ')</span>' : '') + '</td><td>' + F(e.L0, 1) + '</td><td>' + l1 + '</td><td>' + F(ac ? e.A : e.A / 100, ac ? 1 : 0) + '</td>';
+      if (ac) {
+        h += e.prof ? '<td><b>' + e.prof[0] + '</b></td>' : '<td class="ko">oltre ' + r.serie + ' 600</td>';
+        if (!e.prof) avv.push('Interpiano ' + e.s0 + ', pilastro ' + (e.j + 1) + ': nessun ' + r.serie + ' soddisfa A min e i min.');
+      } else h += '<td><b>' + e.lato + '×' + e.lato + '</b></td>';
+      h += '<td>' + (e.N <= 0 ? '-' : e.gov) + '</td></tr>';
+    });
+    return h + '</tbody>';
+  }
+
+  function indicatori(p, r) {
+    var ac = materiale === 'acciaio', lg = materiale === 'legno', ca = materiale === 'ca', nTolte = Object.keys(p.senza).length, k = '';
+    if (ac) k += '<div><b>' + F(r.tot.massaAcciaio, 0) + ' kg</b><span>acciaio nel telaio</span></div>';
+    else if (lg) k += '<div><b>' + F(r.tot.volumeLegno, 2) + ' m³</b><span>legno di travi e pilastri</span></div>';
+    else k += '<div><b>' + F(r.tot.volumeCls, 1) + ' m³</b><span>calcestruzzo di travi e pilastri</span></div>';
+    k += '<div><b>' + F(r.Binf, 2) + ' m</b><span>larghezza d\'influenza</span></div>';
+    if (ca) k += '<div><b>' + F(r.hs, 0) + ' mm</b><span>spessore solaio (B/25)</span></div>';
+    var fval = ac ? r.fyd : (lg ? r.fmd : r.fcd), flab = ac ? 'f<sub>yd</sub>' : (lg ? 'f<sub>m,d</sub>' : 'f<sub>cd</sub>');
+    k += '<div><b>' + F(fval, 1) + ' MPa</b><span>' + flab + '</span></div>';
+    if (nTolte) k += '<div><b>' + nTolte + '</b><span>travi tolte</span></div>';
+    return k;
+  }
+
+  function mostraAvvisi(avv) {
+    var av = $('avvisi');
+    if (avv.length) { av.hidden = false; av.innerHTML = '<b>Attenzione</b><ul style="margin:.3rem 0 0 1rem;padding:0">' + avv.slice(0, 8).map(function (a) { return '<li>' + a + '</li>'; }).join('') + '</ul>'; }
+    else av.hidden = true;
+  }
+
+  function tabelle(p, r) {
+    var avv = r.avvisi.slice();
+    $('tTravi').innerHTML = tabellaTravi(p, r, avv);
+    $('tPil').innerHTML = tabellaPilastri(r, avv);
+    $('kpi').innerHTML = indicatori(p, r);
+    mostraAvvisi(avv);
+  }
+
+  // ---------------------------------------------------------------- CO2 e costi (stima)
+  var IPOTESI = [                                  // [id del campo, gruppo, chiave] dei valori unitari modificabili
+    ['iCo2Acc', 'co2', 'acciaio'], ['iCo2Arm', 'co2', 'armatura'], ['iCo2Cls', 'co2', 'cls'], ['iCo2Leg', 'co2', 'legno'],
+    ['iCoAcc', 'costo', 'acciaio'], ['iCoArm', 'costo', 'armatura'], ['iCoCls', 'costo', 'cls'], ['iCoCas', 'costo', 'casseforme'], ['iCoLeg', 'costo', 'legno'],
+    ['iArmTP', 'armatura', 'telaio'], ['iArmSol', 'armatura', 'solaio']
+  ];
+  var NOMI_MAT = { acciaio: 'Acciaio', legno: 'Legno', ca: 'C.a.' };
+
+  function impostaIpotesi() {
+    IPOTESI.forEach(function (x) { $(x[0]).value = RT.IMPATTO_DEF[x[1]][x[2]]; });
+  }
+  function leggiIpotesi() {
+    var ip = { co2: {}, costo: {}, armatura: {} };
+    IPOTESI.forEach(function (x) { ip[x[1]][x[2]] = parseFloat($(x[0]).value); });
+    return ip;
+  }
+
+  function tabellaImpatto(im) {
+    var h = '<thead><tr><th>Voce</th><th>Quantità</th><th>CO₂e [kg]</th><th>Costo [€]</th></tr></thead><tbody>';
+    im.voci.forEach(function (v) {
+      h += '<tr><td>' + v.nome + '</td><td>' + F(v.qta, v.unita === 'kg' ? 0 : 1) + ' ' + v.unita + '</td><td>' + (v.co2 > 0 ? F(v.co2, 0) : '-') + '</td><td>' + F(v.costo, 0) + '</td></tr>';
+    });
+    return h + '<tr><td><b>Totale</b></td><td></td><td><b>' + F(im.co2, 0) + '</b></td><td><b>' + F(im.costo, 0) + '</b></td></tr></tbody>';
+  }
+
+  function indicatoriImpatto(im) {
+    var k = '<div><b>' + F(im.co2, 0) + ' kg</b><span>CO₂e (produzione)</span></div>' +
+      '<div><b>' + (im.area > 0 ? F(im.co2m2, 0) : '-') + ' kg/m²</b><span>CO₂e per m² di solaio servito</span></div>' +
+      '<div><b>' + F(im.costo, 0) + ' €</b><span>costo in opera</span></div>' +
+      '<div><b>' + (im.area > 0 ? F(im.costom2, 0) : '-') + ' €/m²</b><span>costo per m² di solaio servito</span></div>';
+    return k;
+  }
+
+  // stesso telaio (stessa geometria e stessi carichi) nei tre materiali
+  function tabellaConfronto(p, ip, conSolaio) {
+    var h = '<thead><tr><th>Materiale</th><th>CO₂e [kg/m²]</th><th>Costo [€/m²]</th><th>CO₂e totale [kg]</th><th>Costo totale [€]</th></tr></thead><tbody>';
+    ['acciaio', 'legno', 'ca'].forEach(function (m) {
+      var pm = Object.assign({}, p, { mat: m, chi: m === materiale ? p.chi : CHI[m] }), im = RT.impatto(RT.telaio(pm), pm, ip, conSolaio), cur = m === materiale;
+      var cella = function (t) { return cur ? '<b>' + t + '</b>' : t; };
+      h += '<tr' + (cur ? ' class="corrente"' : '') + '><td>' + cella(NOMI_MAT[m]) + '</td><td>' + cella(im.area > 0 ? F(im.co2m2, 0) : '-') + '</td><td>' + cella(im.area > 0 ? F(im.costom2, 0) : '-') +
+        '</td><td>' + cella(F(im.co2, 0)) + '</td><td>' + cella(F(im.costo, 0)) + '</td></tr>';
+    });
+    return h + '</tbody>';
+  }
+
+  function impatto(p, r) {
+    var ip = leggiIpotesi(), conSolaio = $('conSolaio').checked, im = RT.impatto(r, p, ip, conSolaio);
+    $('tImpatto').innerHTML = tabellaImpatto(im);
+    $('kpiImpatto').innerHTML = indicatoriImpatto(im);
+    $('tConfronto').innerHTML = tabellaConfronto(p, ip, conSolaio);
+    var nota = '';
+    if (materiale === 'legno') nota = 'Il legno immagazzina circa <b>' + F(im.stoccata, 0) + ' kg di CO₂</b> (carbonio biogenico), che qui <b>non è sottratta</b>: vale finché l\'edificio dura e il legno non viene bruciato.';
+    $('notaImpatto').innerHTML = nota;
+    $('notaImpatto').hidden = !nota;
+  }
+
+  // ---------------------------------------------------------------- calcolo e aggiornamento
+  function aggiornaEtichette() {
+    $('nv').textContent = $('n').value; $('ncv').textContent = $('nc').value;
+    $('Hv').textContent = F(leggi('H'), 1) + ' m'; $('Bv').textContent = F(leggi('B'), 1) + ' m';
+    $('sxv').textContent = leggi('sx') > 0 ? F(leggi('sx'), 1) + ' m' : 'assente'; $('dxv').textContent = leggi('dx') > 0 ? F(leggi('dx'), 1) + ' m' : 'assente';
+    $('g1v').textContent = F(leggi('g1'), 1); $('g2v').textContent = F(leggi('g2'), 1); $('qv').textContent = F(leggi('q'), 1); $('qbv').textContent = F(leggi('qb'), 1);
+    $('neveV').textContent = $('usaNeve').checked ? F(leggi('neve'), 1) : 'esclusa'; $('neve').disabled = !$('usaNeve').checked; $('chiv').textContent = F(leggi('chi'), 2);
+  }
+
+  function calcola() {
+    aggiornaEtichette();
+    costruisciLivelliPianta(intero('n'));
+    var p = parametri(), r = RT.telaio(p);
+    disegna(p, r); disegnaPianta(p, r); tabelle(p, r); impatto(p, r);
+  }
+
+  // ---------------------------------------------------------------- eventi
+  function nuovoStato(nuovaSenza, nuovaColSenza) { senza = nuovaSenza; colSenza = nuovaColSenza; msg(''); costruisciMatrice(); calcola(); }
+  function almenoPiani(m) { if (intero('n') < m) $('n').value = m; }
+
+  function collegaEventi() {
+    $('mAcc').addEventListener('click', function () { impostaMateriale('acciaio', true); });
+    $('mLeg').addEventListener('click', function () { impostaMateriale('legno', true); });
+    $('mCa').addEventListener('click', function () { impostaMateriale('ca', true); });
+    $('nc').addEventListener('input', function () { costruisciCampate(); costruisciMatrice(); calcola(); });
+    $('n').addEventListener('input', function () { costruisciMatrice(); calcola(); });
+    ['sx', 'dx'].forEach(function (id) { $(id).addEventListener('input', function () { costruisciMatrice(); calcola(); }); });
+    $('uguali').addEventListener('change', function () { if (this.checked) { for (var j = 1; j < 5; j++) luci[j] = luci[0]; costruisciCampate(); calcola(); } });
+    ['H', 'B', 'bordo', 'chi', 'carichi', 'omini', 'usaNeve', 'g1', 'g2', 'q', 'qb', 'neve', 'vinc', 'acc', 'serie', 'cleg', 'bleg', 'fck', 'tipoTrave', 'livPianta', 'conSolaio'].concat(IPOTESI.map(function (x) { return x[0]; })).forEach(function (id) { $(id).addEventListener('input', calcola); });
+    $('ripristinaIpotesi').addEventListener('click', function () { impostaIpotesi(); calcola(); });
+    $('fig').addEventListener('click', function (ev) {                   // clic sul disegno: trave, sbalzo o pilastro
+      var el = ev.target;
+      while (el && el !== $('fig')) {
+        if (el.getAttribute && el.getAttribute('data-key')) { alterna(el.getAttribute('data-key')); return; }
+        if (el.getAttribute && el.getAttribute('data-col')) { alternaCol(el.getAttribute('data-col')); return; }
+        el = el.parentNode;
+      }
+    });
+    // esempi
+    $('pTutte').addEventListener('click', function () { nuovoStato({}, {}); });
+    $('pArretra').addEventListener('click', function () {                // arretramento: via la campata di destra in copertura, poi la testa del pilastro di destra
+      almenoPiani(2);
+      var nn = intero('n'), nc2 = intero('nc'), s = {}, c = {};
+      s[nn + ':' + (nc2 - 1)] = true; c[nc2 + ':' + nn] = true; nuovoStato(s, c);
+    });
+    $('pSx').addEventListener('click', function () { almenoPiani(2); nuovoStato({ '1:0': true }, {}); });
+    $('pCentro').addEventListener('click', function () {
+      almenoPiani(2);
+      if (intero('nc') < 3) { $('nc').value = 3; costruisciCampate(); }
+      var s = {}; s['1:' + Math.floor(intero('nc') / 2)] = true; nuovoStato(s, {});
+    });
+  }
+
+  // preset da URL: ?materiale=acciaio|legno|ca&piani=N&campate=N&sbalzo_sx=m&sbalzo_dx=m&serie=HEA|HEB&senza=1:0,2:1&senzaPil=2:3
+  function leggiUrl() {
+    var qs = new URLSearchParams(location.search);
+    if (qs.get('piani')) $('n').value = Math.min(6, Math.max(1, parseInt(qs.get('piani'), 10) || 2));
+    if (qs.get('campate')) $('nc').value = Math.min(5, Math.max(1, parseInt(qs.get('campate'), 10) || 2));
+    if (qs.get('sbalzo_sx')) $('sx').value = Math.min(3, Math.max(0, parseFloat(qs.get('sbalzo_sx')) || 0));
+    if (qs.get('sbalzo_dx')) $('dx').value = Math.min(3, Math.max(0, parseFloat(qs.get('sbalzo_dx')) || 0));
+    if (qs.get('serie') === 'HEA') $('serie').value = 'HEA';
+    if (qs.get('senza')) qs.get('senza').split(',').forEach(function (x) { if (/^\d+:(\d+|sx|dx)$/.test(x)) senza[x] = true; });
+    if (qs.get('senzaPil')) qs.get('senzaPil').split(',').forEach(function (x) { if (/^\d+:\d+$/.test(x)) colSenza[x] = true; });
+    var m = qs.get('materiale');
+    return m === 'ca' ? 'ca' : (m === 'legno' ? 'legno' : 'acciaio');
+  }
+
+  function avvia() {
+    impostaIpotesi();
+    collegaEventi();
+    var m = leggiUrl();
+    costruisciCampate();
+    costruisciMatrice();
+    impostaMateriale(m, true);
+  }
+  avvia();
+})();

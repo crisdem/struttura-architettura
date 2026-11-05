@@ -11,7 +11,7 @@
 <header class="sito"><div class="in">
   <a href="index.html"><img src="assets/img/logo_romatre_bianco.png" alt="Roma Tre"></a>
   <div class="titolo">Struttura e Architettura<small>Laboratorio di Progettazione Architettonica 2 - Dipartimento di Architettura</small></div>
-  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="introduzione.html">Introduzione</a><a href="lezione1.html" aria-current="page">Lezione 1</a><a href="lezione2.html">Lezione 2</a><a href="lezione3.html">Lezione 3</a><a href="lezione4.html">Lezione 4</a><a href="telaio.html">Telaio piano</a><a href="muratura.html">Muratura</a></nav>
+  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="introduzione.html">Introduzione</a><a href="lezione1.html" aria-current="page">Lezione 1</a><a href="lezione2.html">Lezione 2</a><a href="lezione3.html">Lezione 3</a><a href="lezione4.html">Lezione 4</a><a href="telaio.html">Telaio piano</a></nav>
 </div></header>
 
 <main>
@@ -48,14 +48,16 @@
   </div>
   <div>
     <ol class="passi ris" aria-live="polite">
+      <li><b><span class="liv">LIVELLO 1</span>Predimensionamento</b><br><span class="formula">h ≈ L / <span id="r_x"></span></span> = <b id="r_hgeo"></b> mm <span class="unita">(regola pratica: primo tentativo, per eccesso)</span></li>
       <li><b>Carico di progetto (SLU)</b><br><span class="formula">p<sub>d</sub> = 1,3·g₁ + 1,5·g₂ + 1,5·q</span> = <b id="r_pd"></b> kN/m</li>
       <li><b>Domanda</b><br><span class="formula">M<sub>Ed</sub> = p<sub>d</sub>·L² / β</span> = <b id="r_M"></b> kN·m <span class="unita">(β = <span id="r_beta"></span>)</span></li>
       <li><b>Capacità del materiale</b><br><span class="formula">f<sub>yd</sub> = f<sub>yk</sub> / γ<sub>M0</sub></span> = <b id="r_fyd"></b> MPa</li>
-      <li><b>Modulo di resistenza minimo</b><br><span class="formula">W<sub>min</sub> = M<sub>Ed</sub> / f<sub>yd</sub></span> = <b id="r_W"></b> cm³</li>
-      <li><b>Profilo</b><br><span id="r_prof"></span></li>
+      <li><b>Modulo di resistenza minimo</b><br><span class="formula">W<sub>min</sub> = M<sub>Ed</sub> / f<sub>yd</sub></span> = <b id="r_Wmm"></b>·10³ mm³ = <b id="r_W"></b> cm³</li>
+      <li><b><span class="liv">LIVELLO 2</span>Profilo</b><br><span id="r_prof"></span></li>
+      <li><b>Verifica della freccia (SLE)</b><br><span class="formula">δ = k·p<sub>k</sub>·L⁴ / (384·E·I<sub>y</sub>) ≤ L/250</span><br><span id="r_delta"></span></li>
     </ol>
     <svg id="sezA" class="fig" viewBox="0 0 560 190" role="img" aria-label="Sezione del profilo scelto in scala e confronto tra momento sollecitante e momento resistente"></svg>
-    <p class="nota">Il peso proprio del profilo va compreso in g₁. La verifica a deformazione (SLE), il taglio e la stabilità sono rimandati alla lezione sull'acciaio: qui si dimensiona solo a flessione.</p>
+    <p class="nota" data-en="The self-weight of the section must be included in g₁. The section is sized for bending (W&lt;sub&gt;min&lt;/sub&gt;) and then the deflection is &lt;b&gt;checked&lt;/b&gt; with the inertia of the chosen section: if it is not enough, the next section is taken. Shear, stability and full checks are level 3 (Tecnica delle Costruzioni).">Il peso proprio del profilo va compreso in g₁. Si dimensiona a flessione (W<sub>min</sub>) e poi si <b>verifica</b> la freccia con l'inerzia del profilo scelto: se non basta, si passa al profilo successivo. Taglio, stabilità e verifiche complete sono il livello 3 (Tecnica delle Costruzioni).</p>
     <div class="scroll"><table aria-label="Profili IPE vicini al minimo"><thead><tr><th>Profilo</th><th>W<sub>el,y</sub> [cm³]</th><th>Utilizzo W<sub>min</sub>/W</th><th>Massa [kg/m]</th></tr></thead><tbody id="tab"></tbody></table></div>
   </div>
 </div>
@@ -114,11 +116,13 @@
     var fyk = RT.ACCIAI[$('acc').value], fyd = RT.fyd(fyk);
     var pd = RT.pSLU(g1, g2, q), M = RT.momento(pd, L, beta), W = RT.Wmin(M, fyd);
     $('r_pd').textContent = F(pd, 1); $('r_M').textContent = F(M, 1); $('r_beta').textContent = beta;
-    $('r_fyd').textContent = F(fyd, 1); $('r_W').textContent = F(W, 0);
-    var prof = RT.sceltaIPE(W, 0);
-    $('r_prof').innerHTML = prof
-      ? '<b>' + prof[0] + '</b> (W<sub>el,y</sub> = ' + F(prof[2], 0) + ' cm³ ≥ ' + F(W, 0) + ' cm³) <span class="ok">basta</span>'
+    $('r_fyd').textContent = F(fyd, 1); $('r_W').textContent = F(W, 0); $('r_Wmm').textContent = F(W, 0);
+    $('r_x').textContent = RT.HLUCE[vinc]; $('r_hgeo').textContent = F(L * 1000 / RT.HLUCE[vinc], 0);
+    var pk = g1 + g2 + q, sc = RT.sceltaIPEverificato(W, RT.KFRECCIA[vinc], pk, L, L), prof = sc.prof;
+    $('r_prof').innerHTML = sc.profW
+      ? 'Primo IPE con W<sub>el,y</sub> ≥ W<sub>min</sub>: <b>' + sc.profW[0] + '</b> (W<sub>el,y</sub> = ' + F(sc.profW[2], 0) + ' cm³ ≥ ' + F(W, 0) + ' cm³)' + (prof && prof !== sc.profW ? '; la freccia non è verificata, si sceglie <b>' + prof[0] + '</b>' : '') + (prof ? ' <span class="ok">basta</span>' : '')
       : '<span class="ko">Nessun IPE basta: servono sezioni più grandi o un altro schema.</span>';
+    $('r_delta').innerHTML = prof ? 'p<sub>k</sub> = g₁ + g₂ + q = ' + F(pk, 1) + ' kN/m, I<sub>y</sub> = ' + F(prof[3], 0) + ' cm⁴: δ = <b>' + F(sc.delta, 1) + ' mm</b> ' + (sc.delta <= sc.lim ? '≤' : '>') + ' L/250 = ' + F(sc.lim, 1) + ' mm' : '-';
     var idx = prof ? RT.IPE.indexOf(prof) : RT.IPE.length - 1;
     var da = Math.max(0, idx - 2), a = Math.min(RT.IPE.length, idx + 2);
     var righe = '';

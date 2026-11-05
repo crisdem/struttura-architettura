@@ -68,3 +68,5 @@ footer.sito{max-width:var(--max);margin:0 auto;padding:1rem 1.2rem 2rem;color:va
 .lang button{border:1px solid var(--grigio);background:transparent;color:var(--grigio-chiaro);font:inherit;font-size:.78rem;padding:.1rem .5rem;cursor:pointer}
 .lang button:first-child{border-radius:99px 0 0 99px}.lang button:last-child{border-radius:0 99px 99px 0}
 .lang button[aria-pressed=true]{background:var(--bianco);color:var(--nero);border-color:var(--bianco)}
+/* etichetta di livello (predimensionamento / dimensionamento / verifica) */
+.liv{display:inline-block;background:var(--rosso);color:#fff;font-size:.68rem;font-weight:700;letter-spacing:.04em;padding:.1rem .45rem;margin-right:.4rem;vertical-align:middle}
