@@ -233,20 +233,39 @@
     return o;
   }
 
-  // persone stilizzate di 1,75 m, semi-trasparenti, al centro di ogni campata con la trave
+  // persone da entourage di architettura: sagome affusolate con la testa staccata, semi-trasparenti con un filo di contorno.
+  // Coordinate in metri, y verso l'alto, origine ai piedi; gli adulti sono alti 1,75 m.
+  var SAGOME = {
+    uomo:    { c: 'M-.17 1.45 C-.19 1.30 -.16 1.06 -.12 .93 L-.105 0 L-.02 0 L0 .82 L.02 0 L.105 0 L.12 .93 C.16 1.06 .19 1.30 .17 1.45 C.10 1.51 -.10 1.51 -.17 1.45 Z', t: [0, 1.665, .085] },
+    donna:   { c: 'M-.15 1.43 C-.17 1.28 -.12 1.07 -.12 .96 C-.16 .82 -.22 .68 -.23 .58 L-.07 .58 L-.075 0 L-.025 0 L-.005 .58 L.005 .58 L.025 0 L.075 0 L.07 .58 L.23 .58 C.22 .68 .16 .82 .12 .96 C.12 1.07 .17 1.28 .15 1.43 C.08 1.48 -.08 1.48 -.15 1.43 Z', t: [0, 1.67, .08] },
+    cammina: { c: 'M-.15 1.45 C-.17 1.30 -.15 1.08 -.11 .94 L-.23 0 L-.14 0 L0 .80 L.10 0 L.19 0 L.12 .94 C.16 1.08 .18 1.30 .15 1.45 C.08 1.50 -.08 1.50 -.15 1.45 Z', t: [.03, 1.665, .085] }
+  };
+  var GRUPPI = [                                    // [sagoma, spostamento x [m], scala]
+    [['uomo', 0, 1]],
+    [['donna', 0, 1]],
+    [['cammina', 0, 1]],
+    [['uomo', -.26, 1], ['donna', .26, .94]],
+    [['donna', -.22, 1], ['uomo', .2, .6]]
+  ];
+
+  function omino(gruppo, cx, yPiedi, s) {
+    var o = '<g transform="translate(' + cx + ' ' + yPiedi + ') scale(' + s + ' ' + (-s) + ')" fill="' + NERO + '" fill-opacity=".26" stroke="' + NERO + '" stroke-opacity=".55" stroke-width=".9" pointer-events="none"><title>Persona alta 1,75 m</title>';
+    gruppo.forEach(function (q) {
+      var d = SAGOME[q[0]];
+      o += '<g transform="translate(' + q[1] + ' 0) scale(' + q[2] + ')"><path vector-effect="non-scaling-stroke" d="' + d.c + '"/><circle vector-effect="non-scaling-stroke" cx="' + d.t[0] + '" cy="' + d.t[1] + '" r="' + d.t[2] + '"/></g>';
+    });
+    return o + '</g>';
+  }
+
+  // al centro di ogni campata con la trave, a quota del primo solaio presente sotto (o del terreno); il tipo di gruppo dipende solo dalla posizione
   function svgOmini(g, p, r) {
     var o = '', hp = function (k, i) { var t = r.livelli[k - 1].travi[i]; return t && !t.assente ? t : null; };
     for (var i = 0; i < g.nc; i++) {
       for (var k = 1; k <= p.n; k++) {
         if (!hp(k, i)) continue;
-        var f = k - 1; while (f >= 1 && !hp(f, i)) f--;             // il piano su cui si sta: il primo solaio presente sotto (o il terreno)
-        var yPiedi = g.yg - f * p.H * g.s - (f >= 1 ? ((hp(f, i).h || 600) / 1000) * g.s / 2 : 0), cx = (g.xs[i] + g.xs[i + 1]) / 2, s = g.s;
-        var Hp = 1.75 * s, rt = 0.115 * s, wt = 0.17 * s, ya = yPiedi - Hp, yv = yPiedi - 0.84 * s;
-        o += '<g fill="' + BLU + '" fill-opacity=".3" pointer-events="none"><title>Persona alta 1,75 m</title>' +
-          '<circle cx="' + cx + '" cy="' + (ya + rt) + '" r="' + rt + '"/>' +
-          '<rect x="' + (cx - wt) + '" y="' + (ya + 2 * rt + 0.02 * s) + '" width="' + (2 * wt) + '" height="' + (yv - ya - 2 * rt - 0.02 * s) + '" rx="' + (wt * 0.55) + '"/>' +
-          '<rect x="' + (cx - wt * 0.85) + '" y="' + (yv - 0.02 * s) + '" width="' + (wt * 0.8) + '" height="' + (yPiedi - yv + 0.02 * s) + '" rx="' + (wt * 0.25) + '"/>' +
-          '<rect x="' + (cx + wt * 0.05) + '" y="' + (yv - 0.02 * s) + '" width="' + (wt * 0.8) + '" height="' + (yPiedi - yv + 0.02 * s) + '" rx="' + (wt * 0.25) + '"/></g>';
+        var f = k - 1; while (f >= 1 && !hp(f, i)) f--;
+        var yPiedi = g.yg - f * p.H * g.s - (f >= 1 ? ((hp(f, i).h || 600) / 1000) * g.s / 2 : 0), cx = (g.xs[i] + g.xs[i + 1]) / 2;
+        o += omino(GRUPPI[(i * 2 + k) % GRUPPI.length], cx, yPiedi, g.s);
       }
     }
     return o;
@@ -339,12 +358,9 @@
   // Un solo telaio piano: la striscia di solaio che scarica sulle sue travi e' larga B (B/2 per parte), o B/2 se il telaio e' di bordo.
   function disegnaPianta(p, r) {
     var n = p.n, k = Math.min(Math.max(parseInt($('livPianta').value, 10) || 1, 1), n), lv = r.livelli[k - 1];
-    var nc = p.spans.length, sx = p.sx || 0, dx = p.dx || 0, totale = p.spans.reduce(function (a, b) { return a + b; }, 0) + sx + dx;
-    var Bi = r.Binf, W = 900, mx = 70, top = 40, bot = 56;
-    var sEl = Math.min(70, (W - 2 * mx) / totale, 320 / (p.n * p.H));        // stessa scala del prospetto, se la pianta ci sta
-    var s = Math.min(sEl, 250 / Bi);
-    var Hh = top + Bi * s + bot, xStart = (W - totale * s) / 2, x0 = xStart + sx * s, xs = [x0], i, o = '';
-    for (i = 0; i < nc; i++) xs.push(xs[i] + p.spans[i] * s);
+    var g = misureDisegno(p), nc = g.nc, sx = g.sx, dx = g.dx, totale = g.totale;          // stessa scala e stesse ascisse del prospetto: i due disegni restano allineati
+    var Bi = r.Binf, W = g.W, top = 52, bot = 56, s = g.s, xStart = g.xStart, xs = g.xs, i, o = '';
+    var Hh = top + Bi * s + bot;
     var y0 = top, yAsse = p.bordo ? y0 : y0 + Bi * s / 2, y1 = y0 + Bi * s;     // striscia d'influenza da y0 a y1; asse del telaio in yAsse
     var svg = $('pianta'); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + Hh);
     o += '<defs><pattern id="trattVuoto" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="' + GRIGIO + '" stroke-width="1" stroke-opacity=".5"/></pattern></defs>';
@@ -397,14 +413,14 @@
       var a = Math.max(((e.larg || e.lato || 300) / 1000) * s, 6), b2 = Math.max(((e.lato || 300) / 1000) * s, 6);
       o += '<rect x="' + (xs[j] - b2 / 2) + '" y="' + (yAsse - a / 2) + '" width="' + b2 + '" height="' + a + '" fill="' + NERO + '"/>';
     }
-    // quote: luce fuori piano B a sinistra, luci delle campate in basso
-    var xq = xStart - 36;
-    o += quotaV(xq, y0, y1, p.bordo ? 'B/2 = ' + F(Bi, 2) + ' m' : 'B = ' + F(p.B, 2) + ' m', p.bordo ? ['metà luce fuori piano', '(telaio di bordo)'] : ['luce fuori piano', '(telaio al centro)']);
+    // quote: B a sinistra (breve, per non uscire dal disegno), spiegazione in alto, luci delle campate in basso
+    o += quotaV(xStart - 14, y0, y1, p.bordo ? 'B/2' : 'B');
     for (i = 0; i < nc; i++) {
       o += '<line x1="' + xs[i] + '" x2="' + xs[i + 1] + '" y1="' + (y1 + 18) + '" y2="' + (y1 + 18) + '" stroke="' + GRIGIO + '"/>';
       o += '<text x="' + ((xs[i] + xs[i + 1]) / 2) + '" y="' + (y1 + 32) + '" font-size="11" text-anchor="middle" fill="' + GRIGIO + '">L = ' + F(p.spans[i], 1) + ' m</text>';
     }
-    o += '<text x="' + xStart + '" y="' + (top - 16) + '" font-size="12" font-weight="700" fill="' + NERO + '">Pianta: ' + nomeLivello(k, n).toLowerCase() + '</text>';
+    o += '<text x="' + xStart + '" y="18" font-size="12" font-weight="700" fill="' + NERO + '">Pianta: ' + nomeLivello(k, n).toLowerCase() + '</text>';
+    o += '<text x="' + xStart + '" y="37" font-size="11" fill="' + NERO + '"><tspan font-weight="700">' + (p.bordo ? 'B/2 = ' + F(Bi, 2) : 'B = ' + F(p.B, 2)) + ' m</tspan><tspan fill="' + GRIGIO + '"> ' + (p.bordo ? 'metà luce fuori piano (telaio di bordo)' : 'luce fuori piano (telaio al centro)') + '</tspan></text>';
     svg.innerHTML = o;
     $('notaPianta').innerHTML = 'Telaio con le travi in rosso (sbalzi in blu); in blu chiaro l\'<b>area d\'influenza</b> delle travi, una striscia larga ' +
       (p.bordo ? '<b>B/2 = ' + F(Bi, 2) + ' m</b> (telaio di bordo)' : '<b>B = ' + F(p.B, 2) + ' m</b> (B/2 per parte)') + '. Le frecce mostrano il solaio che scarica sulle travi. Il carico lineare è p<sub>d</sub> = q<sub>d</sub>·' + F(Bi, 2) + ' m. I limiti della striscia sono a metà strada dal telaio successivo, non disegnato.';
@@ -414,11 +430,9 @@
     var dy = yb > ya ? 1 : -1;
     return '<line x1="' + xa + '" y1="' + ya + '" x2="' + xb + '" y2="' + yb + '" stroke="' + BLU + '" stroke-width="1.2"/><path d="M' + (xb - 3) + ',' + (yb - 5 * dy) + ' L' + xb + ',' + yb + ' L' + (xb + 3) + ',' + (yb - 5 * dy) + '" fill="none" stroke="' + BLU + '" stroke-width="1.2"/>';
   }
-  function quotaV(x, ya, yb, testo, sotto) {
-    var ym = (ya + yb) / 2;
+  function quotaV(x, ya, yb, testo) {
     return '<line x1="' + x + '" x2="' + x + '" y1="' + ya + '" y2="' + yb + '" stroke="' + NERO + '"/><line x1="' + (x - 5) + '" x2="' + (x + 5) + '" y1="' + ya + '" y2="' + ya + '" stroke="' + NERO + '"/><line x1="' + (x - 5) + '" x2="' + (x + 5) + '" y1="' + yb + '" y2="' + yb + '" stroke="' + NERO + '"/>' +
-      '<text x="' + (x - 6) + '" y="' + (ym - 14) + '" font-size="12" font-weight="700" text-anchor="end" fill="' + NERO + '">' + testo + '</text>' +
-      sotto.map(function (riga, i) { return '<text x="' + (x - 6) + '" y="' + (ym + i * 13) + '" font-size="10" text-anchor="end" fill="' + GRIGIO + '">' + riga + '</text>'; }).join('');
+      '<text x="' + (x - 8) + '" y="' + ((ya + yb) / 2 + 4) + '" font-size="12" font-weight="700" text-anchor="end" fill="' + NERO + '">' + testo + '</text>';
   }
 
   // ---------------------------------------------------------------- tabelle
