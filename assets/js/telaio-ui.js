@@ -94,7 +94,6 @@
       var pr = key.split(':'), jj = parseInt(pr[0], 10), ss = parseInt(pr[1], 10);
       if (!(jj >= 0 && jj <= nc && ss >= 1 && ss <= n)) delete colSenza[key];
     });
-    Object.keys(vuoti).forEach(function (key) { if (!senza[key]) delete vuoti[key]; });          // gli sbalzi nel vuoto esistono solo con la trave tolta
     Object.keys(lung).forEach(function (key) {
       var pr = key.split(':');
       if (parseInt(pr[0], 10) > n || (pr[1] === 'sx' && !hasSx) || (pr[1] === 'dx' && !hasDx)) delete lung[key];
@@ -156,7 +155,10 @@
 
   function alterna(key) {
     var pr = key.split(':'), st = RT.telaioStato(parametri());
-    if (!st.disponibile(parseInt(pr[0], 10), /^\d+$/.test(pr[1]) ? parseInt(pr[1], 10) : pr[1])) { msg('Questa trave non può esserci: manca un pilastro a quel livello, o (per lo sbalzo) manca la trave adiacente.'); costruisciMatrice(); return; }
+    if (!st.disponibile(parseInt(pr[0], 10), /^\d+$/.test(pr[1]) ? parseInt(pr[1], 10) : pr[1])) {
+      var aiuto = (/^\d+$/.test(pr[1]) && st.vuoto(parseInt(pr[0], 10), parseInt(pr[1], 10)).vuoto) ? ' La trave vicina può però continuare con uno sbalzo: clicca sulla campata vuota nel disegno.' : '';
+      msg('Questa trave non può esserci: manca un pilastro a quel livello, o (per lo sbalzo) manca la trave adiacente.' + aiuto); costruisciMatrice(); return;
+    }
     if (senza[key]) delete senza[key]; else senza[key] = true;
     if (!senza[key]) delete vuoti[key];                      // trave rimessa: niente sbalzi nel vuoto
     msg(''); costruisciMatrice(); calcola();
@@ -324,10 +326,13 @@
       lv.travi.forEach(function (t, i) {
         var key = lv.k + ':' + i;
         if (t.assente) {
-          if (t.perPilastro) return;
-          var sv = st.vuoto(lv.k, i), h0 = 0.35 * g.s, xa0 = g.xs[i] + sv.a * g.s, xb0 = g.xs[i + 1] - sv.b * g.s, scelto = (sel === key);
-          if (xb0 - xa0 > 4) {                         // il vuoto che resta fra gli eventuali sbalzi: si clicca per metterli o per rimettere la trave
-            o += '<rect class="tg" data-vuoto="' + key + '" x="' + (xa0 + 1) + '" y="' + (yl - h0 / 2) + '" width="' + (xb0 - xa0 - 2) + '" height="' + h0 + '" fill="rgba(209,56,43,' + (scelto ? '.16' : '.07') + ')" stroke="' + ROSSO + '" stroke-width="' + (scelto ? 2.2 : 1.2) + '" stroke-dasharray="5 4"><title>Clicca per mettere sbalzi nel vuoto o rimettere la trave</title></rect>';
+          var sv = st.vuoto(lv.k, i);
+          if (t.perPilastro && !sv.vuoto) return;      // manca un pilastro e nessuna trave vicina da prolungare: niente da cliccare
+          var h0 = 0.35 * g.s, xa0 = g.xs[i] + sv.a * g.s, xb0 = g.xs[i + 1] - sv.b * g.s, scelto = (sel === key);
+          if (r.alto[i] < lv.k) xa0 = Math.max(xa0, g.xs[i] + 0.2 * g.s);              // non copre il pilastro tolto, che si clicca per rimetterlo
+          if (r.alto[i + 1] < lv.k) xb0 = Math.min(xb0, g.xs[i + 1] - 0.2 * g.s);
+          if (xb0 - xa0 > 4) {                         // il vuoto che resta fra gli eventuali sbalzi: si clicca per metterli (e, se la trave puo' esserci, per rimetterla)
+            o += '<rect class="tg" data-vuoto="' + key + '" x="' + (xa0 + 1) + '" y="' + (yl - h0 / 2) + '" width="' + (xb0 - xa0 - 2) + '" height="' + h0 + '" fill="rgba(209,56,43,' + (scelto ? '.16' : '.07') + ')" stroke="' + ROSSO + '" stroke-width="' + (scelto ? 2.2 : 1.2) + '" stroke-dasharray="5 4"><title>' + (t.perPilastro ? 'Clicca per mettere uno sbalzo dalla trave vicina (manca un pilastro: la trave non può esserci)' : 'Clicca per mettere sbalzi nel vuoto o rimettere la trave') + '</title></rect>';
             if (xb0 - xa0 > 44) o += '<text x="' + ((xa0 + xb0) / 2) + '" y="' + (yl + 4) + '" font-size="11" text-anchor="middle" fill="' + ROSSO + '" pointer-events="none">vuoto</text>';
           }
           return;
@@ -348,7 +353,7 @@
       });
       lv.sbalziInt.forEach(function (t) {              // sbalzi dentro i vuoti: prolungano le travi vicine
         var L = t.L * g.s, xa = t.verso === 'a' ? g.xs[t.i] : g.xs[t.i + 1] - L;
-        o += rettangoloSbalzo(g, t, xa, yl, lv.k + ':' + t.i, 'data-vuoto', 'Clicca per cambiare gli sbalzi nel vuoto o per rimettere la trave');
+        o += rettangoloSbalzo(g, t, xa, yl, lv.k + ':' + t.i, 'data-vuoto', st.vuoto(lv.k, t.i).perPilastro ? 'Clicca per modificare lo sbalzo' : 'Clicca per cambiare gli sbalzi nel vuoto o per rimettere la trave');
       });
     });
     return o;
@@ -441,7 +446,7 @@
     // campate: striscia d'influenza, frecce del solaio verso la trave, area; nei vuoti, solo gli sbalzi hanno la striscia
     for (i = 0; i < nc; i++) {
       var t = lv.travi[i], on = !t.assente, xa = xs[i], xb = xs[i + 1], xm = (xa + xb) / 2;
-      var sv = (!on && !t.perPilastro) ? st.vuoto(k, i) : { a: 0, b: 0 }, xa1 = xa + sv.a * s, xb1 = xb - sv.b * s;
+      var sv = !on ? st.vuoto(k, i) : { a: 0, b: 0 }, xa1 = xa + sv.a * s, xb1 = xb - sv.b * s;
       if (on) o += striscia(xa, xb, true, false);
       else if (xb1 - xa1 > 0.5) o += striscia(xa1, xb1, false, false);
       if (on) {
@@ -470,7 +475,7 @@
     for (i = 0; i < nc; i++) {
       var tt = lv.travi[i];
       if (tt.assente) {
-        var sv2 = tt.perPilastro ? { a: 0, b: 0 } : st.vuoto(k, i);
+        var sv2 = st.vuoto(k, i);
         o += '<line x1="' + (xs[i] + sv2.a * s) + '" x2="' + (xs[i + 1] - sv2.b * s) + '" y1="' + yAsse + '" y2="' + yAsse + '" stroke="' + ROSSO + '" stroke-dasharray="5 4" stroke-opacity=".7"/>';
         continue;
       }
@@ -688,14 +693,16 @@
     } else {                                         // vuoto: sbalzi dalle travi vicine
       var i = parseInt(pr[1], 10), sv = st.vuoto(k, i);
       if (!sv.vuoto) { sel = null; pan.hidden = true; return; }
-      $('titoloSbalzi').textContent = 'Vuoto: ' + nome + ', campata ' + (i + 1) + ' (' + F(sv.L, 1) + ' m)';
+      $('titoloSbalzi').textContent = (sv.perPilastro ? 'Campata senza pilastro: ' : 'Vuoto: ') + nome + ', campata ' + (i + 1) + ' (' + F(sv.L, 1) + ' m)';
       sliderA('Sbalzo da sinistra', sv.a, arrotonda1(sv.L - sv.b), sv.haA); sliderB(sv.b, arrotonda1(sv.L - sv.a), sv.haB);
       $('rigaB').hidden = false;
-      var nota = 'Gli sbalzi prolungano le travi vicine e non escono dal vuoto: la somma dei due non supera la luce della trave tolta (' + F(sv.L, 1) + ' m).';
+      var nota = sv.perPilastro
+        ? 'Manca un pilastro a questo livello: la trave non può esserci, ma la trave vicina può continuare con uno sbalzo che non esce dalla campata (' + F(sv.L, 1) + ' m).'
+        : 'Gli sbalzi prolungano le travi vicine e non escono dal vuoto: la somma dei due non supera la luce della trave tolta (' + F(sv.L, 1) + ' m).';
       if (!sv.haA) nota += ' A sinistra non c\'è una trave da prolungare: niente sbalzo.';
       if (!sv.haB) nota += ' A destra non c\'è una trave da prolungare: niente sbalzo.';
       $('notaSbalzi').textContent = nota;
-      $('rimettiTrave').hidden = false; $('valoreComune').hidden = true; $('togliSbalzo').hidden = true;
+      $('rimettiTrave').hidden = sv.perPilastro; $('valoreComune').hidden = true; $('togliSbalzo').hidden = true;
     }
     pan.hidden = false;
   }
@@ -743,9 +750,18 @@
     $('neveV').textContent = $('usaNeve').checked ? F(leggi('neve'), 1) : 'esclusa'; $('neve').disabled = !$('usaNeve').checked; $('chiv').textContent = F(leggi('chi'), 2);
   }
 
+  function ripulisciVuoti() {                                  // gli sbalzi nel vuoto esistono solo dove c'e' un vuoto (campata senza trave con una trave vicina da prolungare)
+    var st = RT.telaioStato(parametri()), n = intero('n');
+    Object.keys(vuoti).forEach(function (key) {
+      var pr = key.split(':'), k = parseInt(pr[0], 10), i = parseInt(pr[1], 10);
+      if (!(k >= 1 && k <= n) || !st.vuoto(k, i).vuoto) delete vuoti[key];
+    });
+  }
+
   function calcola() {
     aggiornaEtichette();
     costruisciLivelliPianta(intero('n'));
+    ripulisciVuoti();
     var p = parametri(), r = RT.telaio(p);
     disegna(p, r); disegnaPianta(p, r); tabelle(p, r); impatto(p, r); mostraPannello(p);
   }
