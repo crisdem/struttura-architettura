@@ -33,7 +33,10 @@
     ['acciaio vuoto con sbalzi dalle travi vicine', base({ n: 3, spans: [5, 6, 5, 5], senza: { '2:1': true }, sbalziVuoto: { '2:1': { a: 2, b: 1.5 } } })],
     ['c.a. vuoto con sbalzi oltre il limite (a + b > L)', base({ mat: 'ca', g1: 3.5, n: 3, spans: [5, 5, 5], senza: { '1:1': true }, sbalziVuoto: { '1:1': { a: 4, b: 3 } } })],
     ['acciaio sbalzi con lunghezze individuali', base({ n: 3, sx: 1.5, dx: 2, sbalziLivello: { '2:sx': 0.8, '3:dx': 3 } })],
-    ['legno sbalzo nel vuoto senza trave da prolungare', base({ mat: 'legno', g1: 1.5, g2: 1.5, chi: 0.3, n: 2, spans: [5, 5], senza: { '1:0': true }, sbalziVuoto: { '1:0': { a: 1, b: 2 } } })]
+    ['legno sbalzo nel vuoto senza trave da prolungare', base({ mat: 'legno', g1: 1.5, g2: 1.5, chi: 0.3, n: 2, spans: [5, 5], senza: { '1:0': true }, sbalziVuoto: { '1:0': { a: 1, b: 2 } } })],
+    ['acciaio sbalzo dove manca il pilastro (arretramento)', base({ n: 2, spans: [5, 5], senza: { '2:1': true }, colSenza: { '2:2': true }, sbalziVuoto: { '2:1': { a: 2.5, b: 0 } } })],
+    ['c.a. sbalzo dove manca il pilastro, oltre la luce', base({ mat: 'ca', g1: 3.5, n: 3, spans: [5, 5, 5], senza: { '3:2': true }, colSenza: { '3:3': true }, sbalziVuoto: { '3:2': { a: 7, b: 2 } } })],
+    ['legno sbalzo da destra dove manca il pilastro di sinistra', base({ mat: 'legno', g1: 1.5, g2: 1.5, chi: 0.3, n: 2, spans: [5, 5], senza: { '2:0': true }, colSenza: { '0:2': true }, sbalziVuoto: { '2:0': { a: 1, b: 2 } } })]
   ];
 
   // riassunto compatto di un risultato di RT.telaio

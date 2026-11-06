@@ -14,9 +14,10 @@
      testa non arrivano travi (testa libera, nessun pilastro sopra): se manca l'interpiano s, mancano anche i superiori.
      Le travi che arrivano a un nodo senza pilastro sono assenti.
    sbalziLivello: lunghezza individuale degli sbalzi di estremita', chiavi 'k:sx' e 'k:dx' (m); senza valore vale quella comune sx / dx.
-   sbalziVuoto: sbalzi dentro un vuoto, chiavi 'k:i' (la campata i al livello k deve essere tolta) con valori {a, b} in metri:
-     a = sbalzo che parte dal pilastro di sinistra (prolunga la trave a sinistra del vuoto), b = sbalzo che parte dal pilastro di destra
-     (prolunga la trave a destra). Esistono solo se la trave da prolungare esiste e non escono mai dal vuoto: a + b <= luce della campata tolta.
+   sbalziVuoto: sbalzi dentro una campata senza trave, chiavi 'k:i', con valori {a, b} in metri. La campata e' senza trave perche' e' stata
+     tolta (vuoto) oppure perche' manca un pilastro a quel livello (la trave non puo' esserci, ma la trave vicina puo' continuare con uno sbalzo).
+     a = sbalzo che parte dal pilastro di sinistra (prolunga la trave a sinistra della campata), b = sbalzo che parte dal pilastro di destra
+     (prolunga la trave a destra). Esistono solo se la trave da prolungare esiste e non escono mai dalla campata: a + b <= luce.
    Un nodo e' vincolato se vi arriva almeno una trave (o uno sbalzo); la lunghezza libera del pilastro e' la distanza fra nodi
    vincolati. L0 = beta H libera, con beta = 1 (beta = 2 se la testa e' libera, con base incastrata).
    Livello 1: h = L/x, lato = K radice(area), i_min = L0/100. Livello 2: W, A_min, freccia verificata.
@@ -47,13 +48,17 @@
       var comune = (lato === 'sx' ? p.sx : p.dx) || 0, v = ov[k + ':' + lato];
       return (comune > 0 && v > 0) ? v : comune;
     }
-    // sbalzi dentro un vuoto: lunghezze efficaci a e b (0 se manca la trave da prolungare), con a + b <= luce
+    // sbalzi dentro una campata senza trave: lunghezze efficaci a e b (0 se manca la trave da prolungare), con a + b <= luce.
+    // La campata e' senza trave se e' stata tolta, o se manca un pilastro (perPilastro); in questo secondo caso e' "vuoto" solo se c'e'
+    // almeno una trave vicina da prolungare.
     var sv = p.sbalziVuoto || {};
     function sbalziVuoto(k, i) {
-      var L = p.spans[i], v = sv[k + ':' + i] || {}, vuoto = !!senza[k + ':' + i] && disponibile(k, i);
-      var haA = vuoto && i >= 1 && presente(k, i - 1), haB = vuoto && i + 1 <= nc - 1 && presente(k, i + 1);
+      if (!(i >= 0 && i < nc)) return { vuoto: false, perPilastro: false, haA: false, haB: false, a: 0, b: 0, L: 0 };
+      var L = p.spans[i], v = sv[k + ':' + i] || {}, perPil = !disponibile(k, i), senzaTrave = !presente(k, i);
+      var haA = senzaTrave && i >= 1 && presente(k, i - 1), haB = senzaTrave && i + 1 <= nc - 1 && presente(k, i + 1);
+      var vuoto = (!!senza[k + ':' + i] && !perPil) || (perPil && (haA || haB));
       var a = haA ? Math.min(Math.max(v.a || 0, 0), L) : 0, b = haB ? Math.min(Math.max(v.b || 0, 0), L - a) : 0;
-      return { vuoto: vuoto, haA: haA, haB: haB, a: a, b: b, L: L };
+      return { vuoto: vuoto, perPilastro: perPil, haA: haA, haB: haB, a: a, b: b, L: L };
     }
     function nodoEsiste(j2, k) { return alto[j2] >= k; }
     function treAlNodo(j2, k) {                        // al nodo (j2, k) arriva almeno una trave o uno sbalzo

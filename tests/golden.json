@@ -447,6 +447,62 @@
     0,
     3.4832
    ]
+  },
+  "acciaio sbalzo dove manca il pilastro (arretramento)": {
+   "travi": [
+    "1: IPE 300/resistenza | IPE 300/resistenza",
+    "2: IPE 270/resistenza | -- + int IPE 270/resistenza"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P2 [1-1 N=428.125 dN=109.375 A=50 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=196.875 dN=109.375 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
+    "P3 [1-1 N=115.625 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+   ],
+   "alto": "2,2,1",
+   "avvisi": [],
+   "tot": [
+    1231.95,
+    0,
+    0
+   ]
+  },
+  "c.a. sbalzo dove manca il pilastro, oltre la luce": {
+   "travi": [
+    "1: 300x450 | 300x450 | 300x450",
+    "2: 300x450 | 300x450 | 300x450",
+    "3: 300x400 | 300x400 | -- + int 300x850"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=367.5 dN=0 A=37.5 L0=3.2 imin=32 K=350 300 resistenza] [2-2 N=235.625 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [3-3 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]",
+    "P2 [1-1 N=735 dN=0 A=75 L0=3.2 imin=32 K=450 350 resistenza] [2-2 N=471.25 dN=0 A=50 L0=3.2 imin=32 K=400 300 resistenza] [3-3 N=207.5 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza]",
+    "P3 [1-1 N=942.5 dN=311.25 A=87.5 L0=3.2 imin=32 K=500 400 resistenza] [2-2 N=678.75 dN=311.25 A=62.5 L0=3.2 imin=32 K=400 350 resistenza] [3-3 N=415 dN=311.25 A=37.5 L0=3.2 imin=32 K=350 300 resistenza]",
+    "P4 [1-1 N=263.75 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [2-2 N=131.875 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]"
+   ],
+   "alto": "3,3,3,2",
+   "avvisi": [],
+   "tot": [
+    0,
+    10.125,
+    0
+   ]
+  },
+  "legno sbalzo da destra dove manca il pilastro di sinistra": {
+   "travi": [
+    "1: 160x520/resistenza | 160x520/resistenza",
+    "2: -- | 160x440/resistenza + int 160x400/resistenza"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=90 dN=0 A=12.5 L0=3.2 imin=32 K=200 250 stabilità]",
+    "P2 [1-1 N=301.275 dN=59.4 A=47.5 L0=3.2 imin=32 K=200 300 resistenza] [2-2 N=121.275 dN=59.4 A=22.5 L0=3.2 imin=32 K=200 250 stabilità]",
+    "P3 [1-1 N=151.875 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità] [2-2 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 K=200 250 stabilità]"
+   ],
+   "alto": "1,2,2",
+   "avvisi": [],
+   "tot": [
+    0,
+    0,
+    2.4
+   ]
   }
  },
  "funzioni": {
@@ -927,6 +983,60 @@
     15416.48,
     59.6468,
     181.3704
+   ]
+  },
+  "acciaio sbalzo dove manca il pilastro (arretramento)": {
+   "quantita": [
+    0,
+    87.5,
+    17.5
+   ],
+   "senzaSolaio": [
+    2143.593,
+    4927.8,
+    0
+   ],
+   "conSolaio": [
+    6824.843,
+    15777.8,
+    77.9982,
+    180.3177
+   ]
+  },
+  "c.a. sbalzo dove manca il pilastro, oltre la luce": {
+   "quantita": [
+    101.8,
+    225,
+    45
+   ],
+   "senzaSolaio": [
+    3164.0625,
+    9897.725,
+    0
+   ],
+   "conSolaio": [
+    15201.5625,
+    37797.725,
+    67.5625,
+    167.9899
+   ]
+  },
+  "legno sbalzo da destra dove manca il pilastro di sinistra": {
+   "quantita": [
+    0,
+    85,
+    17
+   ],
+   "senzaSolaio": [
+    360,
+    3360,
+    1682.16
+   ],
+   "conSolaio": [
+    4907.5,
+    13900,
+    57.7353,
+    163.5294
    ]
   }
  }
