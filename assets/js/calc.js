@@ -164,12 +164,12 @@
 
   // ---- livello 1: predimensionamento (criteri geometrici; lezioni 1, 3 e 4) ----
   RT.HLUCE = { appoggiata: 20, semi: 25, incastro: 30 };      // acciaio: h = L / x, in funzione dello schema
-  RT.K_PILASTRO = { acciaio: 2.5, legno: 2.5, ca: 5 };        // lato [cm] = K * radice(area d'influenza totale sopra il pilastro [m2])
-  RT.MIN_K = { acciaio: 20, legno: 20, ca: 30 };               // cm: limite inferiore della regola K
-  RT.PASSO_K = { acciaio: 5, legno: 5, ca: 5 };                // arrotondamento per eccesso a multipli di 5 cm
+  RT.K_PILASTRO = { acciaio: 30, legno: 30, ca: 45 };         // lato [mm] = kappa * radice(area d'influenza totale sopra il pilastro [m2]); revisione 7/11/2026
+  RT.MIN_K = { acciaio: 200, legno: 200, ca: 300 };            // mm: limite inferiore della regola kappa
+  RT.PASSO_K = { acciaio: 50, legno: 50, ca: 50 };             // arrotondamento per eccesso a multipli di 50 mm
   RT.latoK = function (mat, Atot) {                            // mm
     var K = RT.K_PILASTRO[mat], pa = RT.PASSO_K[mat];
-    return Math.max(RT.MIN_K[mat], pa * Math.ceil(K * Math.sqrt(Math.max(Atot, 0)) / pa - 1e-9)) * 10;
+    return Math.max(RT.MIN_K[mat], pa * Math.ceil(K * Math.sqrt(Math.max(Atot, 0)) / pa - 1e-9));
   };
   RT.LAMBDA0 = 100;                                            // snellezza di riferimento: i_min >= beta H / lambda0
   RT.imin = function (L0_m) { return L0_m * 1000 / RT.LAMBDA0; };   // mm, L0 = beta * H libera
@@ -182,6 +182,9 @@
   // ---- livello 2: la freccia si VERIFICA con l'inerzia del profilo scelto (non si dimensiona per I_min) ----
   // delta [mm] = k p L^4 / (384 E I); p [kN/m = N/mm], L [m], I [cm4]
   RT.deltaIPE = function (k, p, Lc, I_cm4) { return k * p * Math.pow(Lc * 1000, 4) / (384 * RT.E_ACCIAIO * I_cm4 * 1e4); };
+  RT.Imin = function (k, pk, L, Llim) {                        // momento d'inerzia minimo [cm4] perche' delta = k pk L^4 /(384 E I) <= Llim/250 (L, Llim in m; pk in kN/m)
+    return k * pk * Math.pow(L * 1000, 4) / (384 * RT.E_ACCIAIO * (Llim * 1000 / 250)) / 1e4;
+  };
   RT.sceltaIPEverificato = function (Wmin, k, ps, Lc, Llim) {  // primo IPE con W >= Wmin e delta <= Llim/250
     var lim = Llim * 1000 / 250, primo = null;
     for (var i = 0; i < RT.IPE.length; i++) {
@@ -215,6 +218,28 @@
   RT.su50 = function (x) { return Math.ceil(x / 50 - 1e-9) * 50; };
 
   // ---- statistica (per la lezione sulla sicurezza) ----
+  // ---- carico della neve sulle coperture (NTC 2018, par. 3.4): q_s = mu_i * q_sk * C_E * C_t  [kN/m2, sulla proiezione orizzontale]
+  RT.ZONE_NEVE = {                                             // q_sk = base per a_s <= 200 m; k*(1 + (a_s/a0)^2) per a_s > 200 m
+    'I-A': { nome: 'Zona I - Alpina', base: 1.50, k: 1.39, a0: 728 },
+    'I-M': { nome: 'Zona I - Mediterranea', base: 1.50, k: 1.35, a0: 602 },
+    'II':  { nome: 'Zona II', base: 1.00, k: 0.85, a0: 481 },
+    'III': { nome: 'Zona III', base: 0.60, k: 0.51, a0: 481 }
+  };
+  RT.CE_NEVE = { vento: 0.9, normale: 1.0, riparata: 1.1 };     // battuta dai venti, normale, riparata (Tab. 3.4.I)
+  RT.neveSuolo = function (zona, as) {                         // q_sk [kN/m2] in funzione della zona e della quota a_s [m]
+    var z = RT.ZONE_NEVE[zona]; if (!z) return NaN;
+    return as <= 200 ? z.base : z.k * (1 + Math.pow(as / z.a0, 2));
+  };
+  RT.mu1 = function (alfa) {                                   // coefficiente di forma, copertura a una o due falde (Tab. 3.4.II), alfa in gradi
+    if (alfa <= 30) return 0.8;
+    if (alfa < 60) return 0.8 * (60 - alfa) / 30;
+    return 0;
+  };
+  RT.caricoNeve = function (zona, as, alfa, esposizione, ct) {
+    var qsk = RT.neveSuolo(zona, as), mu = RT.mu1(alfa), ce = RT.CE_NEVE[esposizione] || 1, c = (ct === undefined ? 1 : ct);
+    return { qsk: qsk, mu: mu, CE: ce, Ct: c, qs: mu * qsk * ce * c };
+  };
+
   RT.Phi = function (z) { // funzione di ripartizione normale standard (Abramowitz-Stegun)
     var t = 1 / (1 + 0.2316419 * Math.abs(z));
     var d = 0.3989423 * Math.exp(-z * z / 2);

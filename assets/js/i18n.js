@@ -15,6 +15,9 @@
     });
     hdr.appendChild(box);
   }
+  // menu a scorrimento orizzontale (telefono): la voce della pagina attuale resta in vista
+  var corr = document.querySelector('header.sito nav a[aria-current]');
+  if (corr && corr.parentNode && corr.parentNode.scrollWidth > corr.parentNode.clientWidth) corr.parentNode.scrollLeft = Math.max(0, corr.offsetLeft - 24);
   document.documentElement.lang = LANG;
   if (LANG !== 'en' || !window.RT_EN) return;
 
