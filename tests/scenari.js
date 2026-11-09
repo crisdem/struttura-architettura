@@ -36,7 +36,13 @@
     ['legno sbalzo nel vuoto senza trave da prolungare', base({ mat: 'legno', g1: 1.5, g2: 1.5, chi: 0.3, n: 2, spans: [5, 5], senza: { '1:0': true }, sbalziVuoto: { '1:0': { a: 1, b: 2 } } })],
     ['acciaio sbalzo dove manca il pilastro (arretramento)', base({ n: 2, spans: [5, 5], senza: { '2:1': true }, colSenza: { '2:2': true }, sbalziVuoto: { '2:1': { a: 2.5, b: 0 } } })],
     ['c.a. sbalzo dove manca il pilastro, oltre la luce', base({ mat: 'ca', g1: 3.5, n: 3, spans: [5, 5, 5], senza: { '3:2': true }, colSenza: { '3:3': true }, sbalziVuoto: { '3:2': { a: 7, b: 2 } } })],
-    ['legno sbalzo da destra dove manca il pilastro di sinistra', base({ mat: 'legno', g1: 1.5, g2: 1.5, chi: 0.3, n: 2, spans: [5, 5], senza: { '2:0': true }, colSenza: { '0:2': true }, sbalziVuoto: { '2:0': { a: 1, b: 2 } } })]
+    ['legno sbalzo da destra dove manca il pilastro di sinistra', base({ mat: 'legno', g1: 1.5, g2: 1.5, chi: 0.3, n: 2, spans: [5, 5], senza: { '2:0': true }, colSenza: { '0:2': true }, sbalziVuoto: { '2:0': { a: 1, b: 2 } } })],
+    // revisione TA8 (9/11/2026): L_max e posizione dei pilastri; carichi diversi ai vari piani
+    ['acciaio carichi diversi ai piani', base({ n: 3, spans: [4, 5.5], H: 3.8, B: 5.5, carichiLiv: { 1: { g1: 3, g2: 3, q: 4, qb: 5 }, 2: { g1: 2.5, g2: 2, q: 2, qb: 4 }, 3: { g1: 3, g2: 3, q: 0.5, qb: 0.5 } } })],
+    ['c.a. telaio di bordo, tre campate, B=6', base({ mat: 'ca', g1: 3.5, bordo: true, B: 6, spans: [4, 6, 5], n: 3 })],
+    ['legno carichi diversi, copertura con neve 1,2', base({ mat: 'legno', g1: 1.5, g2: 1.5, chi: 0.3, n: 3, carichiLiv: { 1: { g1: 2, g2: 1.5, q: 3, qb: 4 }, 3: { g1: 1.5, g2: 1.5, q: 1.2, qb: 1.2 } } })],
+    ['c.a. luci 4+4, B=5 (la trave trasversale decide L_max)', base({ mat: 'ca', g1: 3.5, spans: [4, 4], B: 5, n: 2 })],
+    ['c.a. campata unica di 8 m, B=5', base({ mat: 'ca', g1: 3.5, spans: [8], B: 5, n: 2 })]
   ];
 
   // riassunto compatto di un risultato di RT.telaio
@@ -47,7 +53,7 @@
       travi: r.livelli.map(function (l) { return l.k + ': ' + l.travi.map(nomeTrave).join(' | ') + (l.sbalzi.length ? ' + sb ' + l.sbalzi.map(nomeTrave).join(',') : '') + (l.sbalziInt && l.sbalziInt.length ? ' + int ' + l.sbalziInt.map(nomeTrave).join(',') : ''); }),
       pilastri: r.colonne.map(function (segs, j) {
         return 'P' + (j + 1) + ' ' + segs.map(function (s) {
-          return '[' + s.s0 + '-' + s.s1 + ' N=' + r6(s.N) + ' dN=' + r6(s.dN) + ' A=' + r6(s.Atot) + ' L0=' + r6(s.L0) + ' imin=' + r6(s.imin) + ' K=' + s.latoK +
+          return '[' + s.s0 + '-' + s.s1 + ' N=' + r6(s.N) + ' dN=' + r6(s.dN) + ' A=' + r6(s.Atot) + ' L0=' + r6(s.L0) + ' imin=' + r6(s.imin) + ' Lm=' + r6(s.Lmax) + ' ' + s.posNome + ' n=' + s.nSopra + ' K=' + r6(s.latoKgrezzo) + '>' + s.latoK +
             ' ' + (s.prof ? s.prof[0] : s.lato) + ' ' + s.gov + (s.libera ? ' libera' : '') + ']';
         }).join(' ');
       }),
@@ -58,12 +64,16 @@
 
   // prove delle funzioni di livello 1 e 2 usate nelle lezioni (gli esempi svolti delle slide)
   function funzioni(RT) {
-    var sc = RT.sceltaIPEverificato(473.08, 2.5, 25, 5.5, 5.5), sc2 = RT.sceltaIPEverificato(250.2, 2.5, 25, 4, 4);
+    var Im1 = RT.Imin(2.5, 25, 5.5, 5.5), sc = RT.sceltaIPE(473.08, Im1), Im2 = RT.Imin(2.5, 25, 4, 4), sc2 = RT.sceltaIPE(250.2, Im2);
     return {
-      esempio_L3_trave55: [sc.prof[0], r6(sc.delta), r6(sc.lim)],
-      esempio_L3_trave4: [sc2.prof[0], r6(sc2.delta)],
+      esempio_L3_trave55: [sc.prof[0], sc.profW[0], sc.profI[0], r6(Im1), r6(RT.deltaIPE(2.5, 25, 5.5, sc.prof[3]))],
+      esempio_L3_trave4: [sc2.prof[0], sc2.profW[0], sc2.profI[0], r6(Im2)],
       esempio_L3_pilastro: (function () { var h = RT.sceltaHE('HEB', 14.9, 38), a = RT.sceltaHE('HEA', 14.9, 38); return [h[0], a[0]]; })(),
-      latoK: [1, 2, 3, 4, 5].map(function (n) { return ['ca', 'acciaio', 'legno'].map(function (m) { return RT.latoK(m, 36 * n); }); }),
+      latoK: [1, 2, 3, 4, 5].map(function (n) { return ['ca', 'acciaio', 'legno'].map(function (m) { return RT.latoK(m, 6, 'interno', n); }); }),
+      latoK_pos: ['interno', 'bordo', 'angolo'].map(function (ps) { return ['ca', 'acciaio'].map(function (m) { return [r6(RT.latoKgrezzo(m, 6, ps, 2)), RT.latoK(m, 6, ps, 2)]; }); }),
+      latoK_esempi: [r6(RT.latoKgrezzo('acciaio', 6, 'bordo', 1)), r6(RT.latoKgrezzo('acciaio', 6, 'interno', 1)), RT.latoK('acciaio', 6, 'interno', 1),
+                     r6(RT.latoKgrezzo('ca', 6, 'interno', 2)), RT.latoK('ca', 6, 'interno', 2), r6(RT.latoKgrezzo('ca', 6, 'bordo', 2)), RT.latoK('ca', 6, 'bordo', 2),
+                     RT.latoK('ca', 5, 'interno', 2), RT.latoK('ca', 8, 'interno', 2)],
       imin: [RT.imin(3.8), RT.imin(6.4)],
       hluce: RT.HLUCE,
       neve: [RT.neveSuolo('III', 20), RT.neveSuolo('II', 600), RT.neveSuolo('I-A', 1000), RT.neveSuolo('I-M', 400), RT.neveSuolo('I-M', 150), RT.mu1(0), RT.mu1(30), RT.mu1(45), RT.mu1(60),

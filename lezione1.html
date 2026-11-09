@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#121212">
 <title>Lezione 1 - Dalla combinazione alla sezione | Struttura e Architettura</title>
 <meta name="description" content="Strumento interattivo per la lezione 1: dalla combinazione delle azioni al profilo, domanda e capacità con i coefficienti parziali, unità di misura. Slide da scaricare.">
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css?v=20261110">
 </head>
 <body>
 <header class="sito"><div class="in">
@@ -19,6 +19,7 @@
 <h1>Lezione 1 - Dalla combinazione alla sezione</h1>
 <p class="sotto">Cambia i dati e osserva come cambiano domanda, capacità e profilo scelto.</p>
 <p class="azioni"><a class="bottone" href="pdf/lezione1.pdf" download>⬇ Scarica le slide (PDF) <small class="pdf-info" data-pdf="lezione1" data-en="63 pages, 1.1 MB">63 pagine, 1,1 MB</small></a><a class="bottone chiaro" href="telaio.html?materiale=acciaio&amp;piani=2&amp;luci=6,6&amp;H=3.5&amp;B=6">Stessa maglia, tre materiali: apri il telaio</a></p>
+<p class="nota" data-en="In the frame the middle column is an interior column (pos = 1) and the end ones are edge columns (pos = 0,7). The sizes on the slides (steel 300, timber 300, r.c. 400 mm) are those of the interior column, with L&lt;sub&gt;max&lt;/sub&gt; = 6 m and n = 2 storeys.">Nel telaio il pilastro centrale è interno (pos = 1) e quelli di estremità sono di bordo (pos = 0,7). Le misure delle slide (acciaio 300, legno 300, c.a. 400 mm) sono quelle del pilastro interno, con L<sub>max</sub> = 6 m e n = 2 piani.</p>
 <section id="esempio" class="esempio-lezione" aria-label="Esempio della lezione"></section>
 
 <h2>A. L'esempio svolto: la trave di un solaio</h2>
@@ -56,17 +57,17 @@
       <li><b>Domanda</b><br><span class="formula">M<sub>Ed</sub> = p<sub>d</sub>·L² / β</span> = <b id="r_M"></b> kN·m <span class="unita">(β = <span id="r_beta"></span>)</span></li>
       <li><b>Capacità del materiale</b><br><span class="formula">f<sub>yd</sub> = f<sub>yk</sub> / γ<sub>M0</sub></span> = <b id="r_fyd"></b> MPa</li>
       <li><b>Modulo di resistenza minimo</b><br><span class="formula">W<sub>min</sub> = M<sub>Ed</sub> / f<sub>yd</sub></span> = <b id="r_Wmm"></b>·10³ mm³ = <b id="r_W"></b> cm³</li>
-      <li><b><span class="liv">LIVELLO 2</span>Profilo</b><br><span id="r_prof"></span></li>
-      <li><b>Verifica della freccia (SLE)</b><br><span class="formula">δ = k·p<sub>k</sub>·L⁴ / (384·E·I<sub>y</sub>) ≤ L/250</span><br><span id="r_imin"></span><br><span id="r_delta"></span></li>
+      <li><b>Momento d'inerzia minimo (SLE)</b><br><span class="formula">I<sub>y,min</sub> = k·p<sub>k</sub>·L⁴ / (384·E·δ<sub>lim</sub>), δ<sub>lim</sub> = L/250</span><br><span id="r_imin"></span></li>
+      <li><b><span class="liv">LIVELLO 2</span>Profilo</b><br><span id="r_prof"></span><br><span id="r_delta"></span></li>
     </ol>
     <svg id="sezA" class="fig" viewBox="0 0 560 190" role="img" aria-label="Sezione del profilo scelto in scala e confronto tra momento sollecitante e momento resistente"></svg>
-    <p class="nota" data-en="The self-weight of the section must be included in g₁. The section is sized for bending (W&lt;sub&gt;min&lt;/sub&gt;) and then the deflection is &lt;b&gt;checked&lt;/b&gt; with the inertia of the chosen section: if it is not enough, the next section is taken. Shear, stability and full checks are level 3 (Tecnica delle Costruzioni).">Il peso proprio del profilo va compreso in g₁. Si dimensiona a flessione (W<sub>min</sub>) e poi si <b>verifica</b> la freccia con l'inerzia del profilo scelto: se non basta, si passa al profilo successivo. Taglio, stabilità e verifiche complete sono il livello 3 (Tecnica delle Costruzioni).</p>
+    <p class="nota" data-en="The self-weight of the section must be included in g₁. The section is sized for bending (W&lt;sub&gt;min&lt;/sub&gt;) and for stiffness (I&lt;sub&gt;min&lt;/sub&gt;, from the deflection limit L/250): the first section with W ≥ W&lt;sub&gt;min&lt;/sub&gt; and I ≥ I&lt;sub&gt;min&lt;/sub&gt; is chosen. The deflection itself is not checked. Shear, stability and full checks are level 3 (Tecnica delle Costruzioni).">Il peso proprio del profilo va compreso in g₁. Si dimensiona a flessione (W<sub>min</sub>) e a rigidezza (I<sub>min</sub>, dal limite di freccia L/250): si sceglie il primo profilo con W ≥ W<sub>min</sub> e I ≥ I<sub>min</sub>. La freccia in sé non si verifica. Taglio, stabilità e verifiche complete sono il livello 3 (Tecnica delle Costruzioni).</p>
     <div class="scroll"><table aria-label="Profili IPE vicini al minimo"><thead><tr><th>Profilo</th><th>W<sub>el,y</sub> [cm³]</th><th>Utilizzo W<sub>min</sub>/W</th><th>Massa [kg/m]</th></tr></thead><tbody id="tab"></tbody></table></div>
   </div>
 </div>
 
 <h2 id="margine">B. Domanda e capacità: il margine</h2>
-<p data-en="The check compares two homogeneous quantities: the &lt;b&gt;demand&lt;/b&gt; &lt;i&gt;D&lt;/i&gt; (the effect of the actions) and the &lt;b&gt;capacity&lt;/b&gt; &lt;i&gt;C&lt;/i&gt; (what the structure can bear). Two «shields» protect them from uncertainty: &lt;b&gt;characteristic values&lt;/b&gt; and &lt;b&gt;partial factors&lt;/b&gt;. The demand is &lt;b&gt;increased&lt;/b&gt;, &lt;i&gt;D&lt;sub&gt;d&lt;/sub&gt;&lt;/i&gt; = &lt;i&gt;γ&lt;sub&gt;F&lt;/sub&gt;&lt;/i&gt;·&lt;i&gt;D&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt;; the capacity is &lt;b&gt;reduced&lt;/b&gt;, &lt;i&gt;C&lt;sub&gt;d&lt;/sub&gt;&lt;/i&gt; = &lt;i&gt;C&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt;/&lt;i&gt;γ&lt;sub&gt;M&lt;/sub&gt;&lt;/i&gt;. We check that &lt;i&gt;D&lt;sub&gt;d&lt;/sub&gt;&lt;/i&gt; ≤ &lt;i&gt;C&lt;sub&gt;d&lt;/sub&gt;&lt;/i&gt;.">La verifica confronta due grandezze omogenee: la <b>domanda</b> <i>D</i> (l'effetto delle azioni) e la <b>capacità</b> <i>C</i> (ciò che la struttura sopporta). Due «scudi» le proteggono dall'incertezza: i <b>valori caratteristici</b> e i <b>coefficienti parziali</b>. La domanda si <b>aumenta</b>, <i>D<sub>d</sub></i> = <i>γ<sub>F</sub></i>·<i>D<sub>k</sub></i>; la capacità si <b>riduce</b>, <i>C<sub>d</sub></i> = <i>C<sub>k</sub></i>/<i>γ<sub>M</sub></i>. Si verifica che <i>D<sub>d</sub></i> ≤ <i>C<sub>d</sub></i>.</p>
+<p data-en="The check compares two homogeneous quantities: the &lt;b&gt;demand&lt;/b&gt; &lt;i&gt;D&lt;/i&gt; (the effect of the actions) and the &lt;b&gt;capacity&lt;/b&gt; &lt;i&gt;C&lt;/i&gt; (what the structure can bear). Two «defence systems» protect them from uncertainty: (1) &lt;b&gt;characteristic values&lt;/b&gt; and (2) &lt;b&gt;safety factors&lt;/b&gt;. The demand is &lt;b&gt;increased&lt;/b&gt;, &lt;i&gt;D&lt;sub&gt;d&lt;/sub&gt;&lt;/i&gt; = &lt;i&gt;γ&lt;sub&gt;F&lt;/sub&gt;&lt;/i&gt; × &lt;i&gt;D&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt; (&lt;i&gt;γ&lt;sub&gt;F&lt;/sub&gt;&lt;/i&gt; depends on the action and on the limit state); the capacity is &lt;b&gt;reduced&lt;/b&gt;, &lt;i&gt;C&lt;sub&gt;d&lt;/sub&gt;&lt;/i&gt; = &lt;i&gt;C&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt;/&lt;i&gt;γ&lt;sub&gt;M&lt;/sub&gt;&lt;/i&gt; (&lt;i&gt;γ&lt;sub&gt;M&lt;/sub&gt;&lt;/i&gt; depends on the material). We check that &lt;i&gt;D&lt;sub&gt;d&lt;/sub&gt;&lt;/i&gt; ≤ &lt;i&gt;C&lt;sub&gt;d&lt;/sub&gt;&lt;/i&gt;.">La verifica confronta due grandezze omogenee: la <b>domanda</b> <i>D</i> (l'effetto delle azioni) e la <b>capacità</b> <i>C</i> (ciò che la struttura sopporta). Due «sistemi di difesa» le proteggono dall'incertezza: (1) i <b>valori caratteristici</b> e (2) i <b>coefficienti di sicurezza</b>. La domanda si <b>aumenta</b>, <i>D<sub>d</sub></i> = <i>γ<sub>F</sub></i> × <i>D<sub>k</sub></i> (<i>γ<sub>F</sub></i> dipende dall'azione e dallo stato limite); la capacità si <b>riduce</b>, <i>C<sub>d</sub></i> = <i>C<sub>k</sub></i>/<i>γ<sub>M</sub></i> (<i>γ<sub>M</sub></i> dipende dal materiale). Si verifica che <i>D<sub>d</sub></i> ≤ <i>C<sub>d</sub></i>.</p>
 <div class="pillole" role="group" aria-label="Esempi" id="presetB">
   <button type="button" data-p="0">La panchina: persona normale</button>
   <button type="button" data-p="1">L'elefante: azione molto più alta</button>
@@ -105,8 +106,8 @@
 </main>
 <footer class="sito">Strumento didattico: non sostituisce la progettazione né le verifiche previste dalle NTC 2018. Valori dei profili da sagomario, da controllare sulle tabelle ufficiali.</footer>
 
-<script src="assets/js/calc.js"></script>
-<script src="assets/js/esempio.js"></script>
+<script src="assets/js/calc.js?v=20261110"></script>
+<script src="assets/js/esempio.js?v=20261110"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
@@ -124,14 +125,14 @@
     $('r_pd').textContent = F(pd, 1); $('r_M').textContent = F(M, 1); $('r_beta').textContent = beta;
     $('r_fyd').textContent = F(fyd, 1); $('r_W').textContent = F(W, 0); $('r_Wmm').textContent = F(W, 0);
     $('r_x').textContent = RT.HLUCE[vinc]; $('r_hgeo').textContent = F(L * 1000 / RT.HLUCE[vinc], 0);
-    var pk = g1 + g2 + q, sc = RT.sceltaIPEverificato(W, RT.KFRECCIA[vinc], pk, L, L), prof = sc.prof;
-    $('r_prof').innerHTML = sc.profW
-      ? 'Primo IPE con W<sub>el,y</sub> ≥ W<sub>min</sub>: <b>' + sc.profW[0] + '</b> (W<sub>el,y</sub> = ' + F(sc.profW[2], 0) + ' cm³ ≥ ' + F(W, 0) + ' cm³)' + (prof && prof !== sc.profW ? '; la freccia non è verificata, si sceglie <b>' + prof[0] + '</b>' : '') + (prof ? ' <span class="ok">basta</span>' : '')
+    var pk = g1 + g2 + q, Imin = RT.Imin(RT.KFRECCIA[vinc], pk, L, L), sc = RT.sceltaIPE(W, Imin), prof = sc.prof;
+    var delta = prof ? RT.deltaIPE(RT.KFRECCIA[vinc], pk, L, prof[3]) : null;       // solo informativa: la freccia non si verifica, si usa I_min
+    $('r_imin').innerHTML = 'δ<sub>lim</sub> = L/250 = ' + F(L * 4, 1) + ' mm; p<sub>k</sub> = g₁ + g₂ + q = ' + F(pk, 1) + ' kN/m: I<sub>y,min</sub> = <b>' + F(Imin, 0) + ' cm⁴</b>';
+    $('r_prof').innerHTML = prof
+      ? 'Primo IPE con W<sub>el,y</sub> ≥ W<sub>min</sub> (' + F(W, 0) + ' cm³) e I<sub>y</sub> ≥ I<sub>y,min</sub> (' + F(Imin, 0) + ' cm⁴): <b>' + prof[0] + '</b> (W<sub>el,y</sub> = ' + F(prof[2], 0) + ' cm³, I<sub>y</sub> = ' + F(prof[3], 0) + ' cm⁴)' + (prof !== sc.profW ? '; per la sola resistenza basterebbe ' + sc.profW[0] + ': decide la deformabilità' : '') + ' <span class="ok">basta</span>'
       : '<span class="ko">Nessun IPE basta: servono sezioni più grandi o un altro schema.</span>';
-    var Imin = RT.Imin(RT.KFRECCIA[vinc], pk, L, L);
-    $('r_imin').innerHTML = 'I<sub>y,min</sub> = k·p<sub>k</sub>·L⁴ / (384·E·L/250) = <b>' + F(Imin, 0) + ' cm⁴</b>';
-    ULT = { pd: pd, M: M, W: W, profW: sc.profW ? sc.profW[0] : '-', prof: prof ? prof[0] : '-', delta: sc.delta, hGeo: L * 1000 / RT.HLUCE[vinc], Imin: Imin };
-    $('r_delta').innerHTML = prof ? 'p<sub>k</sub> = g₁ + g₂ + q = ' + F(pk, 1) + ' kN/m, I<sub>y</sub> = ' + F(prof[3], 0) + ' cm⁴: δ = <b>' + F(sc.delta, 1) + ' mm</b> ' + (sc.delta <= sc.lim ? '≤' : '>') + ' L/250 = ' + F(sc.lim, 1) + ' mm' : '-';
+    ULT = { pd: pd, M: M, W: W, profW: sc.profW ? sc.profW[0] : '-', prof: prof ? prof[0] : '-', delta: delta, hGeo: L * 1000 / RT.HLUCE[vinc], Imin: Imin };
+    $('r_delta').innerHTML = prof ? '<span class="unita">A titolo informativo, con il profilo scelto: δ = ' + F(delta, 1) + ' mm ≤ ' + F(L * 4, 1) + ' mm.</span>' : '';
     var idx = prof ? RT.IPE.indexOf(prof) : RT.IPE.length - 1;
     var da = Math.max(0, idx - 2), a = Math.min(RT.IPE.length, idx + 2);
     var righe = '';
@@ -242,14 +243,14 @@
         { e: 'W_y,min [cm³]', s: 324, d: 0, p: function () { return ULT.W; } },
         { e: 'Profilo per la sola resistenza', s: 'IPE 240', p: function () { return ULT.profW; } },
         { e: 'I_y,min [cm⁴]', s: 4151, d: 0, p: function () { return ULT.Imin; } },
-        { e: 'Profilo scelto (con la freccia)', s: 'IPE 270', p: function () { return ULT.prof; } },
+        { e: 'Profilo scelto (W e I_min)', s: 'IPE 270', p: function () { return ULT.prof; } },
         { e: 'δ_max [mm]', s: 18.6, d: 1, p: function () { return ULT.delta; } }
       ]
     }]
   });
 })();
 </script>
-<script src="assets/js/i18n-en.js"></script>
-<script src="assets/js/i18n.js"></script>
+<script src="assets/js/i18n-en.js?v=20261110"></script>
+<script src="assets/js/i18n.js?v=20261110"></script>
 </body>
 </html>

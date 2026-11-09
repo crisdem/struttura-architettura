@@ -20,7 +20,12 @@
      (prolunga la trave a destra). Esistono solo se la trave da prolungare esiste e non escono mai dalla campata: a + b <= luce.
    Un nodo e' vincolato se vi arriva almeno una trave (o uno sbalzo); la lunghezza libera del pilastro e' la distanza fra nodi
    vincolati. L0 = beta H libera, con beta = 1 (beta = 2 se la testa e' libera, con base incastrata).
-   Livello 1: h = L/x, lato = K radice(area), i_min = L0/100. Livello 2: W, A_min, freccia verificata.
+   carichiLiv: carichi diversi per livello (facoltativo), chiavi k = 1..n -> {g1, g2, q, qb} [kN/m2]; in copertura q e qb sono la neve.
+     Senza una voce, per quel livello valgono g1, g2, q, qb (neve in copertura) comuni.
+   Livello 1 (criteri geometrici, nessun calcolo): travi h = L/x; pilastri lato = kappa L_max pos radice(n), con L_max = trave piu' lunga che
+     arriva nel pilastro (comprese le travi trasversali al telaio, lunghe B), pos = 1 interno, 0,7 di bordo, 0,5 d'angolo, n = piani sopra il tratto.
+   Livello 2 (calcolo semplificato): travi W_min e I_min, primo profilo con W >= W_min e I >= I_min (la freccia non si verifica); pilastri A_min
+     (acciaio: anche i_min = L0/100; c.a. e legno: anche lato >= L0/15 per la stabilita'), poi il profilo o la sezione.
    Sbalzo: mensola con M = p Ls^2 / 2; per i criteri geometrici e i limiti di freccia si usa la luce 2 Ls. */
 (function (root) {
   'use strict';
@@ -84,13 +89,19 @@
     };
   }
 
-  // carichi per livello: qd (SLU), qs (rara), qv (variabile); con suffisso b: sugli sbalzi
+  // carichi per livello: qd (SLU), qs (rara), qv (variabile), g (permanenti G1 + G2); con suffisso b: sugli sbalzi.
+  // Ogni livello puo' avere i suoi G1, G2, Q (carichiLiv); in copertura Q e' la neve.
   function carichi(p) {
-    var G = RT.GAMMA, c = { qd: [], qs: [], qv: [], qdb: [], qsb: [], qvb: [] };
+    var G = RT.GAMMA, c = { qd: [], qs: [], qv: [], qdb: [], qsb: [], qvb: [], g: [] }, cl = p.carichiLiv || {};
     for (var k = 1; k <= p.n; k++) {
-      var roof = (k === p.n), Qv = roof ? p.neve : p.q, Qb = roof ? p.neve : (p.qb || p.q);
-      c.qd[k] = G.G1 * p.g1 + G.G2 * p.g2 + G.Q * Qv;  c.qs[k] = p.g1 + p.g2 + Qv;  c.qv[k] = Qv;
-      c.qdb[k] = G.G1 * p.g1 + G.G2 * p.g2 + G.Q * Qb; c.qsb[k] = p.g1 + p.g2 + Qb; c.qvb[k] = Qb;
+      var roof = (k === p.n), o = cl[k] || {};
+      var g1 = (o.g1 !== undefined) ? o.g1 : p.g1, g2 = (o.g2 !== undefined) ? o.g2 : p.g2;
+      var Qv = (o.q !== undefined) ? o.q : (roof ? p.neve : p.q);
+      var Qb = (o.qb !== undefined) ? o.qb : (roof ? p.neve : (p.qb || p.q));
+      if (roof) Qb = Qv;                                                   // in copertura gli sbalzi portano la neve
+      c.g[k] = g1 + g2;
+      c.qd[k] = G.G1 * g1 + G.G2 * g2 + G.Q * Qv;  c.qs[k] = g1 + g2 + Qv;  c.qv[k] = Qv;
+      c.qdb[k] = G.G1 * g1 + G.G2 * g2 + G.Q * Qb; c.qsb[k] = g1 + g2 + Qb; c.qvb[k] = Qb;
     }
     return c;
   }
@@ -101,24 +112,21 @@
     var t = { M: M, L: Lc, hGeo: Lgeo * 1000 / xGeo, hMin: Lgeo * 1000 / 20, hMax: Lgeo * 1000 / 15 };
     if (p.mat === 'acciaio') {
       t.W = RT.Wmin(M, m.fyd);
-      var sc = RT.sceltaIPEverificato(t.W, kfr, psR, Lc, Llim);       // W per la resistenza, poi la freccia si verifica
-      t.prof = sc.prof; t.profW = sc.profW; t.delta = sc.delta; t.dlim = sc.lim;
-      t.h = t.prof ? t.prof[1] : null;
-      t.gov = (t.prof && t.profW && t.prof !== t.profW) ? 'freccia' : 'resistenza';
+      t.Imin = RT.Imin(kfr, psR, Lc, Llim);                            // I_min [cm4] dal limite di freccia L/250 (carichi caratteristici): la freccia non si verifica
+      var sc = RT.sceltaIPE(t.W, t.Imin);                              // primo IPE con W >= W_min e I >= I_min
+      t.prof = sc.prof; t.profW = sc.profW; t.profI = sc.profI;
+      t.h = t.prof ? t.prof[1] : null; t.I = t.prof ? t.prof[3] : null;
+      t.gov = (t.prof && t.profW && t.prof !== t.profW) ? 'deformabilità' : 'resistenza';
       if (t.prof) m.massaAcc += t.prof[4] * Lc;
     } else if (p.mat === 'legno') {
       t.W = M * 1e6 / m.fmd / 1e3;
       t.hW = Math.sqrt(6 * t.W * 1e3 / m.bL);
-      var h = RT.su40(t.hW), rr = 0, I;
-      for (var g = 0; g < 80; g++) {                                   // la freccia si verifica; se non basta si alza la sezione
-        I = m.bL * Math.pow(h, 3) / 12;                                // mm4
-        var w1 = kfr * psQ * Math.pow(Lc * 1000, 4) / (384 * m.cl.E * I);
-        var w2 = kfr * (psR + m.kdef * psQP) * Math.pow(Lc * 1000, 4) / (384 * m.cl.E * I);
-        rr = Math.max(w1 / (Llim * 1000 / 300), w2 / (Llim * 1000 / 200));
-        if (rr <= 1 + 1e-9) break;
-        h += 40;
-      }
-      t.b = m.bL; t.h = h; t.uso = rr; t.I = I / 1e4; t.gov = (h > RT.su40(t.hW)) ? 'freccia' : 'resistenza';
+      // I_min [mm4]: freccia istantanea dovuta a Q <= L/300 e freccia finale (rara + kdef quasi permanente) <= L/200, con E medio
+      var L4 = Math.pow(Lc * 1000, 4), Imm = Math.max(kfr * psQ * L4 / (384 * m.cl.E * (Llim * 1000 / 300)),
+                                                      kfr * (psR + m.kdef * psQP) * L4 / (384 * m.cl.E * (Llim * 1000 / 200)));
+      var h = RT.su40(t.hW), I = m.bL * Math.pow(h, 3) / 12;
+      for (var g = 0; g < 80 && I < Imm * (1 - 1e-9); g++) { h += 40; I = m.bL * Math.pow(h, 3) / 12; }   // se I_min non basta si alza la sezione
+      t.b = m.bL; t.h = h; t.Imin = Imm / 1e4; t.I = I / 1e4; t.gov = (h > RT.su40(t.hW)) ? 'deformabilità' : 'resistenza';
       m.volLegno += t.b * t.h * Lc / 1e6;
     } else if (p.travaTipo === 'spessore') {
       t.d = m.hs - COPRIFERRO;
@@ -143,14 +151,14 @@
         var L = p.spans[i];
         if (!geo.presente(k, i)) { travi.push({ assente: true, L: L, i: i, perPilastro: !geo.disponibile(k, i) }); continue; }
         var pd = car.qd[k] * Binf, ps = car.qs[k] * Binf;
-        var t = dimensionaTrave(p, m, RT.momento(pd, L, beta), L, xTrave, L, L, kf, ps, car.qv[k] * Binf, (p.g1 + p.g2 + ps2 * car.qv[k]) * Binf);
+        var t = dimensionaTrave(p, m, RT.momento(pd, L, beta), L, xTrave, L, L, kf, ps, car.qv[k] * Binf, (car.g[k] + ps2 * car.qv[k]) * Binf);
         t.pd = pd; t.ps = ps; travi.push(t); presenti++; m.areaSol += L * Binf;
       }
       ['sx', 'dx'].forEach(function (lato) {
         var Ls = geo.lungSbalzo(k, lato); if (!(Ls > 0)) return;
         if (!geo.presente(k, lato)) { sbalzi.push({ assente: true, L: Ls, lato: lato, perPilastro: !geo.disponibile(k, lato) }); return; }
         var pdb = car.qdb[k] * Binf, psb = car.qsb[k] * Binf;
-        var ts = dimensionaTrave(p, m, pdb * Ls * Ls / 2, 2 * Ls, xSbalzo, Ls, 2 * Ls, 48, psb, car.qvb[k] * Binf, (p.g1 + p.g2 + ps2 * car.qvb[k]) * Binf);
+        var ts = dimensionaTrave(p, m, pdb * Ls * Ls / 2, 2 * Ls, xSbalzo, Ls, 2 * Ls, 48, psb, car.qvb[k] * Binf, (car.g[k] + ps2 * car.qvb[k]) * Binf);
         ts.pd = pdb; ts.ps = psb; ts.lato = lato; sbalzi.push(ts); presenti++; m.areaSol += Ls * Binf;
       });
       var interni = [];                                // sbalzi dentro i vuoti: prolungano le travi vicine
@@ -159,7 +167,7 @@
         [['a', sv.a, iv - 1], ['b', sv.b, iv + 1]].forEach(function (c) {
           var Ls = c[1]; if (!(Ls > 0)) return;
           var pdb = car.qdb[k] * Binf, psb = car.qsb[k] * Binf;
-          var ti = dimensionaTrave(p, m, pdb * Ls * Ls / 2, 2 * Ls, xSbalzo, Ls, 2 * Ls, 48, psb, car.qvb[k] * Binf, (p.g1 + p.g2 + ps2 * car.qvb[k]) * Binf);
+          var ti = dimensionaTrave(p, m, pdb * Ls * Ls / 2, 2 * Ls, xSbalzo, Ls, 2 * Ls, 48, psb, car.qvb[k] * Binf, (car.g[k] + ps2 * car.qvb[k]) * Binf);
           ti.pd = pdb; ti.ps = psb; ti.lato = 'int'; ti.verso = c[0]; ti.i = iv; ti.Ladj = p.spans[c[2]];
           interni.push(ti); presenti++; m.areaSol += Ls * Binf;
         });
@@ -181,7 +189,8 @@
     return segs;
   }
 
-  // dimensiona un tratto di pilastro: livello 1 (i_min, ingombro K) e livello 2 (A_min); la sezione deve soddisfare entrambi
+  // dimensiona un tratto di pilastro (livello 2): A_min e stabilita' (acciaio: i_min = L0/100; c.a. e legno: lato >= L0/15); l'ingombro del
+  // livello 1 (kappa L_max pos radice(n)) e' solo il valore di partenza per disegnare, non entra nella scelta della sezione
   function dimensionaPilastro(p, m, sg) {
     var N = sg.N;
     if (p.mat === 'acciaio') {
@@ -222,18 +231,32 @@
       });
       return { N: r, A: a };
     }
+    function lungMax(j, k) {                    // trave piu' lunga che arriva nel pilastro j al livello k: campate adiacenti con la trave e trave trasversale (lunga B)
+      var L = 0;
+      if (j > 0 && geo.presente(k, j - 1)) L = Math.max(L, p.spans[j - 1]);
+      if (j < nc && geo.presente(k, j)) L = Math.max(L, p.spans[j]);
+      if (geo.treAlNodo(j, k)) L = Math.max(L, p.B);   // al nodo arriva qualcosa: c'e' anche la trave trasversale
+      return L;
+    }
+    function posizione(j) {                     // interno, di bordo (in piano o telaio di bordo), d'angolo (entrambi)
+      var nb = ((j === 0 || j === nc) ? 1 : 0) + (p.bordo ? 1 : 0);
+      return nb === 0 ? 'interno' : (nb === 1 ? 'bordo' : 'angolo');
+    }
     for (var s2 = 1; s2 <= p.n; s2++) out.interpiani.push({ s: s2, pilastri: [] });
     for (var j = 0; j <= nc; j++) {
       var segs = tratti(geo, j);
       segs.forEach(function (sg) {
         sg.j = j; sg.s0 = sg.a + 1; sg.s1 = sg.b; sg.nPiani = sg.b - sg.a;
         sg.Hlib = sg.nPiani * p.H; sg.beta = sg.libera ? 2 : 1; sg.L0 = sg.beta * sg.Hlib;
-        var N = 0, dN = 0, At = 0;
+        var N = 0, dN = 0, At = 0, Lm = 0;
         for (var k = sg.s0; k <= geo.alto[j]; k++) {
           var sbz = sbalzoSu(j, k);
-          N += car.qd[k] * Binf * larg(j, k) + sbz.N; dN += sbz.N; At += larg(j, k) * Binf + sbz.A;
+          N += car.qd[k] * Binf * larg(j, k) + sbz.N; dN += sbz.N; At += larg(j, k) * Binf + sbz.A; Lm = Math.max(Lm, lungMax(j, k));
         }
-        sg.N = N; sg.dN = dN; sg.Atot = At; sg.imin = RT.imin(sg.L0); sg.latoK = RT.latoK(p.mat, At);
+        sg.N = N; sg.dN = dN; sg.Atot = At; sg.imin = RT.imin(sg.L0);
+        // livello 1: lato = kappa * L_max * pos * radice(n), n = piani che il tratto porta (dal suo livello fino in cima)
+        sg.nSopra = geo.alto[j] - sg.s0 + 1; sg.Lmax = Lm; sg.posNome = posizione(j); sg.pos = RT.POS_PILASTRO[sg.posNome];
+        sg.latoKgrezzo = RT.latoKgrezzo(p.mat, Lm, sg.pos, sg.nSopra); sg.latoK = RT.latoK(p.mat, Lm, sg.pos, sg.nSopra);
         dimensionaPilastro(p, m, sg);
         for (var s3 = sg.s0; s3 <= sg.s1; s3++) out.interpiani[s3 - 1].pilastri[j] = sg;
         if (sg.libera) out.avvisi.push('Pilastro ' + (j + 1) + ': testa libera al livello ' + sg.b + ' (in cima non arrivano travi). Si può togliere dalla matrice dei pilastri, oppure serve un vincolo; qui è calcolato come mensola, L₀ = 2·(altezza libera).');

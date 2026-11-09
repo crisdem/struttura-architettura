@@ -164,36 +164,44 @@
 
   // ---- livello 1: predimensionamento (criteri geometrici; lezioni 1, 3 e 4) ----
   RT.HLUCE = { appoggiata: 20, semi: 25, incastro: 30 };      // acciaio: h = L / x, in funzione dello schema
-  RT.K_PILASTRO = { acciaio: 30, legno: 30, ca: 45 };         // lato [mm] = kappa * radice(area d'influenza totale sopra il pilastro [m2]); revisione 7/11/2026
+  // Pilastri, livello 1 (revisione TA8, 9/11/2026): lato [mm] = kappa * L_max [m] * pos * radice(n), con
+  //   L_max = lunghezza massima delle travi che convergono nel pilastro (anche quelle trasversali al telaio), n = numero di piani sopra.
+  //   Non c'e' nessuna regola sulla snellezza: i_min (acciaio) e lato >= L0/15 (c.a., legno) sono del livello 2.
+  RT.K_PILASTRO = { acciaio: 30, legno: 30, ca: 45 };
+  RT.POS_PILASTRO = { interno: 1, bordo: 0.7, angolo: 0.5 };  // pos: pilastro interno, di bordo, d'angolo
   RT.MIN_K = { acciaio: 200, legno: 200, ca: 300 };            // mm: limite inferiore della regola kappa
   RT.PASSO_K = { acciaio: 50, legno: 50, ca: 50 };             // arrotondamento per eccesso a multipli di 50 mm
-  RT.latoK = function (mat, Atot) {                            // mm
-    var K = RT.K_PILASTRO[mat], pa = RT.PASSO_K[mat];
-    return Math.max(RT.MIN_K[mat], pa * Math.ceil(K * Math.sqrt(Math.max(Atot, 0)) / pa - 1e-9));
+  RT.latoKgrezzo = function (mat, Lmax, pos, n) {              // mm, prima dell'arrotondamento e del minimo (pos: numero oppure 'interno' | 'bordo' | 'angolo')
+    var ps = (typeof pos === 'string') ? RT.POS_PILASTRO[pos] : pos;
+    return RT.K_PILASTRO[mat] * Math.max(Lmax, 0) * ps * Math.sqrt(Math.max(n, 0));
+  };
+  RT.latoK = function (mat, Lmax, pos, n) {                    // mm, arrotondato per eccesso a 50 mm, con il minimo
+    var pa = RT.PASSO_K[mat];
+    return Math.max(RT.MIN_K[mat], pa * Math.ceil(RT.latoKgrezzo(mat, Lmax, pos, n) / pa - 1e-9));
   };
   RT.LAMBDA0 = 100;                                            // snellezza di riferimento: i_min >= beta H / lambda0
-  RT.imin = function (L0_m) { return L0_m * 1000 / RT.LAMBDA0; };   // mm, L0 = beta * H libera
-  RT.LATO_L0 = 15;                                             // c.a. e legno: lato >= L0 / 15 (lambda circa 50, valore didattico)
+  RT.imin = function (L0_m) { return L0_m * 1000 / RT.LAMBDA0; };   // mm, L0 = beta * H libera (livello 2, acciaio)
+  RT.LATO_L0 = 15;                                             // c.a. e legno: lato >= L0 / 15 (lambda circa 50, valore didattico; livello 2)
   RT.sceltaHE = function (serie, Amin, imin_mm) {              // primo HEA/HEB con A >= Amin e i_z >= i_min
     var T = RT.HE[serie];
     for (var i = 0; i < T.length; i++) { if (T[i][3] >= Amin && T[i][6] * 10 >= imin_mm) return T[i]; }
     return null;
   };
-  // ---- livello 2: la freccia si VERIFICA con l'inerzia del profilo scelto (non si dimensiona per I_min) ----
+  // ---- livello 2, travi: la freccia NON si verifica; si calcola I_min dal limite di freccia e si sceglie il profilo con W >= W_min e I >= I_min ----
   // delta [mm] = k p L^4 / (384 E I); p [kN/m = N/mm], L [m], I [cm4]
-  RT.deltaIPE = function (k, p, Lc, I_cm4) { return k * p * Math.pow(Lc * 1000, 4) / (384 * RT.E_ACCIAIO * I_cm4 * 1e4); };
+  RT.deltaIPE = function (k, p, Lc, I_cm4) { return k * p * Math.pow(Lc * 1000, 4) / (384 * RT.E_ACCIAIO * I_cm4 * 1e4); };   // solo informativa
   RT.Imin = function (k, pk, L, Llim) {                        // momento d'inerzia minimo [cm4] perche' delta = k pk L^4 /(384 E I) <= Llim/250 (L, Llim in m; pk in kN/m)
     return k * pk * Math.pow(L * 1000, 4) / (384 * RT.E_ACCIAIO * (Llim * 1000 / 250)) / 1e4;
   };
-  RT.sceltaIPEverificato = function (Wmin, k, ps, Lc, Llim) {  // primo IPE con W >= Wmin e delta <= Llim/250
-    var lim = Llim * 1000 / 250, primo = null;
+  RT.sceltaIPE = function (Wmin, Imin) {                       // primo IPE con W_el,y >= W_min e I_y >= I_min; profW: solo per W; profI: solo per I
+    var prof = null, profW = null, profI = null, tol = 1e-9;
     for (var i = 0; i < RT.IPE.length; i++) {
-      if (RT.IPE[i][2] < Wmin) continue;
-      if (!primo) primo = RT.IPE[i];
-      var dl = RT.deltaIPE(k, ps, Lc, RT.IPE[i][3]);
-      if (dl <= lim) return { prof: RT.IPE[i], profW: primo, delta: dl, lim: lim };
+      var r = RT.IPE[i], okW = r[2] >= Wmin - tol, okI = r[3] >= Imin - tol;
+      if (okW && !profW) profW = r;
+      if (okI && !profI) profI = r;
+      if (okW && okI) { prof = r; break; }
     }
-    return { prof: null, profW: primo, delta: null, lim: lim };
+    return { prof: prof, profW: profW, profI: profI };
   };
 
 
