@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#121212">
 <title>Lezione 4 - Calcestruzzo armato: trave e pilastro | Struttura e Architettura</title>
 <meta name="description" content="Dimensionamento guidato in calcestruzzo armato di una trave (emergente o a spessore) e di un pilastro, con l'esempio svolto del telaio a due piani delle slide. Slide da scaricare.">
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css?v=20261110">
 <style>
  .kpi{display:flex;gap:1.2rem;flex-wrap:wrap;margin:.6rem 0}
  .kpi div{background:var(--carta);border-top:3px solid var(--nero);padding:.4rem .8rem;border-radius:0 0 4px 4px}
@@ -31,7 +31,7 @@
 <main>
 <h1>Lezione 4: calcestruzzo armato, passo per passo</h1>
 <p class="sotto" data-en="Projecting or flat beam and column: change the data and observe the section to scale. &lt;span class=&quot;liv&quot;&gt;LEVEL 1&lt;/span&gt;starting geometric sizes. &lt;span class=&quot;liv&quot;&gt;LEVEL 2&lt;/span&gt;sizing with the simplified criteria.">Trave emergente o a spessore e pilastro: cambia i dati e osserva la sezione in scala. <span class="liv">LIVELLO 1</span>ingombri geometrici di partenza. <span class="liv">LIVELLO 2</span>dimensionamento con i criteri semplificati.</p>
-<p class="azioni"><a class="bottone" href="pdf/lezione4.pdf" download>⬇ Scarica le slide (PDF) <small class="pdf-info" data-pdf="lezione4" data-en="34 pages, 345 KB">34 pagine, 345 KB</small></a><a class="bottone chiaro" href="telaio.html?materiale=ca&amp;piani=2&amp;campate=2&amp;luci=4,5.5&amp;H=3.8&amp;B=5.5">Prova il telaio piano</a></p>
+<p class="azioni"><a class="bottone" href="pdf/lezione4.pdf" download>⬇ Scarica le slide (PDF) <small class="pdf-info" data-pdf="lezione4" data-en="34 pages, 334 KB">34 pagine, 334 KB</small></a><a class="bottone chiaro" href="telaio.html?materiale=ca&amp;piani=2&amp;campate=2&amp;luci=4,5.5&amp;H=3.8&amp;B=5.5&amp;carichiLiv=1:3:4:2:4,2:3:3:0.5">Prova il telaio piano</a></p>
 <section id="esempio" class="esempio-lezione" aria-label="Esempio della lezione"></section>
 <div class="griglia due">
   <div class="pannello">
@@ -55,6 +55,7 @@
     <h3>Pilastro</h3>
     <div class="campo"><label for="pil">Pilastro studiato (al piano terra)</label><select id="pil"><option value="sx">Sinistro (di bordo)</option><option value="c" selected>Centrale (interno)</option><option value="dx">Destro (di bordo)</option></select></div>
     <div class="campo"><label for="np">Numero di piani (compresa la copertura)</label><output id="npv"></output><input type="range" id="np" min="1" max="6" step="1" value="2"></div>
+    <div class="campo"><label for="Bmax">Trave trasversale più lunga <span class="unita">[m]</span></label><output id="Bmaxv"></output><input type="range" id="Bmax" min="2.5" max="9" step="0.5" value="6"></div>
     <div class="campo"><label for="nu">Coefficiente ν</label><output id="nuv"></output><input type="range" id="nu" min="0.2" max="0.8" step="0.05" value="0.5"></div>
   </div>
   <div>
@@ -72,8 +73,8 @@
 </div>
 </main>
 <footer class="sito">Strumento didattico del Modulo Struttura e Architettura. Valori dei profili e delle classi di resistenza da controllare sulle tabelle ufficiali. Riferimento normativo: NTC 2018 (D.M. 17 gennaio 2018).</footer>
-<script src="assets/js/calc.js"></script>
-<script src="assets/js/esempio.js"></script>
+<script src="assets/js/calc.js?v=20261110"></script>
+<script src="assets/js/esempio.js?v=20261110"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); }, F = RT.fmt;
@@ -83,7 +84,7 @@
     $('Lv').textContent = F(v('L'), 1) + ' m'; $('L1v').textContent = F(v('L1'), 1) + ' m'; $('Bv').textContent = F(v('B'), 1) + ' m';
     $('g1v').textContent = F(v('g1'), 1); $('g2v').textContent = F(v('g2'), 1); $('qv').textContent = F(v('q'), 1);
     $('g1cv').textContent = F(v('g1c'), 1); $('g2cv').textContent = F(v('g2c'), 1); $('qcv').textContent = F(v('qc'), 2);
-    $('npv').textContent = $('np').value; $('nuv').textContent = F(v('nu'), 2);
+    $('npv').textContent = $('np').value; $('nuv').textContent = F(v('nu'), 2); $('Bmaxv').textContent = F(v('Bmax'), 1) + ' m';
     var G = RT.GAMMA, L1 = v('L1'), L2 = v('L'), B = v('B'), beta = RT.BETA[$('sch').value], cop = $('pianoTr').value === 'cop', Ls = $('campTr').value === '1' ? L1 : L2;
     var fcd = RT.fcd(RT.CLS[$('fck').value]);
     var qdP = G.G1 * v('g1') + G.G2 * v('g2') + G.Q * v('q'), qdC = G.G1 * v('g1c') + G.G2 * v('g2c') + G.Q * v('qc'), qd = cop ? qdC : qdP;
@@ -92,10 +93,13 @@
     if (emerg) { b = 300; d = RT.dmin_emergente(M, b, fcd); h = RT.su50(d + 40); nota = 'd<sub>min</sub> = 2,2·√(M/(b·f<sub>cd</sub>)) = ' + F(d, 0) + ' mm, h = d + 40 → ' + h + ' mm'; }
     else { h = hs; d = h - 40; var bm = RT.bmin_spessore(M, d, fcd); b = Math.max(200, RT.su50(bm)); nota = 'h = spessore solaio = ' + h + ' mm; b<sub>min</sub> = 2,2²·M/(d²·f<sub>cd</sub>) = ' + F(bm, 0) + ' mm'; }
     var tj = $('pil').value === 'sx' ? L1 / 2 : ($('pil').value === 'dx' ? L2 / 2 : (L1 + L2) / 2), Ainf = tj * B, np_ = parseInt($('np').value, 10);
-    var qdPil = qdP * (np_ - 1) + qdC, N = qdPil * Ainf, Amin = RT.Amin_pilastro_cls(N, fcd, v('nu')), lato = Math.max(300, RT.su50(Math.sqrt(Amin))), latoK = RT.latoK('ca', Ainf * np_);
-    ULT = { hGeo: Ls * 100, qd: qd, pd: pd, M: M, dmin: d, sez: b + ' × ' + h, N: N, Amin: Amin, lato: Math.sqrt(Amin), sezPil: lato + ' × ' + lato, latoK: latoK };
+    var qdPil = qdP * (np_ - 1) + qdC, N = qdPil * Ainf, Amin = RT.Amin_pilastro_cls(N, fcd, v('nu')), lato = Math.max(300, RT.su50(Math.sqrt(Amin)));
+    var posNome = $('pil').value === 'c' ? 'interno' : 'bordo', posV = RT.POS_PILASTRO[posNome];          // sinistro e destro sono di bordo, il centrale e' interno
+    var Lmax = Math.max($('pil').value === 'sx' ? L1 : ($('pil').value === 'dx' ? L2 : Math.max(L1, L2)), v('Bmax'));   // trave piu' lunga che arriva nel pilastro
+    var latoKg = RT.latoKgrezzo('ca', Lmax, posNome, np_), latoK = RT.latoK('ca', Lmax, posNome, np_);
+    ULT = { hGeo: Ls * 100, qd: qd, pd: pd, M: M, dmin: d, sez: b + ' × ' + h, N: N, Amin: Amin, lato: Math.sqrt(Amin), sezPil: lato + ' × ' + lato, latoK: latoK, latoKg: latoKg };
     var p = '';
-    p += '<div class="passo"><h3><span class="liv">LIVELLO 1</span>Predimensionamento</h3><p>Trave: ' + (emerg ? 'h ≈ L/10 = ' + F(Ls * 100, 0) + ' mm (b = 300 mm)' : 'h = spessore del solaio ≈ B/25, b ≈ L/6 = ' + F(Ls * 1000 / 6, 0) + ' mm (solo travi poco caricate)') + '</p><p>Pilastro: ingombro ≈ κ·√(A·n) = 45·√(' + F(Ainf, 1) + '·' + np_ + ') = <b>' + F(latoK, 0) + ' mm</b> (minimo 300 mm, arrotondato per eccesso a 50 mm)</p></div>';
+    p += '<div class="passo"><h3><span class="liv">LIVELLO 1</span>Predimensionamento</h3><p>Trave: ' + (emerg ? 'h ≈ L/10 = ' + F(Ls * 100, 0) + ' mm (b = 300 mm)' : 'h = spessore del solaio ≈ B/25, b ≈ L/6 = ' + F(Ls * 1000 / 6, 0) + ' mm (solo travi poco caricate)') + '</p><p>Pilastro ' + (posNome === 'interno' ? 'interno' : 'di bordo') + ': lato ≈ κ·L<sub>max</sub>·pos·√n = 45·' + F(Lmax, 1) + '·' + F(posV, posV === 1 ? 0 : 1) + '·√' + np_ + ' = ' + F(latoKg, 0) + ' mm → <b>' + F(latoK, 0) + ' mm</b> (minimo 300 mm, arrotondato per eccesso a 50 mm)</p></div>';
     p += '<div class="passo"><h3><span class="liv">LIVELLO 2</span>1. Materiali</h3><p>f<sub>cd</sub> = 0,85·' + RT.CLS[$('fck').value] + '/1,5 = <b>' + F(fcd, 1) + ' MPa</b></p></div>';
     p += '<div class="passo"><h3>2. Carichi</h3><p>q<sub>d</sub> (' + (cop ? 'copertura' : 'piano tipo') + ') = 1,3·G₁ + 1,5·G₂ + 1,5·Q = <b>' + F(qd, 2) + ' kN/m²</b>; p<sub>d</sub> = q<sub>d</sub>·B = <b class="ris">' + F(pd, 2) + ' kN/m</b></p></div>';
     p += '<div class="passo"><h3>3. Momento</h3><p>M<sub>Ed</sub> = p<sub>d</sub>·L²/β = ' + F(pd, 2) + '·' + F(Ls, 1) + '²/' + beta + ' = <b class="ris">' + F(M, 1) + ' kN·m</b> (trave di ' + F(Ls, 1) + ' m, ' + (cop ? 'copertura' : 'piano tipo') + ')</p></div>';
@@ -150,11 +154,11 @@
     o2 += '<text x="' + (pxs[2] + 14) + '" y="' + ((pys[0] + pys[1]) / 2) + '" font-size="11" fill="#6e6e6e">B = ' + F(B, 1) + ' m</text>';
     $('pianta').setAttribute('viewBox', '0 0 640 ' + (pys[2] + 24)); $('pianta').innerHTML = o2;
   }
-  ['L', 'L1', 'B', 'sch', 'fck', 'tipo', 'g1', 'g2', 'q', 'g1c', 'g2c', 'qc', 'pianoTr', 'campTr', 'pil', 'np', 'nu'].forEach(function (id) { $(id).addEventListener('input', calcola); });
+  ['L', 'L1', 'B', 'sch', 'fck', 'tipo', 'g1', 'g2', 'q', 'g1c', 'g2c', 'qc', 'pianoTr', 'campTr', 'pil', 'np', 'Bmax', 'nu'].forEach(function (id) { $(id).addEventListener('input', calcola); });
   calcola();
 
   // Esempio della lezione: gli stessi dati e gli stessi risultati delle slide (lezione4.tex)
-  var BASE = { L1: 4, L: 5.5, B: 5.5, sch: 'semi', fck: 'C25/30', tipo: 'emergente', g1: 3, g2: 4, q: 2, g1c: 3, g2c: 3, qc: 0.5, pianoTr: 'p1', campTr: '2', pil: 'c', np: 2, nu: 0.5 };
+  var BASE = { L1: 4, L: 5.5, B: 5.5, sch: 'semi', fck: 'C25/30', tipo: 'emergente', g1: 3, g2: 4, q: 2, g1c: 3, g2c: 3, qc: 0.5, pianoTr: 'p1', campTr: '2', pil: 'c', np: 2, Bmax: 6, nu: 0.5 };
   function sc(titolo, nota, v, attesi) { return { titolo: titolo, nota: nota, valori: Object.assign({}, BASE, v), attesi: attesi }; }
   function trave(hGeo, qd, pd, M, dmin, sez) {
     return [
@@ -166,10 +170,11 @@
       { e: 'Sezione b × h [mm]', s: sez, p: function () { return ULT.sez; } }
     ];
   }
-  function pilastro(N, completo) {                              // sulle slide solo il pilastro centrale e' svolto per esteso
-    var r = [{ e: 'N_Ed [kN]', s: N, d: 0, p: function () { return ULT.N; } }];
+  function pilastro(N, grezzo, arrotondato, completo) {          // sulle slide solo il pilastro centrale e' svolto per esteso
+    var r = [{ e: 'Livello 1: lato ≈ κ·L_max·pos·√n [mm]', s: grezzo, d: 0, p: function () { return ULT.latoKg; } },
+             { e: 'Livello 1: lato arrotondato [mm]', s: arrotondato, d: 0, p: function () { return ULT.latoK; } },
+             { e: 'N_Ed [kN]', s: N, d: 0, p: function () { return ULT.N; } }];
     if (completo) r.push(
-      { e: 'Livello 1: lato ≈ κ·√(A·n) [mm]', s: 350, d: 0, p: function () { return ULT.latoK; } },
       { e: 'A_min [mm²]', s: 81300, d: 0, tol: 0.003, p: function () { return ULT.Amin; } },
       { e: 'Lato da A_min [mm]', s: 285, d: 0, p: function () { return ULT.lato; } });
     r.push({ e: 'Sezione dimensionata [mm]', s: '300 × 300', p: function () { return ULT.sezPil; } });
@@ -178,20 +183,20 @@
   RTE.avvia({
     contenitore: 'esempio',
     descrizione: 'I dati e i risultati dell\'esempio svolto della lezione: il telaio in calcestruzzo armato a due piani (travi emergenti, semi-incastro). Scegli una trave o un pilastro, confronta con le slide, poi cambia i dati.',
-    campi: ['L1', 'L', 'B', 'sch', 'fck', 'tipo', 'g1', 'g2', 'q', 'g1c', 'g2c', 'qc', 'pianoTr', 'campTr', 'pil', 'np', 'nu'],
+    campi: ['L1', 'L', 'B', 'sch', 'fck', 'tipo', 'g1', 'g2', 'q', 'g1c', 'g2c', 'qc', 'pianoTr', 'campTr', 'pil', 'np', 'Bmax', 'nu'],
     scenari: [
       sc('Trave piano 1, 5,5 m', 'C25/30, travi emergenti b = 300 mm, semi-incastro (β = 10). Piano 1: G₁ = 3,0 · G₂ = 4,0 · Q = 2,0 kN/m²; copertura: G₁ = 3,0 · G₂ = 3,0 · neve 0,5 kN/m². Larghezza d\'influenza 5,5 m.', { pianoTr: 'p1', campTr: '2' }, trave(550, 12.9, 70.95, 214.6, 494, '300 × 550')),
       sc('Trave piano 1, 4 m', 'Stesso telaio: prima campata, piano 1.', { pianoTr: 'p1', campTr: '1' }, trave(400, 12.9, 70.95, 113.5, 360, '300 × 400')),
       sc('Trave copertura, 4 m', 'Prima campata, copertura (carichi più bassi).', { pianoTr: 'cop', campTr: '1' }, trave(400, 9.15, 50.33, 80.5, 303, '300 × 350')),
       sc('Trave copertura, 5,5 m', 'Seconda campata, copertura.', { pianoTr: 'cop', campTr: '2' }, trave(550, 9.15, 50.33, 152.2, 416, '300 × 500')),
-      sc('Pilastro sinistro', 'Pilastro al piano terra: porta il piano 1 e la copertura. Area d\'influenza 2,0 × 5,5 = 11,0 m².', { pil: 'sx' }, pilastro(243, false)),
-      sc('Pilastro centrale', 'Area d\'influenza 4,75 × 5,5 = 26,1 m².', { pil: 'c' }, pilastro(576, true)),
-      sc('Pilastro destro', 'Area d\'influenza 2,75 × 5,5 = 15,1 m².', { pil: 'dx' }, pilastro(334, false))
+      sc('Pilastro sinistro', 'Pilastro al piano terra, di bordo (pos = 0,7): porta il piano 1 e la copertura. L_max = 6 m (trave trasversale B₂). Area d\'influenza 2,0 × 5,5 = 11,0 m².', { pil: 'sx' }, pilastro(243, 267, 300, false)),
+      sc('Pilastro centrale', 'Interno (pos = 1), L_max = 6 m. Area d\'influenza 4,75 × 5,5 = 26,1 m².', { pil: 'c' }, pilastro(576, 382, 400, true)),
+      sc('Pilastro destro', 'Di bordo (pos = 0,7), L_max = 6 m. Area d\'influenza 2,75 × 5,5 = 15,1 m².', { pil: 'dx' }, pilastro(334, 267, 300, false))
     ]
   });
 })();
 </script>
-<script src="assets/js/i18n-en.js"></script>
-<script src="assets/js/i18n.js"></script>
+<script src="assets/js/i18n-en.js?v=20261110"></script>
+<script src="assets/js/i18n.js?v=20261110"></script>
 </body>
 </html>

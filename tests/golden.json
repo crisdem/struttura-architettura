@@ -6,9 +6,9 @@
     "2: IPE 270/resistenza | IPE 270/resistenza"
    ],
    "pilastri": [
-    "P1 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P2 [1-1 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=250 HEB 140 stabilità] [2-2 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P3 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+    "P1 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]",
+    "P2 [1-1 N=406.25 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 HEB 140 stabilità] [2-2 N=175 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 HEB 140 stabilità]",
+    "P3 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]"
    ],
    "alto": "2,2,2",
    "avvisi": [],
@@ -24,9 +24,9 @@
     "2: IPE 270/resistenza | IPE 270/resistenza"
    ],
    "pilastri": [
-    "P1 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEA 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEA 140 stabilità]",
-    "P2 [1-1 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=250 HEA 140 resistenza] [2-2 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEA 140 stabilità]",
-    "P3 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEA 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEA 140 stabilità]"
+    "P1 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEA 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEA 140 stabilità]",
+    "P2 [1-1 N=406.25 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 HEA 140 resistenza] [2-2 N=175 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 HEA 140 stabilità]",
+    "P3 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEA 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEA 140 stabilità]"
    ],
    "alto": "2,2,2",
    "avvisi": [],
@@ -42,9 +42,9 @@
     "2: IPE 240/resistenza | IPE 240/resistenza"
    ],
    "pilastri": [
-    "P1 [1-1 N=142.1875 dN=0 A=17.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=61.25 dN=0 A=8.75 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P2 [1-1 N=284.375 dN=0 A=35 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=122.5 dN=0 A=17.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P3 [1-1 N=142.1875 dN=0 A=17.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=61.25 dN=0 A=8.75 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+    "P1 [1-1 N=142.1875 dN=0 A=17.5 L0=3.2 imin=32 Lm=7 angolo n=2 K=148.4924>200 HEB 140 stabilità] [2-2 N=61.25 dN=0 A=8.75 L0=3.2 imin=32 Lm=7 angolo n=1 K=105>200 HEB 140 stabilità]",
+    "P2 [1-1 N=284.375 dN=0 A=35 L0=3.2 imin=32 Lm=7 bordo n=2 K=207.8894>250 HEB 140 stabilità] [2-2 N=122.5 dN=0 A=17.5 L0=3.2 imin=32 Lm=7 bordo n=1 K=147>200 HEB 140 stabilità]",
+    "P3 [1-1 N=142.1875 dN=0 A=17.5 L0=3.2 imin=32 Lm=7 angolo n=2 K=148.4924>200 HEB 140 stabilità] [2-2 N=61.25 dN=0 A=8.75 L0=3.2 imin=32 Lm=7 angolo n=1 K=105>200 HEB 140 stabilità]"
    ],
    "alto": "2,2,2",
    "avvisi": [],
@@ -61,10 +61,10 @@
     "3: IPE 200/resistenza | IPE 270/resistenza | IPE 270/resistenza"
    ],
    "pilastri": [
-    "P1 [1-1 N=255 dN=0 A=30 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=162.5 dN=0 A=20 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=70 dN=0 A=10 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P2 [1-1 N=637.5 dN=0 A=75 L0=3.2 imin=32 K=300 HEB 160 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=250 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P3 [1-1 N=733.125 dN=0 A=86.25 L0=3.2 imin=32 K=300 HEB 180 resistenza] [2-2 N=467.1875 dN=0 A=57.5 L0=3.2 imin=32 K=250 HEB 140 resistenza] [3-3 N=201.25 dN=0 A=28.75 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P4 [1-1 N=350.625 dN=0 A=41.25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=223.4375 dN=0 A=27.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=96.25 dN=0 A=13.75 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+    "P1 [1-1 N=255 dN=0 A=30 L0=3.2 imin=32 Lm=5 bordo n=3 K=181.8653>200 HEB 140 stabilità] [2-2 N=162.5 dN=0 A=20 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [3-3 N=70 dN=0 A=10 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]",
+    "P2 [1-1 N=637.5 dN=0 A=75 L0=3.2 imin=32 Lm=6 interno n=3 K=311.7691>350 HEB 160 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 Lm=6 interno n=2 K=254.5584>300 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 Lm=6 interno n=1 K=180>200 HEB 140 stabilità]",
+    "P3 [1-1 N=733.125 dN=0 A=86.25 L0=3.2 imin=32 Lm=6 interno n=3 K=311.7691>350 HEB 180 resistenza] [2-2 N=467.1875 dN=0 A=57.5 L0=3.2 imin=32 Lm=6 interno n=2 K=254.5584>300 HEB 140 resistenza] [3-3 N=201.25 dN=0 A=28.75 L0=3.2 imin=32 Lm=6 interno n=1 K=180>200 HEB 140 stabilità]",
+    "P4 [1-1 N=350.625 dN=0 A=41.25 L0=3.2 imin=32 Lm=5.5 bordo n=3 K=200.0519>250 HEB 140 stabilità] [2-2 N=223.4375 dN=0 A=27.5 L0=3.2 imin=32 Lm=5.5 bordo n=2 K=163.3417>200 HEB 140 stabilità] [3-3 N=96.25 dN=0 A=13.75 L0=3.2 imin=32 Lm=5.5 bordo n=1 K=115.5>200 HEB 140 stabilità]"
    ],
    "alto": "3,3,3,3",
    "avvisi": [],
@@ -81,10 +81,10 @@
     "3: IPE 270/resistenza | IPE 270/resistenza | IPE 270/resistenza"
    ],
    "pilastri": [
-    "P1 [1-2 N=203.125 dN=0 A=25 L0=6.4 imin=64 K=200 HEB 260 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P2 [1-1 N=521.875 dN=0 A=62.5 L0=3.2 imin=32 K=250 HEB 140 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=250 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P3 [1-1 N=637.5 dN=0 A=75 L0=3.2 imin=32 K=300 HEB 160 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=250 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P4 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+    "P1 [1-2 N=203.125 dN=0 A=25 L0=6.4 imin=64 Lm=5 bordo n=3 K=181.8653>200 HEB 260 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]",
+    "P2 [1-1 N=521.875 dN=0 A=62.5 L0=3.2 imin=32 Lm=5 interno n=3 K=259.8076>300 HEB 140 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 HEB 140 stabilità]",
+    "P3 [1-1 N=637.5 dN=0 A=75 L0=3.2 imin=32 Lm=5 interno n=3 K=259.8076>300 HEB 160 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 HEB 140 stabilità]",
+    "P4 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 Lm=5 bordo n=3 K=181.8653>200 HEB 140 stabilità] [2-2 N=203.125 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]"
    ],
    "alto": "3,3,3,3",
    "avvisi": [
@@ -103,10 +103,10 @@
     "3: IPE 270/resistenza | IPE 270/resistenza | IPE 270/resistenza"
    ],
    "pilastri": [
-    "P1 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P2 [1-1 N=521.875 dN=0 A=62.5 L0=3.2 imin=32 K=250 HEB 140 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=250 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P3 [1-1 N=521.875 dN=0 A=62.5 L0=3.2 imin=32 K=250 HEB 140 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=250 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P4 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+    "P1 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 Lm=5 bordo n=3 K=181.8653>200 HEB 140 stabilità] [2-2 N=203.125 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]",
+    "P2 [1-1 N=521.875 dN=0 A=62.5 L0=3.2 imin=32 Lm=5 interno n=3 K=259.8076>300 HEB 140 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 HEB 140 stabilità]",
+    "P3 [1-1 N=521.875 dN=0 A=62.5 L0=3.2 imin=32 Lm=5 interno n=3 K=259.8076>300 HEB 140 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 HEB 140 stabilità]",
+    "P4 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 Lm=5 bordo n=3 K=181.8653>200 HEB 140 stabilità] [2-2 N=203.125 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]"
    ],
    "alto": "3,3,3,3",
    "avvisi": [],
@@ -123,10 +123,10 @@
     "3: IPE 270/resistenza | IPE 270/resistenza | --"
    ],
    "pilastri": [
-    "P1 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P2 [1-1 N=637.5 dN=0 A=75 L0=3.2 imin=32 K=300 HEB 160 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=250 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P3 [1-1 N=550 dN=0 A=62.5 L0=3.2 imin=32 K=250 HEB 140 resistenza] [2-2 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P4 [1-1 N=231.25 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=115.625 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+    "P1 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 Lm=5 bordo n=3 K=181.8653>200 HEB 140 stabilità] [2-2 N=203.125 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]",
+    "P2 [1-1 N=637.5 dN=0 A=75 L0=3.2 imin=32 Lm=5 interno n=3 K=259.8076>300 HEB 160 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 HEB 140 stabilità]",
+    "P3 [1-1 N=550 dN=0 A=62.5 L0=3.2 imin=32 Lm=5 interno n=3 K=259.8076>300 HEB 140 resistenza] [2-2 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 HEB 140 stabilità]",
+    "P4 [1-1 N=231.25 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [2-2 N=115.625 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]"
    ],
    "alto": "3,3,3,2",
    "avvisi": [],
@@ -142,9 +142,9 @@
     "2: -- | --"
    ],
    "pilastri": [
-    "P1 [1-1 N=115.625 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=0 dN=0 A=0 L0=6.4 imin=64 K=200 HEB 260 stabilità libera]",
-    "P2 [1-1 N=231.25 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=0 dN=0 A=0 L0=6.4 imin=64 K=200 HEB 260 stabilità libera]",
-    "P3 [1-1 N=115.625 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=0 dN=0 A=0 L0=6.4 imin=64 K=200 HEB 260 stabilità libera]"
+    "P1 [1-1 N=115.625 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [2-2 N=0 dN=0 A=0 L0=6.4 imin=64 Lm=0 bordo n=1 K=0>200 HEB 260 stabilità libera]",
+    "P2 [1-1 N=231.25 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 HEB 140 stabilità] [2-2 N=0 dN=0 A=0 L0=6.4 imin=64 Lm=0 interno n=1 K=0>200 HEB 260 stabilità libera]",
+    "P3 [1-1 N=115.625 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [2-2 N=0 dN=0 A=0 L0=6.4 imin=64 Lm=0 bordo n=1 K=0>200 HEB 260 stabilità libera]"
    ],
    "alto": "2,2,2",
    "avvisi": [
@@ -166,8 +166,8 @@
    ],
    "pilastri": [
     "P1 ",
-    "P2 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P3 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+    "P2 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 HEB 140 stabilità]",
+    "P3 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]"
    ],
    "alto": "0,2,2",
    "avvisi": [],
@@ -183,9 +183,9 @@
     "2: IPE 270/resistenza | IPE 270/resistenza + sb IPE 200/resistenza,IPE 240/resistenza"
    ],
    "pilastri": [
-    "P1 [1-1 N=369.1563 dN=166.0312 A=40 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=147.875 dN=60.375 A=20 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P2 [1-1 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=250 HEB 140 stabilità] [2-2 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P3 [1-1 N=434.125 dN=231 A=45 L0=3.2 imin=32 K=250 HEB 140 stabilità] [2-2 N=171.5 dN=84 A=22.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+    "P1 [1-1 N=369.1563 dN=166.0312 A=40 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [2-2 N=147.875 dN=60.375 A=20 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]",
+    "P2 [1-1 N=406.25 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 HEB 140 stabilità] [2-2 N=175 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 HEB 140 stabilità]",
+    "P3 [1-1 N=434.125 dN=231 A=45 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [2-2 N=171.5 dN=84 A=22.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]"
    ],
    "alto": "2,2,2",
    "avvisi": [],
@@ -201,9 +201,9 @@
     "2: IPE 270/resistenza | IPE 270/resistenza + sb --,IPE 240/resistenza"
    ],
    "pilastri": [
-    "P1 [1-1 N=308.7813 dN=105.6562 A=32.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P2 [1-1 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=250 HEB 140 stabilità] [2-2 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P3 [1-1 N=434.125 dN=231 A=45 L0=3.2 imin=32 K=250 HEB 140 stabilità] [2-2 N=171.5 dN=84 A=22.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+    "P1 [1-1 N=308.7813 dN=105.6562 A=32.5 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]",
+    "P2 [1-1 N=406.25 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 HEB 140 stabilità] [2-2 N=175 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 HEB 140 stabilità]",
+    "P3 [1-1 N=434.125 dN=231 A=45 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [2-2 N=171.5 dN=84 A=22.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]"
    ],
    "alto": "2,2,2",
    "avvisi": [],
@@ -219,9 +219,9 @@
     "2: IPE 270/resistenza | -- + sb --"
    ],
    "pilastri": [
-    "P1 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P2 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P3 [1-1 N=221.2813 dN=105.6562 A=20 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=0 dN=0 A=0 L0=6.4 imin=64 K=200 HEB 260 stabilità libera]"
+    "P1 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]",
+    "P2 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 HEB 140 stabilità]",
+    "P3 [1-1 N=221.2813 dN=105.6562 A=20 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [2-2 N=0 dN=0 A=0 L0=6.4 imin=64 Lm=0 bordo n=1 K=0>200 HEB 260 stabilità libera]"
    ],
    "alto": "2,2,2",
    "avvisi": [
@@ -240,9 +240,9 @@
     "3: 160x440/resistenza | 160x440/resistenza"
    ],
    "pilastri": [
-    "P1 [1-1 N=241.875 dN=0 A=37.5 L0=3.2 imin=32 K=200 300 resistenza] [2-2 N=151.875 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità] [3-3 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 K=200 250 stabilità]",
-    "P2 [1-1 N=483.75 dN=0 A=75 L0=3.2 imin=32 K=300 400 resistenza] [2-2 N=303.75 dN=0 A=50 L0=3.2 imin=32 K=250 300 resistenza] [3-3 N=123.75 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità]",
-    "P3 [1-1 N=241.875 dN=0 A=37.5 L0=3.2 imin=32 K=200 300 resistenza] [2-2 N=151.875 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità] [3-3 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 K=200 250 stabilità]"
+    "P1 [1-1 N=241.875 dN=0 A=37.5 L0=3.2 imin=32 Lm=5 bordo n=3 K=181.8653>200 300 resistenza] [2-2 N=151.875 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 250 stabilità] [3-3 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 250 stabilità]",
+    "P2 [1-1 N=483.75 dN=0 A=75 L0=3.2 imin=32 Lm=5 interno n=3 K=259.8076>300 400 resistenza] [2-2 N=303.75 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 300 resistenza] [3-3 N=123.75 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 250 stabilità]",
+    "P3 [1-1 N=241.875 dN=0 A=37.5 L0=3.2 imin=32 Lm=5 bordo n=3 K=181.8653>200 300 resistenza] [2-2 N=151.875 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 250 stabilità] [3-3 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 250 stabilità]"
    ],
    "alto": "3,3,3",
    "avvisi": [],
@@ -259,10 +259,10 @@
     "3: 160x440/resistenza | 160x440/resistenza | 160x440/resistenza"
    ],
    "pilastri": [
-    "P1 [1-2 N=151.875 dN=0 A=25 L0=6.4 imin=64 K=200 450 stabilità] [3-3 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 K=200 250 stabilità]",
-    "P2 [1-1 N=393.75 dN=0 A=62.5 L0=3.2 imin=32 K=250 350 resistenza] [2-2 N=303.75 dN=0 A=50 L0=3.2 imin=32 K=250 300 resistenza] [3-3 N=123.75 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità]",
-    "P3 [1-1 N=483.75 dN=0 A=75 L0=3.2 imin=32 K=300 400 resistenza] [2-2 N=303.75 dN=0 A=50 L0=3.2 imin=32 K=250 300 resistenza] [3-3 N=123.75 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità]",
-    "P4 [1-1 N=241.875 dN=0 A=37.5 L0=3.2 imin=32 K=200 300 resistenza] [2-2 N=151.875 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità] [3-3 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 K=200 250 stabilità]"
+    "P1 [1-2 N=151.875 dN=0 A=25 L0=6.4 imin=64 Lm=5 bordo n=3 K=181.8653>200 450 stabilità] [3-3 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 250 stabilità]",
+    "P2 [1-1 N=393.75 dN=0 A=62.5 L0=3.2 imin=32 Lm=5 interno n=3 K=259.8076>300 350 resistenza] [2-2 N=303.75 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 300 resistenza] [3-3 N=123.75 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 250 stabilità]",
+    "P3 [1-1 N=483.75 dN=0 A=75 L0=3.2 imin=32 Lm=5 interno n=3 K=259.8076>300 400 resistenza] [2-2 N=303.75 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 300 resistenza] [3-3 N=123.75 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 250 stabilità]",
+    "P4 [1-1 N=241.875 dN=0 A=37.5 L0=3.2 imin=32 Lm=5 bordo n=3 K=181.8653>200 300 resistenza] [2-2 N=151.875 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 250 stabilità] [3-3 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 250 stabilità]"
    ],
    "alto": "3,3,3,3",
    "avvisi": [
@@ -280,9 +280,9 @@
     "2: 200x360/resistenza | 200x360/resistenza"
    ],
    "pilastri": [
-    "P1 [1-1 N=151.875 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità] [2-2 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 K=200 250 stabilità]",
-    "P2 [1-1 N=303.75 dN=0 A=50 L0=3.2 imin=32 K=250 250 resistenza] [2-2 N=123.75 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità]",
-    "P3 [1-1 N=151.875 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità] [2-2 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 K=200 250 stabilità]"
+    "P1 [1-1 N=151.875 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 250 stabilità] [2-2 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 250 stabilità]",
+    "P2 [1-1 N=303.75 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 250 resistenza] [2-2 N=123.75 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 250 stabilità]",
+    "P3 [1-1 N=151.875 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 250 stabilità] [2-2 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 250 stabilità]"
    ],
    "alto": "2,2,2",
    "avvisi": [],
@@ -298,9 +298,9 @@
     "2: 300x400 | 300x400"
    ],
    "pilastri": [
-    "P1 [1-1 N=235.625 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [2-2 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]",
-    "P2 [1-1 N=471.25 dN=0 A=50 L0=3.2 imin=32 K=350 300 resistenza] [2-2 N=207.5 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza]",
-    "P3 [1-1 N=235.625 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [2-2 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]"
+    "P1 [1-1 N=235.625 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=222.7386>300 300 resistenza] [2-2 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=157.5>300 300 resistenza]",
+    "P2 [1-1 N=471.25 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=318.1981>350 300 resistenza] [2-2 N=207.5 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=225>300 300 resistenza]",
+    "P3 [1-1 N=235.625 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=222.7386>300 300 resistenza] [2-2 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=157.5>300 300 resistenza]"
    ],
    "alto": "2,2,2",
    "avvisi": [],
@@ -316,9 +316,9 @@
     "2: 1400x200 | 1400x200"
    ],
    "pilastri": [
-    "P1 [1-1 N=235.625 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [2-2 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]",
-    "P2 [1-1 N=471.25 dN=0 A=50 L0=3.2 imin=32 K=350 300 resistenza] [2-2 N=207.5 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza]",
-    "P3 [1-1 N=235.625 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [2-2 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]"
+    "P1 [1-1 N=235.625 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=222.7386>300 300 resistenza] [2-2 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=157.5>300 300 resistenza]",
+    "P2 [1-1 N=471.25 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=318.1981>350 300 resistenza] [2-2 N=207.5 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=225>300 300 resistenza]",
+    "P3 [1-1 N=235.625 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=222.7386>300 300 resistenza] [2-2 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=157.5>300 300 resistenza]"
    ],
    "alto": "2,2,2",
    "avvisi": [],
@@ -335,10 +335,10 @@
     "3: 300x400 | 300x400 | 300x400 + sb 300x300"
    ],
    "pilastri": [
-    "P1 [1-2 N=424.0813 dN=188.4562 A=40 L0=6.4 imin=64 K=300 450 stabilità] [3-3 N=175.3375 dN=71.5875 A=20 L0=3.2 imin=32 K=300 300 resistenza]",
-    "P2 [1-1 N=603.125 dN=0 A=62.5 L0=3.2 imin=32 K=400 300 resistenza] [2-2 N=471.25 dN=0 A=50 L0=3.2 imin=32 K=350 300 resistenza] [3-3 N=207.5 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza]",
-    "P3 [1-1 N=735 dN=0 A=75 L0=3.2 imin=32 K=400 350 resistenza] [2-2 N=471.25 dN=0 A=50 L0=3.2 imin=32 K=350 300 resistenza] [3-3 N=207.5 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza]",
-    "P4 [1-1 N=367.5 dN=0 A=37.5 L0=3.2 imin=32 K=300 300 resistenza] [2-2 N=235.625 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [3-3 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]"
+    "P1 [1-2 N=424.0813 dN=188.4562 A=40 L0=6.4 imin=64 Lm=5 bordo n=3 K=272.798>300 450 stabilità] [3-3 N=175.3375 dN=71.5875 A=20 L0=3.2 imin=32 Lm=5 bordo n=1 K=157.5>300 300 resistenza]",
+    "P2 [1-1 N=603.125 dN=0 A=62.5 L0=3.2 imin=32 Lm=5 interno n=3 K=389.7114>400 300 resistenza] [2-2 N=471.25 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=318.1981>350 300 resistenza] [3-3 N=207.5 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=225>300 300 resistenza]",
+    "P3 [1-1 N=735 dN=0 A=75 L0=3.2 imin=32 Lm=5 interno n=3 K=389.7114>400 350 resistenza] [2-2 N=471.25 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=318.1981>350 300 resistenza] [3-3 N=207.5 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=225>300 300 resistenza]",
+    "P4 [1-1 N=367.5 dN=0 A=37.5 L0=3.2 imin=32 Lm=5 bordo n=3 K=272.798>300 300 resistenza] [2-2 N=235.625 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=222.7386>300 300 resistenza] [3-3 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=157.5>300 300 resistenza]"
    ],
    "alto": "3,3,3,3",
    "avvisi": [
@@ -356,9 +356,9 @@
     "2: 300x350 | 300x350"
    ],
    "pilastri": [
-    "P1 [1-1 N=226.25 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [2-2 N=94.375 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]",
-    "P2 [1-1 N=452.5 dN=0 A=50 L0=3.2 imin=32 K=350 300 resistenza] [2-2 N=188.75 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza]",
-    "P3 [1-1 N=226.25 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [2-2 N=94.375 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]"
+    "P1 [1-1 N=226.25 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=222.7386>300 300 resistenza] [2-2 N=94.375 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=157.5>300 300 resistenza]",
+    "P2 [1-1 N=452.5 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=318.1981>350 300 resistenza] [2-2 N=188.75 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=225>300 300 resistenza]",
+    "P3 [1-1 N=226.25 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=222.7386>300 300 resistenza] [2-2 N=94.375 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=157.5>300 300 resistenza]"
    ],
    "alto": "2,2,2",
    "avvisi": [],
@@ -375,11 +375,11 @@
     "3: IPE 270/resistenza | IPE 300/resistenza | IPE 270/resistenza | IPE 270/resistenza"
    ],
    "pilastri": [
-    "P1 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P2 [1-1 N=709.5 dN=147 A=77.5 L0=3.2 imin=32 K=300 HEB 160 resistenza] [2-2 N=455.125 dN=147 A=50 L0=3.2 imin=32 K=250 HEB 140 resistenza] [3-3 N=192.5 dN=0 A=27.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P3 [1-1 N=668.1563 dN=105.6562 A=75 L0=3.2 imin=32 K=300 HEB 160 resistenza] [2-2 N=413.7813 dN=105.6562 A=47.5 L0=3.2 imin=32 K=250 HEB 140 stabilità] [3-3 N=192.5 dN=0 A=27.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P4 [1-1 N=637.5 dN=0 A=75 L0=3.2 imin=32 K=300 HEB 160 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=250 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P5 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+    "P1 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 Lm=5 bordo n=3 K=181.8653>200 HEB 140 stabilità] [2-2 N=203.125 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]",
+    "P2 [1-1 N=709.5 dN=147 A=77.5 L0=3.2 imin=32 Lm=6 interno n=3 K=311.7691>350 HEB 160 resistenza] [2-2 N=455.125 dN=147 A=50 L0=3.2 imin=32 Lm=6 interno n=2 K=254.5584>300 HEB 140 resistenza] [3-3 N=192.5 dN=0 A=27.5 L0=3.2 imin=32 Lm=6 interno n=1 K=180>200 HEB 140 stabilità]",
+    "P3 [1-1 N=668.1563 dN=105.6562 A=75 L0=3.2 imin=32 Lm=6 interno n=3 K=311.7691>350 HEB 160 resistenza] [2-2 N=413.7813 dN=105.6562 A=47.5 L0=3.2 imin=32 Lm=6 interno n=2 K=254.5584>300 HEB 140 stabilità] [3-3 N=192.5 dN=0 A=27.5 L0=3.2 imin=32 Lm=6 interno n=1 K=180>200 HEB 140 stabilità]",
+    "P4 [1-1 N=637.5 dN=0 A=75 L0=3.2 imin=32 Lm=5 interno n=3 K=259.8076>300 HEB 160 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 HEB 140 stabilità]",
+    "P5 [1-1 N=318.75 dN=0 A=37.5 L0=3.2 imin=32 Lm=5 bordo n=3 K=181.8653>200 HEB 140 stabilità] [2-2 N=203.125 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [3-3 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]"
    ],
    "alto": "3,3,3,3,3",
    "avvisi": [],
@@ -396,10 +396,10 @@
     "3: 300x400 | 300x400 | 300x400"
    ],
    "pilastri": [
-    "P1 [1-1 N=367.5 dN=0 A=37.5 L0=3.2 imin=32 K=300 300 resistenza] [2-2 N=235.625 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [3-3 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]",
-    "P2 [1-1 N=982.525 dN=379.4 A=82.5 L0=3.2 imin=32 K=450 400 resistenza] [2-2 N=471.25 dN=0 A=50 L0=3.2 imin=32 K=350 300 resistenza] [3-3 N=207.5 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza]",
-    "P3 [1-1 N=677.65 dN=74.525 A=67.5 L0=3.2 imin=32 K=400 350 resistenza] [2-2 N=471.25 dN=0 A=50 L0=3.2 imin=32 K=350 300 resistenza] [3-3 N=207.5 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza]",
-    "P4 [1-1 N=367.5 dN=0 A=37.5 L0=3.2 imin=32 K=300 300 resistenza] [2-2 N=235.625 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [3-3 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]"
+    "P1 [1-1 N=367.5 dN=0 A=37.5 L0=3.2 imin=32 Lm=5 bordo n=3 K=272.798>300 300 resistenza] [2-2 N=235.625 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=222.7386>300 300 resistenza] [3-3 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=157.5>300 300 resistenza]",
+    "P2 [1-1 N=982.525 dN=379.4 A=82.5 L0=3.2 imin=32 Lm=5 interno n=3 K=389.7114>400 400 resistenza] [2-2 N=471.25 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=318.1981>350 300 resistenza] [3-3 N=207.5 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=225>300 300 resistenza]",
+    "P3 [1-1 N=677.65 dN=74.525 A=67.5 L0=3.2 imin=32 Lm=5 interno n=3 K=389.7114>400 350 resistenza] [2-2 N=471.25 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=318.1981>350 300 resistenza] [3-3 N=207.5 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=225>300 300 resistenza]",
+    "P4 [1-1 N=367.5 dN=0 A=37.5 L0=3.2 imin=32 Lm=5 bordo n=3 K=272.798>300 300 resistenza] [2-2 N=235.625 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=222.7386>300 300 resistenza] [3-3 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=157.5>300 300 resistenza]"
    ],
    "alto": "3,3,3,3",
    "avvisi": [],
@@ -416,9 +416,9 @@
     "3: IPE 270/resistenza | IPE 270/resistenza + sb IPE 200/resistenza,IPE 330/resistenza"
    ],
    "pilastri": [
-    "P1 [1-1 N=537.7013 dN=218.9513 A=56.5 L0=3.2 imin=32 K=250 HEB 140 resistenza] [2-2 N=316.42 dN=113.295 A=36.5 L0=3.2 imin=32 K=200 HEB 140 stabilità] [3-3 N=147.875 dN=60.375 A=20 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P2 [1-1 N=637.5 dN=0 A=75 L0=3.2 imin=32 K=300 HEB 160 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 K=250 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P3 [1-1 N=749.25 dN=430.5 A=72.5 L0=3.2 imin=32 K=300 HEB 180 resistenza] [2-2 N=486.625 dN=283.5 A=50 L0=3.2 imin=32 K=250 HEB 140 resistenza] [3-3 N=224 dN=136.5 A=27.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+    "P1 [1-1 N=537.7013 dN=218.9513 A=56.5 L0=3.2 imin=32 Lm=5 bordo n=3 K=181.8653>200 HEB 140 resistenza] [2-2 N=316.42 dN=113.295 A=36.5 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [3-3 N=147.875 dN=60.375 A=20 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]",
+    "P2 [1-1 N=637.5 dN=0 A=75 L0=3.2 imin=32 Lm=5 interno n=3 K=259.8076>300 HEB 160 resistenza] [2-2 N=406.25 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 HEB 140 stabilità] [3-3 N=175 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 HEB 140 stabilità]",
+    "P3 [1-1 N=749.25 dN=430.5 A=72.5 L0=3.2 imin=32 Lm=5 bordo n=3 K=181.8653>200 HEB 180 resistenza] [2-2 N=486.625 dN=283.5 A=50 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 resistenza] [3-3 N=224 dN=136.5 A=27.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]"
    ],
    "alto": "3,3,3",
    "avvisi": [],
@@ -434,9 +434,9 @@
     "2: 160x440/resistenza | 160x440/resistenza"
    ],
    "pilastri": [
-    "P1 [1-2 N=61.875 dN=0 A=12.5 L0=6.4 imin=64 K=200 450 stabilità]",
-    "P2 [1-1 N=336.15 dN=122.4 A=47.5 L0=3.2 imin=32 K=250 300 resistenza] [2-2 N=123.75 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità]",
-    "P3 [1-1 N=151.875 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità] [2-2 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 K=200 250 stabilità]"
+    "P1 [1-2 N=61.875 dN=0 A=12.5 L0=6.4 imin=64 Lm=5 bordo n=2 K=148.4924>200 450 stabilità]",
+    "P2 [1-1 N=336.15 dN=122.4 A=47.5 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 300 resistenza] [2-2 N=123.75 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 250 stabilità]",
+    "P3 [1-1 N=151.875 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 250 stabilità] [2-2 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 250 stabilità]"
    ],
    "alto": "2,2,2",
    "avvisi": [
@@ -454,9 +454,9 @@
     "2: IPE 270/resistenza | -- + int IPE 270/resistenza"
    ],
    "pilastri": [
-    "P1 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P2 [1-1 N=428.125 dN=109.375 A=50 L0=3.2 imin=32 K=250 HEB 140 stabilità] [2-2 N=196.875 dN=109.375 A=25 L0=3.2 imin=32 K=200 HEB 140 stabilità]",
-    "P3 [1-1 N=115.625 dN=0 A=12.5 L0=3.2 imin=32 K=200 HEB 140 stabilità]"
+    "P1 [1-1 N=203.125 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 HEB 140 stabilità] [2-2 N=87.5 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]",
+    "P2 [1-1 N=428.125 dN=109.375 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 HEB 140 stabilità] [2-2 N=196.875 dN=109.375 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 HEB 140 stabilità]",
+    "P3 [1-1 N=115.625 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 HEB 140 stabilità]"
    ],
    "alto": "2,2,1",
    "avvisi": [],
@@ -473,10 +473,10 @@
     "3: 300x400 | 300x400 | -- + int 300x850"
    ],
    "pilastri": [
-    "P1 [1-1 N=367.5 dN=0 A=37.5 L0=3.2 imin=32 K=300 300 resistenza] [2-2 N=235.625 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [3-3 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]",
-    "P2 [1-1 N=735 dN=0 A=75 L0=3.2 imin=32 K=400 350 resistenza] [2-2 N=471.25 dN=0 A=50 L0=3.2 imin=32 K=350 300 resistenza] [3-3 N=207.5 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza]",
-    "P3 [1-1 N=942.5 dN=311.25 A=87.5 L0=3.2 imin=32 K=450 400 resistenza] [2-2 N=678.75 dN=311.25 A=62.5 L0=3.2 imin=32 K=400 350 resistenza] [3-3 N=415 dN=311.25 A=37.5 L0=3.2 imin=32 K=300 300 resistenza]",
-    "P4 [1-1 N=263.75 dN=0 A=25 L0=3.2 imin=32 K=300 300 resistenza] [2-2 N=131.875 dN=0 A=12.5 L0=3.2 imin=32 K=300 300 resistenza]"
+    "P1 [1-1 N=367.5 dN=0 A=37.5 L0=3.2 imin=32 Lm=5 bordo n=3 K=272.798>300 300 resistenza] [2-2 N=235.625 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=222.7386>300 300 resistenza] [3-3 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=157.5>300 300 resistenza]",
+    "P2 [1-1 N=735 dN=0 A=75 L0=3.2 imin=32 Lm=5 interno n=3 K=389.7114>400 350 resistenza] [2-2 N=471.25 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=318.1981>350 300 resistenza] [3-3 N=207.5 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=225>300 300 resistenza]",
+    "P3 [1-1 N=942.5 dN=311.25 A=87.5 L0=3.2 imin=32 Lm=5 interno n=3 K=389.7114>400 400 resistenza] [2-2 N=678.75 dN=311.25 A=62.5 L0=3.2 imin=32 Lm=5 interno n=2 K=318.1981>350 350 resistenza] [3-3 N=415 dN=311.25 A=37.5 L0=3.2 imin=32 Lm=5 interno n=1 K=225>300 300 resistenza]",
+    "P4 [1-1 N=263.75 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=222.7386>300 300 resistenza] [2-2 N=131.875 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=157.5>300 300 resistenza]"
    ],
    "alto": "3,3,3,2",
    "avvisi": [],
@@ -492,9 +492,9 @@
     "2: -- | 160x440/resistenza + int 160x400/resistenza"
    ],
    "pilastri": [
-    "P1 [1-1 N=90 dN=0 A=12.5 L0=3.2 imin=32 K=200 250 stabilità]",
-    "P2 [1-1 N=301.275 dN=59.4 A=47.5 L0=3.2 imin=32 K=250 300 resistenza] [2-2 N=121.275 dN=59.4 A=22.5 L0=3.2 imin=32 K=200 250 stabilità]",
-    "P3 [1-1 N=151.875 dN=0 A=25 L0=3.2 imin=32 K=200 250 stabilità] [2-2 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 K=200 250 stabilità]"
+    "P1 [1-1 N=90 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 250 stabilità]",
+    "P2 [1-1 N=301.275 dN=59.4 A=47.5 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 300 resistenza] [2-2 N=121.275 dN=59.4 A=22.5 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 250 stabilità]",
+    "P3 [1-1 N=151.875 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 250 stabilità] [2-2 N=61.875 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 250 stabilità]"
    ],
    "alto": "1,2,2",
    "avvisi": [],
@@ -503,17 +503,114 @@
     0,
     2.4
    ]
+  },
+  "acciaio carichi diversi ai piani": {
+   "travi": [
+    "1: IPE 300/resistenza | IPE 400/resistenza",
+    "2: IPE 240/resistenza | IPE 330/resistenza",
+    "3: IPE 240/resistenza | IPE 330/resistenza"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=360.8 dN=0 A=33 L0=3.8 imin=38 Lm=5.5 bordo n=3 K=200.0519>250 HEB 160 stabilità] [2-2 N=202.4 dN=0 A=22 L0=3.8 imin=38 Lm=5.5 bordo n=2 K=163.3417>200 HEB 160 stabilità] [3-3 N=100.65 dN=0 A=11 L0=3.8 imin=38 Lm=5.5 bordo n=1 K=115.5>200 HEB 160 stabilità]",
+    "P2 [1-1 N=856.9 dN=0 A=78.375 L0=3.8 imin=38 Lm=5.5 interno n=3 K=285.7884>300 HEB 200 resistenza] [2-2 N=480.7 dN=0 A=52.25 L0=3.8 imin=38 Lm=5.5 interno n=2 K=233.3452>250 HEB 160 stabilità] [3-3 N=239.0438 dN=0 A=26.125 L0=3.8 imin=38 Lm=5.5 interno n=1 K=165>200 HEB 160 stabilità]",
+    "P3 [1-1 N=496.1 dN=0 A=45.375 L0=3.8 imin=38 Lm=5.5 bordo n=3 K=200.0519>250 HEB 160 stabilità] [2-2 N=278.3 dN=0 A=30.25 L0=3.8 imin=38 Lm=5.5 bordo n=2 K=163.3417>200 HEB 160 stabilità] [3-3 N=138.3938 dN=0 A=15.125 L0=3.8 imin=38 Lm=5.5 bordo n=1 K=115.5>200 HEB 160 stabilità]"
+   ],
+   "alto": "3,3,3",
+   "avvisi": [],
+   "tot": [
+    2847.13,
+    0,
+    0
+   ]
+  },
+  "c.a. telaio di bordo, tre campate, B=6": {
+   "travi": [
+    "1: 300x300 | 300x450 | 300x350",
+    "2: 300x300 | 300x450 | 300x350",
+    "3: 300x300 | 300x400 | 300x350"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=176.4 dN=0 A=18 L0=3.2 imin=32 Lm=6 angolo n=3 K=233.8269>300 300 resistenza] [2-2 N=113.1 dN=0 A=12 L0=3.2 imin=32 Lm=6 angolo n=2 K=190.9188>300 300 resistenza] [3-3 N=49.8 dN=0 A=6 L0=3.2 imin=32 Lm=6 angolo n=1 K=135>300 300 resistenza]",
+    "P2 [1-1 N=441 dN=0 A=45 L0=3.2 imin=32 Lm=6 bordo n=3 K=327.3576>350 300 resistenza] [2-2 N=282.75 dN=0 A=30 L0=3.2 imin=32 Lm=6 bordo n=2 K=267.2864>300 300 resistenza] [3-3 N=124.5 dN=0 A=15 L0=3.2 imin=32 Lm=6 bordo n=1 K=189>300 300 resistenza]",
+    "P3 [1-1 N=485.1 dN=0 A=49.5 L0=3.2 imin=32 Lm=6 bordo n=3 K=327.3576>350 300 resistenza] [2-2 N=311.025 dN=0 A=33 L0=3.2 imin=32 Lm=6 bordo n=2 K=267.2864>300 300 resistenza] [3-3 N=136.95 dN=0 A=16.5 L0=3.2 imin=32 Lm=6 bordo n=1 K=189>300 300 resistenza]",
+    "P4 [1-1 N=220.5 dN=0 A=22.5 L0=3.2 imin=32 Lm=6 angolo n=3 K=233.8269>300 300 resistenza] [2-2 N=141.375 dN=0 A=15 L0=3.2 imin=32 Lm=6 angolo n=2 K=190.9188>300 300 resistenza] [3-3 N=62.25 dN=0 A=7.5 L0=3.2 imin=32 Lm=6 angolo n=1 K=135>300 300 resistenza]"
+   ],
+   "alto": "3,3,3,3",
+   "avvisi": [],
+   "tot": [
+    0,
+    8.451,
+    0
+   ]
+  },
+  "legno carichi diversi, copertura con neve 1,2": {
+   "travi": [
+    "1: 160x600/resistenza | 160x600/resistenza",
+    "2: 160x520/resistenza | 160x520/resistenza",
+    "3: 160x480/resistenza | 160x480/resistenza"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=281.875 dN=0 A=37.5 L0=3.2 imin=32 Lm=5 bordo n=3 K=181.8653>200 300 resistenza] [2-2 N=165 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 250 resistenza] [3-3 N=75 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 250 stabilità]",
+    "P2 [1-1 N=563.75 dN=0 A=75 L0=3.2 imin=32 Lm=5 interno n=3 K=259.8076>300 400 resistenza] [2-2 N=330 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=212.132>250 300 resistenza] [3-3 N=150 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=150>200 250 stabilità]",
+    "P3 [1-1 N=281.875 dN=0 A=37.5 L0=3.2 imin=32 Lm=5 bordo n=3 K=181.8653>200 300 resistenza] [2-2 N=165 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=148.4924>200 250 resistenza] [3-3 N=75 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=105>200 250 stabilità]"
+   ],
+   "alto": "3,3,3",
+   "avvisi": [],
+   "tot": [
+    0,
+    0,
+    4.936
+   ]
+  },
+  "c.a. luci 4+4, B=5 (la trave trasversale decide L_max)": {
+   "travi": [
+    "1: 300x400 | 300x400",
+    "2: 300x350 | 300x350"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=188.5 dN=0 A=20 L0=3.2 imin=32 Lm=5 bordo n=2 K=222.7386>300 300 resistenza] [2-2 N=83 dN=0 A=10 L0=3.2 imin=32 Lm=5 bordo n=1 K=157.5>300 300 resistenza]",
+    "P2 [1-1 N=377 dN=0 A=40 L0=3.2 imin=32 Lm=5 interno n=2 K=318.1981>350 300 resistenza] [2-2 N=166 dN=0 A=20 L0=3.2 imin=32 Lm=5 interno n=1 K=225>300 300 resistenza]",
+    "P3 [1-1 N=188.5 dN=0 A=20 L0=3.2 imin=32 Lm=5 bordo n=2 K=222.7386>300 300 resistenza] [2-2 N=83 dN=0 A=10 L0=3.2 imin=32 Lm=5 bordo n=1 K=157.5>300 300 resistenza]"
+   ],
+   "alto": "2,2,2",
+   "avvisi": [],
+   "tot": [
+    0,
+    3.528,
+    0
+   ]
+  },
+  "c.a. campata unica di 8 m, B=5": {
+   "travi": [
+    "1: 300x700",
+    "2: 300x600"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=377 dN=0 A=40 L0=3.2 imin=32 Lm=8 bordo n=2 K=356.3818>400 300 resistenza] [2-2 N=166 dN=0 A=20 L0=3.2 imin=32 Lm=8 bordo n=1 K=252>300 300 resistenza]",
+    "P2 [1-1 N=377 dN=0 A=40 L0=3.2 imin=32 Lm=8 bordo n=2 K=356.3818>400 300 resistenza] [2-2 N=166 dN=0 A=20 L0=3.2 imin=32 Lm=8 bordo n=1 K=252>300 300 resistenza]"
+   ],
+   "alto": "2,2",
+   "avvisi": [],
+   "tot": [
+    0,
+    4.272,
+    0
+   ]
   }
  },
  "funzioni": {
   "esempio_L3_trave55": [
    "IPE 300",
-   8.4875,
-   22
+   "IPE 300",
+   "IPE 240",
+   3223.7219,
+   8.4875
   ],
   "esempio_L3_trave4": [
    "IPE 220",
-   7.1577
+   "IPE 220",
+   "IPE 180",
+   1240.0794
   ],
   "esempio_L3_pilastro": [
    "HEB 160",
@@ -545,6 +642,49 @@
     450,
     450
    ]
+  ],
+  "latoK_pos": [
+   [
+    [
+     381.8377,
+     400
+    ],
+    [
+     254.5584,
+     300
+    ]
+   ],
+   [
+    [
+     267.2864,
+     300
+    ],
+    [
+     178.1909,
+     200
+    ]
+   ],
+   [
+    [
+     190.9188,
+     300
+    ],
+    [
+     127.2792,
+     200
+    ]
+   ]
+  ],
+  "latoK_esempi": [
+   126,
+   180,
+   200,
+   381.8377,
+   400,
+   267.2864,
+   300,
+   350,
+   550
   ],
   "imin": [
    38,
@@ -1054,6 +1194,96 @@
     13900,
     57.7353,
     163.5294
+   ]
+  },
+  "acciaio carichi diversi ai piani": {
+   "quantita": [
+    0,
+    156.75,
+    34.485
+   ],
+   "senzaSolaio": [
+    4954.0062,
+    11388.52,
+    0
+   ],
+   "conSolaio": [
+    14178.7437,
+    32032.495,
+    90.4545,
+    204.354
+   ]
+  },
+  "c.a. telaio di bordo, tre campate, B=6": {
+   "quantita": [
+    92.88,
+    135,
+    32.4
+   ],
+   "senzaSolaio": [
+    2640.9375,
+    8633.115,
+    0
+   ],
+   "conSolaio": [
+    11307.9375,
+    27452.115,
+    83.7625,
+    203.349
+   ]
+  },
+  "legno carichi diversi, copertura con neve 1,2": {
+   "quantita": [
+    0,
+    150,
+    30
+   ],
+   "senzaSolaio": [
+    740.4,
+    6910.4,
+    3459.6424
+   ],
+   "conSolaio": [
+    8765.4,
+    25510.4,
+    58.436,
+    170.0693
+   ]
+  },
+  "c.a. luci 4+4, B=5 (la trave trasversale decide L_max)": {
+   "quantita": [
+    39.84,
+    80,
+    16
+   ],
+   "senzaSolaio": [
+    1102.5,
+    3654.12,
+    0
+   ],
+   "conSolaio": [
+    5382.5,
+    13574.12,
+    67.2813,
+    169.6765
+   ]
+  },
+  "c.a. campata unica di 8 m, B=5": {
+   "quantita": [
+    40.96,
+    80,
+    16
+   ],
+   "senzaSolaio": [
+    1335,
+    4082.48,
+    0
+   ],
+   "conSolaio": [
+    5615,
+    14002.48,
+    70.1875,
+    175.031
    ]
   }
  }

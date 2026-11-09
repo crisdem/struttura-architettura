@@ -14,6 +14,8 @@
   var vuoti = {};                                  // sbalzi dentro i vuoti: chiavi 'k:i' -> {a, b} [m]
   var lung = {};                                   // lunghezze individuali degli sbalzi di estremita': chiavi 'k:sx' e 'k:dx' -> m
   var sel = null;                                  // elemento scelto per il pannello: 'k:i' (vuoto) oppure 'k:sx' / 'k:dx' (sbalzo di estremita')
+  var carPiani = {};                               // carichi dei singoli piani (k < n), con «carichi diversi ai piani»: chiave k -> {g1, g2, q, qb}
+  var carTetto = null;                             // carichi della copertura, con «carichi diversi ai piani»: {g1, g2, q (neve)}
   var CHI = { acciaio: 0.5, legno: 0.3, ca: 0.5 };
   var DEF = { acciaio: { g1: 2.5, g2: 2.0, q: 2.0, neve: 0.5 }, legno: { g1: 1.5, g2: 1.5, q: 2.0, neve: 0.5 }, ca: { g1: 3.5, g2: 2.0, q: 2.0, neve: 0.5 } };
   var ROSSO = '#d1382b', BLU = '#1f5c8b', NERO = '#121212', GRIGIO = '#6e6e6e';
@@ -29,8 +31,64 @@
       n: intero('n'), spans: luci.slice(0, nc), H: leggi('H'), B: leggi('B'), bordo: $('bordo').checked,
       g1: leggi('g1'), g2: leggi('g2'), q: leggi('q'), neve: $('usaNeve').checked ? leggi('neve') : 0, qb: leggi('qb'), sx: leggi('sx'), dx: leggi('dx'),
       mat: materiale, acciaio: $('acc').value, serie: $('serie').value, classeLegno: $('cleg').value, bLegno: parseInt($('bleg').value, 10),
-      chi: leggi('chi'), fck: $('fck').value, vincolo: $('vinc').value, travaTipo: $('tipoTrave').value, senza: senza, colSenza: colSenza, sbalziVuoto: vuoti, sbalziLivello: lung
+      chi: leggi('chi'), fck: $('fck').value, vincolo: $('vinc').value, travaTipo: $('tipoTrave').value, senza: senza, colSenza: colSenza, sbalziVuoto: vuoti, sbalziLivello: lung,
+      carichiLiv: carichiLivelli(intero('n'))
     };
+  }
+
+  // ---------------------------------------------------------------- carichi diversi ai vari piani
+  // Con la casella «Carichi diversi ai piani» ogni livello ha i suoi G1, G2, Q (e Q sugli sbalzi); in copertura Q e' la neve.
+  // I cursori generali, quando la casella e' attiva, impostano il valore di tutti i livelli; poi si corregge il singolo piano nella tabella.
+  function perLivello() { return !!$('carLiv') && $('carLiv').checked; }
+  function valoriGenerali(k, n) {                  // valori correnti dei cursori generali per il livello k
+    return k === n ? { g1: leggi('g1'), g2: leggi('g2'), q: leggi('neve'), qb: leggi('neve') }
+                   : { g1: leggi('g1'), g2: leggi('g2'), q: leggi('q'), qb: leggi('qb') };
+  }
+  function completaCarichi(n) {                    // i livelli che non hanno ancora i loro valori partono da quelli generali
+    for (var k = 1; k < n; k++) { if (!carPiani[k]) carPiani[k] = valoriGenerali(k, n); }
+    if (!carTetto) carTetto = valoriGenerali(n, n);
+  }
+  function carichiLivelli(n) {                     // oggetto {k: {g1, g2, q, qb}} per RT.telaio, oppure null (carichi uguali)
+    if (!perLivello()) return null;
+    completaCarichi(n);
+    var o = {}, neveOn = $('usaNeve').checked;
+    for (var k = 1; k <= n; k++) {
+      if (k === n) { var q = neveOn ? carTetto.q : 0; o[k] = { g1: carTetto.g1, g2: carTetto.g2, q: q, qb: q }; }
+      else o[k] = { g1: carPiani[k].g1, g2: carPiani[k].g2, q: carPiani[k].q, qb: carPiani[k].qb };
+    }
+    return o;
+  }
+  function applicaGenerale(id) {                   // un cursore generale cambia il valore corrispondente di tutti i livelli
+    var n = intero('n'), x = leggi(id), k;
+    completaCarichi(n);
+    if (id === 'neve') { carTetto.q = x; return; }
+    if (id === 'g1' || id === 'g2') carTetto[id] = x;
+    for (k = 1; k < n; k++) carPiani[k][id] = x;
+  }
+  function costruisciMatriceCarichi() {
+    var box = $('matriceCarichi'), n = intero('n');
+    box.hidden = !perLivello();
+    if (!perLivello()) { box.innerHTML = ''; return; }
+    completaCarichi(n);
+    var neveOn = $('usaNeve').checked;
+    function cella(k, c, valore, nome, spento) {
+      return '<td><input type="number" class="num" step="0.1" min="0" max="10" inputmode="decimal" value="' + valore + '" data-k="' + k + '" data-c="' + c + '"' + (spento ? ' disabled' : '') + ' aria-label="' + nome + '"></td>';
+    }
+    var h = '<table class="mx mxc"><thead><tr><th></th><th>G₁</th><th>G₂</th><th>Q</th><th title="Q sugli sbalzi (balconi)">Q<sub>sb</sub></th></tr></thead><tbody>';
+    for (var k = n; k >= 1; k--) {
+      var roof = (k === n), v = roof ? carTetto : carPiani[k], nome = nomeLivello(k, n);
+      h += '<tr><th scope="row">' + nome + (roof ? '<br><span class="unita">Q = neve</span>' : '') + '</th>' +
+        cella(k, 'g1', v.g1, nome + ', G1', false) + cella(k, 'g2', v.g2, nome + ', G2', false) + cella(k, 'q', v.q, nome + (roof ? ', neve' : ', Q'), roof && !neveOn) +
+        (roof ? '<td class="unita">=&nbsp;Q</td>' : cella(k, 'qb', v.qb, nome + ', Q sugli sbalzi', false)) + '</tr>';
+    }
+    box.innerHTML = h + '</tbody></table>';
+  }
+  function modificaCarico(ev) {                    // l'utente cambia un valore nella tabella dei carichi per livello
+    var el = ev.target, k = parseInt(el.getAttribute('data-k'), 10), c = el.getAttribute('data-c'), x = parseFloat(el.value), n = intero('n');
+    if (!c || !(x >= 0)) return;
+    completaCarichi(n);
+    (k === n ? carTetto : carPiani[k])[c] = x;
+    calcola();
   }
 
   // ---------------------------------------------------------------- controlli
@@ -42,7 +100,10 @@
     $('optAcc').hidden = m !== 'acciaio';
     $('optLeg').hidden = m !== 'legno';
     $('optCa').hidden = m !== 'ca';
-    if (ripristina) { ['g1', 'g2', 'q', 'neve'].forEach(function (k) { $(k).value = DEF[m][k]; }); $('chi').value = CHI[m]; }
+    if (ripristina) {
+      ['g1', 'g2', 'q', 'neve'].forEach(function (k) { $(k).value = DEF[m][k]; }); $('chi').value = CHI[m];
+      if (perLivello()) { ['g1', 'g2', 'q', 'neve'].forEach(applicaGenerale); costruisciMatriceCarichi(); }   // i carichi per livello ripartono dai valori del materiale
+    }
     $('chiLab').innerHTML = m === 'ca' ? 'Pilastri: coefficiente ν' : 'Pilastri: coefficiente χ₀';
     $('chiNota').innerHTML = 'A<sub>min</sub> = N<sub>Ed</sub> / (' + (m === 'ca' ? 'ν·f<sub>cd</sub>' : (m === 'legno' ? 'χ₀·f<sub>c,0,d</sub>' : 'χ₀·f<sub>yd</sub>')) + '). Valore degli appunti: ' + F(CHI[m], 2) + '. Più è basso, più il pilastro è abbondante (snellezza, instabilità).';
     calcola();
@@ -243,6 +304,17 @@
     return o;
   }
 
+  // numero del pilastro in un cerchietto: lo stesso numero della colonna «Pilastro» nelle tabelle e delle matrici dei pilastri
+  function cerchioNumero(x, y, num, spento) {
+    return '<g pointer-events="none"' + (spento ? ' opacity=".45"' : '') + '><circle cx="' + x + '" cy="' + y + '" r="8" fill="#fff" stroke="' + NERO + '" stroke-width="1.2"/>' +
+      '<text x="' + x + '" y="' + (y + 3.8) + '" font-size="11" font-weight="700" text-anchor="middle" fill="' + NERO + '">' + num + '</text></g>';
+  }
+  function svgNumeriPilastri(g, r) {               // in prospetto: sotto il terreno, in corrispondenza di ogni pilastro
+    var o = '';
+    for (var j = 0; j <= g.nc; j++) o += cerchioNumero(g.xs[j], g.yg + 13, j + 1, r.alto[j] < 1);
+    return o;
+  }
+
   // pilastri tolti: sagoma tratteggiata, cliccabile per rimetterli
   function svgPilastriTolti(g, p, r) {
     var o = '';
@@ -425,7 +497,7 @@
     var svg = $('fig'); svg.setAttribute('viewBox', '0 0 ' + g.W + ' ' + g.Hh);
     var o = svgTerreno(g) + svgPilastri(g, p, r, st) + svgPilastriTolti(g, p, r);
     if ($('omini').checked) o += svgOmini(g, p, r);
-    o += svgTravi(g, r, st) + svgQuote(g, p);
+    o += svgTravi(g, r, st) + svgQuote(g, p) + svgNumeriPilastri(g, r);
     if ($('carichi').checked) o += svgCarichi(g, p, r);
     svg.innerHTML = o;
   }
@@ -503,6 +575,7 @@
       if (!e) continue;
       var a = Math.max(((e.larg || e.lato || 300) / 1000) * s, 6), b2 = Math.max(((e.lato || 300) / 1000) * s, 6);
       o += '<rect x="' + (xs[j] - b2 / 2) + '" y="' + (yAsse - a / 2) + '" width="' + b2 + '" height="' + a + '" fill="' + NERO + '"/>';
+      o += cerchioNumero(xs[j], yAsse + a / 2 + 11, j + 1, false);          // numero del pilastro, come nelle tabelle
     }
     // quote: B a sinistra (breve, per non uscire dal disegno), spiegazione in alto, luci delle campate in basso
     o += quotaV(xStart - 14, y0, y1, p.bordo ? 'B/2' : 'B');
@@ -531,8 +604,8 @@
     var ac = materiale === 'acciaio', ca = materiale === 'ca';
     return '<thead><tr><th>Livello</th><th>Elemento</th><th>L [m]</th><th>p<sub>d</sub> [kN/m]</th><th>M<sub>Ed</sub> [kN·m]</th>' +
       (ca ? '<th>Livello 1: ' + (p.travaTipo === 'spessore' ? 'b ≈ L/6' : 'h = L/10') + ' [mm]</th><th>Livello 2: d<sub>min</sub> / b<sub>min</sub> [mm]</th><th>Sezione b×h [mm]</th><th>L/h</th>'
-          : (ac ? '<th>Livello 1: h = L/' + RT.HLUCE[p.vincolo] + ' [mm]</th><th>W<sub>min</sub> [cm³]</th><th>Profilo (livello 2)</th><th>Freccia δ / limite [mm]</th><th>L/h</th>'
-                : '<th>Livello 1: h = L/20–L/15 [mm]</th><th>W<sub>min</sub> [cm³]</th><th>Sezione b×h [mm]</th><th>Freccia: uso</th><th>L/h</th>')) + '</tr></thead><tbody>';
+          : (ac ? '<th>Livello 1: h = L/' + RT.HLUCE[p.vincolo] + ' [mm]</th><th>Livello 2: W<sub>min</sub> [cm³]</th><th>I<sub>min</sub> [cm⁴]</th><th>Profilo (livello 2)</th><th>L/h</th>'
+                : '<th>Livello 1: h = L/20–L/15 [mm]</th><th>Livello 2: W<sub>min</sub> [cm³]</th><th>I<sub>min</sub> [cm⁴]</th><th>Sezione b×h [mm]</th><th>L/h</th>')) + '</tr></thead><tbody>';
   }
 
   // le tre righe di trave (c.a., acciaio, legno) restituiscono le celle specifiche del materiale; le avvertenze vanno in avv
@@ -542,14 +615,14 @@
     return '<td>' + F(spess ? Leq * 1000 / 6 : t.hGeo, 0) + (spess ? ' (b)' : '') + '</td><td>' + dm + '</td><td><b>' + t.b + '×' + t.h + '</b></td><td>' + F(Leq * 1000 / t.h, 1) + '</td>';
   }
   function celleTraveAcciaio(t, Leq, liv, nome, avv) {
-    var r_ = '<td>' + F(t.hGeo, 0) + '</td><td>' + F(t.W, 0) + '</td>';
-    if (t.prof) return r_ + '<td><b>' + t.prof[0] + '</b>' + (t.gov === 'freccia' ? ' <span class="unita">(la freccia sposta da ' + t.profW[0] + ')</span>' : '') + '</td><td>' + F(t.delta, 1) + ' / ' + F(t.dlim, 1) + '</td><td>' + F(Leq * 1000 / t.h, 1) + '</td>';
-    avv.push(liv + ', ' + nome.toLowerCase() + ': nessun IPE soddisfa W e freccia. Riduci la luce o la luce fuori piano, o cambia schema.');
-    return r_ + '<td class="ko">oltre IPE 600</td><td>-</td><td>-</td>';
+    var r_ = '<td>' + F(t.hGeo, 0) + '</td><td>' + F(t.W, 0) + '</td><td>' + F(t.Imin, 0) + '</td>';
+    if (t.prof) return r_ + '<td><b>' + t.prof[0] + '</b> <span class="unita">I<sub>y</sub> = ' + F(t.I, 0) + ' cm⁴</span>' + (t.gov === 'deformabilità' ? ' <span class="unita">(decide I<sub>min</sub>: per W basterebbe ' + t.profW[0] + ')</span>' : '') + '</td><td>' + F(Leq * 1000 / t.h, 1) + '</td>';
+    avv.push(liv + ', ' + nome.toLowerCase() + ': nessun IPE soddisfa W e I min. Riduci la luce o la luce fuori piano, o cambia schema.');
+    return r_ + '<td class="ko">oltre IPE 600</td><td>-</td>';
   }
   function celleTraveLegno(t, Leq, liv, nome, avv) {
     if (t.h > 1000) avv.push(liv + ', ' + nome.toLowerCase() + ': altezza di ' + t.h + ' mm: valuta una base maggiore, una classe migliore o una luce minore.');
-    return '<td>' + F(t.hMin, 0) + '–' + F(t.hMax, 0) + '</td><td>' + F(t.W, 0) + '</td><td><b>' + t.b + '×' + t.h + '</b>' + (t.gov === 'freccia' ? ' <span class="unita">(governa la freccia)</span>' : '') + '</td><td>' + F(t.uso, 2) + '</td><td>' + F(Leq * 1000 / t.h, 1) + '</td>';
+    return '<td>' + F(t.hMin, 0) + '–' + F(t.hMax, 0) + '</td><td>' + F(t.W, 0) + '</td><td>' + F(t.Imin, 0) + '</td><td><b>' + t.b + '×' + t.h + '</b> <span class="unita">I = ' + F(t.I, 0) + ' cm⁴</span>' + (t.gov === 'deformabilità' ? ' <span class="unita">(decide I<sub>min</sub>)</span>' : '') + '</td><td>' + F(Leq * 1000 / t.h, 1) + '</td>';
   }
 
   function tabellaTravi(p, r, avv) {
@@ -570,18 +643,22 @@
     return h + '</tbody>';
   }
 
+  var NOME_POS = { interno: 'interno ×1', bordo: 'di bordo ×0,7', angolo: 'd\'angolo ×0,5' };
+  // Livello 1: lato ≈ κ·L_max·pos·√n (nessuna regola di snellezza). Livello 2: A_min, poi la stabilita' (acciaio: i_min; c.a. e legno: lato ≥ L₀/15).
   function tabellaPilastri(r, avv) {
     var ac = materiale === 'acciaio';
-    var h = '<thead><tr><th>Interpiani</th><th>Pilastro</th><th>ΣA [m²]</th><th>N<sub>Ed</sub> alla base [kN]</th><th>L₀ [m]</th><th>Livello 1</th><th>A<sub>min</sub> [cm²]</th><th>' + (ac ? 'Profilo' : 'Sezione [mm]') + ' (livello 2)</th><th>Decide</th></tr></thead><tbody>';
+    var h = '<thead><tr><th>Interpiani</th><th>Pilastro</th><th>Posizione (pos)</th><th>L<sub>max</sub> [m]</th><th>n</th><th>Livello 1: lato ≈ κ·L<sub>max</sub>·pos·√n [mm]</th>' +
+      '<th>ΣA [m²]</th><th>N<sub>Ed</sub> alla base [kN]</th><th>L₀ [m]</th><th>Livello 2: A<sub>min</sub> [cm²]</th><th>' + (ac ? 'i<sub>min</sub> = L₀/100 [mm]' : 'lato ≥ L₀/15 [mm]') + '</th><th>' + (ac ? 'Profilo' : 'Sezione [mm]') + ' (livello 2)</th><th>Decide</th></tr></thead><tbody>';
     var righe = [];
     r.colonne.forEach(function (segs) { segs.forEach(function (sg) { righe.push(sg); }); });
     righe.sort(function (a, b) { return (b.s1 - a.s1) || (b.s0 - a.s0) || (a.j - b.j); });
     righe.forEach(function (e) {
       var ip = e.s0 === e.s1 ? e.s0 + (e.s0 === 1 ? ' (terra)' : '') : e.s0 + '–' + e.s1 + ' (doppia altezza)';
       if (e.libera) ip += ', testa libera';
-      var l1 = ac ? 'i<sub>min</sub> ≥ ' + F(e.imin, 0) + ' mm; ingombro ≈ ' + F(e.latoK, 0) + ' mm'
-                  : 'ingombro ≈ ' + F(e.latoK, 0) + ' mm; lato ≥ L₀/15 = ' + F(e.L0 * 1000 / RT.LATO_L0, 0) + ' mm';
-      h += '<tr><td>' + ip + '</td><td>' + (e.j + 1) + '</td><td>' + F(e.Atot, 1) + '</td><td>' + F(e.N, 0) + (e.dN > 0 ? ' <span class="unita">(di cui sbalzo ' + F(e.dN, 0) + ')</span>' : '') + '</td><td>' + F(e.L0, 1) + '</td><td>' + l1 + '</td><td>' + F(ac ? e.A : e.A / 100, ac ? 1 : 0) + '</td>';
+      var l1 = F(e.latoKgrezzo, 0) + ' → <b>' + F(e.latoK, 0) + '</b>';
+      h += '<tr><td>' + ip + '</td><td><b>' + (e.j + 1) + '</b></td><td>' + NOME_POS[e.posNome] + '</td><td>' + F(e.Lmax, 1) + '</td><td>' + e.nSopra + '</td><td>' + l1 + '</td>' +
+        '<td>' + F(e.Atot, 1) + '</td><td>' + F(e.N, 0) + (e.dN > 0 ? ' <span class="unita">(di cui sbalzo ' + F(e.dN, 0) + ')</span>' : '') + '</td><td>' + F(e.L0, 1) + '</td><td>' + F(ac ? e.A : e.A / 100, ac ? 1 : 0) + '</td>' +
+        '<td>' + (ac ? F(e.imin, 0) : F(e.L0 * 1000 / RT.LATO_L0, 0)) + '</td>';
       if (ac) {
         h += e.prof ? '<td><b>' + e.prof[0] + '</b></td>' : '<td class="ko">oltre ' + r.serie + ' 600</td>';
         if (!e.prof) avv.push('Interpiano ' + e.s0 + ', pilastro ' + (e.j + 1) + ': nessun ' + r.serie + ' soddisfa A min e i min.');
@@ -781,10 +858,19 @@
     $('mLeg').addEventListener('click', function () { impostaMateriale('legno', true); });
     $('mCa').addEventListener('click', function () { impostaMateriale('ca', true); });
     $('nc').addEventListener('input', function () { costruisciCampate(); costruisciMatrice(); calcola(); });
-    $('n').addEventListener('input', function () { costruisciMatrice(); calcola(); });
+    $('n').addEventListener('input', function () { costruisciMatrice(); costruisciMatriceCarichi(); calcola(); });
     ['sx', 'dx'].forEach(function (id) { $(id).addEventListener('input', function () { costruisciMatrice(); calcola(); }); });
     $('uguali').addEventListener('change', function () { if (this.checked) { for (var j = 1; j < 5; j++) luci[j] = luci[0]; costruisciCampate(); calcola(); } });
-    ['H', 'B', 'bordo', 'chi', 'carichi', 'omini', 'parola', 'usaNeve', 'g1', 'g2', 'q', 'qb', 'neve', 'vinc', 'acc', 'serie', 'cleg', 'bleg', 'fck', 'tipoTrave', 'livPianta', 'conSolaio'].concat(IPOTESI.map(function (x) { return x[0]; })).forEach(function (id) { $(id).addEventListener('input', calcola); });
+    ['H', 'B', 'bordo', 'chi', 'carichi', 'omini', 'parola', 'vinc', 'acc', 'serie', 'cleg', 'bleg', 'fck', 'tipoTrave', 'livPianta', 'conSolaio'].concat(IPOTESI.map(function (x) { return x[0]; })).forEach(function (id) { $(id).addEventListener('input', calcola); });
+    ['g1', 'g2', 'q', 'qb', 'neve'].forEach(function (id) {                 // cursori generali: con i carichi per livello impostano tutti i livelli
+      $(id).addEventListener('input', function () { if (perLivello()) { applicaGenerale(id); costruisciMatriceCarichi(); } calcola(); });
+    });
+    $('usaNeve').addEventListener('input', function () { costruisciMatriceCarichi(); calcola(); });
+    $('carLiv').addEventListener('change', function () {                   // attiva o disattiva i carichi diversi ai piani
+      if (this.checked) { carPiani = {}; carTetto = null; }
+      costruisciMatriceCarichi(); calcola();
+    });
+    $('matriceCarichi').addEventListener('input', modificaCarico);
     $('ripristinaIpotesi').addEventListener('click', function () { impostaIpotesi(); calcola(); });
     $('sbA').addEventListener('input', function () { cambiaSbalzo('a', parseFloat(this.value)); });
     $('sbB').addEventListener('input', function () { cambiaSbalzo('b', parseFloat(this.value)); });
@@ -828,6 +914,8 @@
 
   // preset da URL: ?materiale=acciaio|legno|ca&piani=N&campate=N&luci=4,5.5&H=3.5&B=6&bordo=1&sbalzo_sx=m&sbalzo_dx=m&serie=HEA|HEB&senza=1:0,2:1&senzaPil=2:3
   //   &sbalziVuoto=2:1:1.5:2 (livello:campata:da sinistra:da destra, in m)&sbalziLivello=2:sx:0.8 (sbalzo di estremita' di un solo livello)
+  //   &acc=S235|S275|S355&fck=C25/30&vinc=appoggiata|semi|incastro&g1=3&g2=3&q=2&qb=4&neve=0.5 (materiale, schema e carichi in kN/m2)
+  //   &carichiLiv=1:3:3:4:5,2:2.5:2:2:4,3:3:3:0.5 (carichi diversi ai piani: livello:G1:G2:Q[:Q sbalzi], in kN/m2; in copertura Q = neve)
   function leggiUrl() {
     var qs = new URLSearchParams(location.search);
     if (qs.get('piani')) $('n').value = Math.min(6, Math.max(1, parseInt(qs.get('piani'), 10) || 2));
@@ -846,6 +934,9 @@
     if (qs.get('sbalzo_sx')) $('sx').value = Math.min(3, Math.max(0, parseFloat(qs.get('sbalzo_sx')) || 0));
     if (qs.get('sbalzo_dx')) $('dx').value = Math.min(3, Math.max(0, parseFloat(qs.get('sbalzo_dx')) || 0));
     if (qs.get('serie') === 'HEA') $('serie').value = 'HEA';
+    if (RT.ACCIAI[qs.get('acc')]) $('acc').value = qs.get('acc');                        // acciaio: S235 | S275 | S355
+    if (RT.CLS[qs.get('fck')]) $('fck').value = qs.get('fck');                            // calcestruzzo: C25/30 | C28/35 | C30/37
+    if (['appoggiata', 'semi', 'incastro'].indexOf(qs.get('vinc')) >= 0) $('vinc').value = qs.get('vinc');
     if (qs.get('senza')) qs.get('senza').split(',').forEach(function (x) { if (/^\d+:(\d+|sx|dx)$/.test(x)) senza[x] = true; });
     if (qs.get('senzaPil')) qs.get('senzaPil').split(',').forEach(function (x) { if (/^\d+:\d+$/.test(x)) colSenza[x] = true; });
     if (qs.get('sbalziVuoto')) qs.get('sbalziVuoto').split(',').forEach(function (x) {         // k:i:a:b (m)
@@ -860,6 +951,27 @@
     return m === 'ca' ? 'ca' : (m === 'legno' ? 'legno' : 'acciaio');
   }
 
+  // carichi da URL (dopo impostaMateriale, che rimette i valori del materiale): g1, g2, q, qb, neve in kN/m2 e, per i carichi diversi ai piani,
+  // carichiLiv=1:3:3:4:5,2:2.5:2:2:4,3:3:3:0.5 (livello:G1:G2:Q[:Q sbalzi]; in copertura Q e' la neve)
+  function leggiCarichiUrl() {
+    var qs = new URLSearchParams(location.search), v = qs.get('carichiLiv'), cambiato = false;
+    ['g1', 'g2', 'q', 'qb', 'neve'].forEach(function (id) {
+      var x = parseFloat(qs.get(id));
+      if (qs.get(id) !== null && x >= 0) { $(id).value = x; cambiato = true; }
+    });
+    if (!v) { if (cambiato) calcola(); return; }
+    var n = intero('n'), trovato = false;
+    carPiani = {}; carTetto = null;
+    v.split(',').forEach(function (x) {
+      var q = x.split(':').map(parseFloat), k = q[0];
+      if (!(k >= 1 && k <= n) || q.length < 4 || q.slice(1, 4).some(function (y) { return !(y >= 0); })) return;
+      if (k === n) { carTetto = { g1: q[1], g2: q[2], q: q[3], qb: q[3] }; trovato = true; }
+      else { carPiani[k] = { g1: q[1], g2: q[2], q: q[3], qb: q.length > 4 && q[4] >= 0 ? q[4] : leggi('qb') }; trovato = true; }
+    });
+    if (trovato) { $('carLiv').checked = true; costruisciMatriceCarichi(); }
+    calcola();
+  }
+
   function avvia() {
     impostaIpotesi();
     collegaEventi();
@@ -867,6 +979,7 @@
     costruisciCampate();
     costruisciMatrice();
     impostaMateriale(m, true);
+    leggiCarichiUrl();
     aggiornaTastiSchermo();
   }
   avvia();
