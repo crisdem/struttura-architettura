@@ -31,7 +31,7 @@
 <main>
 <h1>Lezione 4: calcestruzzo armato, passo per passo</h1>
 <p class="sotto" data-en="Projecting or flat beam and column: change the data and observe the section to scale. &lt;span class=&quot;liv&quot;&gt;LEVEL 1&lt;/span&gt;starting geometric sizes. &lt;span class=&quot;liv&quot;&gt;LEVEL 2&lt;/span&gt;sizing with the simplified criteria.">Trave emergente o a spessore e pilastro: cambia i dati e osserva la sezione in scala. <span class="liv">LIVELLO 1</span>ingombri geometrici di partenza. <span class="liv">LIVELLO 2</span>dimensionamento con i criteri semplificati.</p>
-<p class="azioni"><a class="bottone" href="pdf/lezione4.pdf" download>⬇ Scarica le slide (PDF) <small class="pdf-info" data-pdf="lezione4" data-en="34 pages, 4.2 MB">34 pagine, 4,2 MB</small></a><a class="bottone chiaro" href="telaio.html?materiale=ca&amp;piani=2&amp;campate=2&amp;luci=4,5.5&amp;H=3.8&amp;B=5.5">Prova il telaio piano</a></p>
+<p class="azioni"><a class="bottone" href="pdf/lezione4.pdf" download>⬇ Scarica le slide (PDF) <small class="pdf-info" data-pdf="lezione4" data-en="34 pages, 345 KB">34 pagine, 345 KB</small></a><a class="bottone chiaro" href="telaio.html?materiale=ca&amp;piani=2&amp;campate=2&amp;luci=4,5.5&amp;H=3.8&amp;B=5.5">Prova il telaio piano</a></p>
 <section id="esempio" class="esempio-lezione" aria-label="Esempio della lezione"></section>
 <div class="griglia due">
   <div class="pannello">
@@ -170,7 +170,7 @@
     var r = [{ e: 'N_Ed [kN]', s: N, d: 0, p: function () { return ULT.N; } }];
     if (completo) r.push(
       { e: 'Livello 1: lato ≈ κ·√(A·n) [mm]', s: 350, d: 0, p: function () { return ULT.latoK; } },
-      { e: 'A_min [mm²]', s: 81100, d: 0, tol: 0.003, p: function () { return ULT.Amin; } },
+      { e: 'A_min [mm²]', s: 81300, d: 0, tol: 0.003, p: function () { return ULT.Amin; } },
       { e: 'Lato da A_min [mm]', s: 285, d: 0, p: function () { return ULT.lato; } });
     r.push({ e: 'Sezione dimensionata [mm]', s: '300 × 300', p: function () { return ULT.sezPil; } });
     return r;
@@ -181,7 +181,7 @@
     campi: ['L1', 'L', 'B', 'sch', 'fck', 'tipo', 'g1', 'g2', 'q', 'g1c', 'g2c', 'qc', 'pianoTr', 'campTr', 'pil', 'np', 'nu'],
     scenari: [
       sc('Trave piano 1, 5,5 m', 'C25/30, travi emergenti b = 300 mm, semi-incastro (β = 10). Piano 1: G₁ = 3,0 · G₂ = 4,0 · Q = 2,0 kN/m²; copertura: G₁ = 3,0 · G₂ = 3,0 · neve 0,5 kN/m². Larghezza d\'influenza 5,5 m.', { pianoTr: 'p1', campTr: '2' }, trave(550, 12.9, 70.95, 214.6, 494, '300 × 550')),
-      sc('Trave piano 1, 4 m', 'Stesso telaio: prima campata, piano 1.', { pianoTr: 'p1', campTr: '1' }, trave(400, 12.9, 70.95, 113.5, 359, '300 × 400')),
+      sc('Trave piano 1, 4 m', 'Stesso telaio: prima campata, piano 1.', { pianoTr: 'p1', campTr: '1' }, trave(400, 12.9, 70.95, 113.5, 360, '300 × 400')),
       sc('Trave copertura, 4 m', 'Prima campata, copertura (carichi più bassi).', { pianoTr: 'cop', campTr: '1' }, trave(400, 9.15, 50.33, 80.5, 303, '300 × 350')),
       sc('Trave copertura, 5,5 m', 'Seconda campata, copertura.', { pianoTr: 'cop', campTr: '2' }, trave(550, 9.15, 50.33, 152.2, 416, '300 × 500')),
       sc('Pilastro sinistro', 'Pilastro al piano terra: porta il piano 1 e la copertura. Area d\'influenza 2,0 × 5,5 = 11,0 m².', { pil: 'sx' }, pilastro(243, false)),

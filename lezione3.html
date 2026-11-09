@@ -35,7 +35,7 @@
 <main>
 <h1>Lezione 3: acciaio, passo per passo</h1>
 <p class="sotto" data-en="Change the data and follow the steps. &lt;span class=&quot;liv&quot;&gt;LEVEL 1&lt;/span&gt;preliminary sizing: geometric rules for drawing. &lt;span class=&quot;liv&quot;&gt;LEVEL 2&lt;/span&gt;sizing: loads, moment, section modulus, section, &lt;b&gt;deflection check&lt;/b&gt;, column.">Cambia i dati e segui i passaggi. <span class="liv">LIVELLO 1</span>predimensionamento: regole geometriche per disegnare. <span class="liv">LIVELLO 2</span>dimensionamento: carichi, momento, modulo di resistenza, profilo, <b>verifica della freccia</b>, pilastro.</p>
-<p class="azioni"><a class="bottone" href="pdf/lezione3.pdf" download>⬇ Scarica le slide (PDF) <small class="pdf-info" data-pdf="lezione3" data-en="34 pages, 2.4 MB">34 pagine, 2,4 MB</small></a><a class="bottone chiaro" href="telaio.html?materiale=acciaio&amp;campate=2&amp;luci=4,5.5&amp;H=3.8&amp;B=5.5&amp;piani=1">Prova il telaio piano</a></p>
+<p class="azioni"><a class="bottone" href="pdf/lezione3.pdf" download>⬇ Scarica le slide (PDF) <small class="pdf-info" data-pdf="lezione3" data-en="34 pages, 265 KB">34 pagine, 265 KB</small></a><a class="bottone chiaro" href="telaio.html?materiale=acciaio&amp;campate=2&amp;luci=4,5.5&amp;H=3.8&amp;B=5.5&amp;piani=1">Prova il telaio piano</a></p>
 <section id="esempio" class="esempio-lezione" aria-label="Esempio della lezione"></section>
 <div class="griglia due">
   <div class="pannello">
@@ -186,8 +186,8 @@
          { e: 'Profilo per la sola deformabilità', s: 'IPE 270', p: function () { return ULT.profI; } },
          { e: 'Profilo scelto', s: 'IPE 270', p: function () { return ULT.prof; } },
          { e: 'δ_max [mm]', s: 18.6, d: 1, p: function () { return ULT.delta; } }]),
-      sc('Trave del telaio, 5,5 m', 'Telaio centrale della lezione 2: trave semi-incastrata (β = 10, k = 2,5), L = 5,5 m, larghezza d\'influenza 5,5 m.', { L: 5.5, B: 5.5, sch: 'semi' }, trave(5.5, 220, 50.3, 152.2, 680, 'IPE 330', 4616, 'IPE 270', 'IPE 330', 0.002)),
-      sc('Trave del telaio, 4 m', 'Stesso telaio, trave semi-incastrata di 4 m.', { L: 4, B: 5.5, sch: 'semi' }, trave(4, 160, 50.3, 80.5, 360, 'IPE 270', 1776, 'IPE 200', 'IPE 270', 0.002)),
+      sc('Trave del telaio, 5,5 m', 'Telaio centrale della lezione 2: trave semi-incastrata (β = 10, k = 2,5), L = 5,5 m, larghezza d\'influenza 5,5 m.', { L: 5.5, B: 5.5, sch: 'semi' }, trave(5.5, 220, 50.3, 152.2, 680, 'IPE 330', 4610, 'IPE 270', 'IPE 330', 0.002)),
+      sc('Trave del telaio, 4 m', 'Stesso telaio, trave semi-incastrata di 4 m.', { L: 4, B: 5.5, sch: 'semi' }, trave(4, 160, 50.3, 80.5, 360, 'IPE 270', 1773, 'IPE 200', 'IPE 270', 0.002)),
       sc('Pilastro sinistro', 'Un piano, H = 3,8 m, cerniera-cerniera (β = 1), χ₀ = 0,5. Area d\'influenza 2,00 × 5,50 = 11,0 m².', { A: 11 }, pilastro(11, 101, 899, 'HEA 100', 'HEA 160')),
       sc('Pilastro centrale', 'Area d\'influenza 4,75 × 5,50 = 26,1 m².', { A: 26.125 }, pilastro(26.125, 239, 2136, 'HEA 120', 'HEA 160')),
       sc('Pilastro destro', 'Area d\'influenza 2,75 × 5,50 = 15,1 m².', { A: 15.125 }, pilastro(15.125, 138, 1237, 'HEA 100', 'HEA 160'))
