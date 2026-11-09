@@ -2,21 +2,24 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lezione 1 - Sicurezza e combinazioni | Struttura e Architettura</title>
-<meta name="description" content="Strumento interattivo per la lezione 1: combinazione delle azioni, momento, modulo di resistenza e margine di sicurezza.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#121212">
+<title>Lezione 1 - Dalla combinazione alla sezione | Struttura e Architettura</title>
+<meta name="description" content="Strumento interattivo per la lezione 1: dalla combinazione delle azioni al profilo, domanda e capacità con i coefficienti parziali, unità di misura. Slide da scaricare.">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 <header class="sito"><div class="in">
   <a href="index.html"><img src="assets/img/logo_romatre_bianco.png" alt="Roma Tre"></a>
   <div class="titolo">Struttura e Architettura<small>Laboratorio di Progettazione Architettonica 2 - Dipartimento di Architettura</small></div>
-  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="introduzione.html">Introduzione</a><a href="lezione1.html" aria-current="page">Lezione 1</a><a href="lezione2.html">Lezione 2</a><a href="lezione3.html">Lezione 3</a><a href="lezione4.html">Lezione 4</a><a href="telaio.html">Telaio piano</a></nav>
+  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="introduzione.html">Introduzione</a><a href="lezione1.html" aria-current="page">Lezione 1</a><a href="lezione2.html">Lezione 2</a><a href="lezione3.html">Lezione 3</a><a href="lezione4.html">Lezione 4</a><a href="telaio.html">Telaio piano</a><a href="index.html#download">Download</a></nav>
 </div></header>
 
 <main>
 <h1>Lezione 1 - Dalla combinazione alla sezione</h1>
 <p class="sotto">Cambia i dati e osserva come cambiano domanda, capacità e profilo scelto.</p>
+<p class="azioni"><a class="bottone" href="pdf/lezione1.pdf" download>⬇ Scarica le slide (PDF) <small class="pdf-info" data-pdf="lezione1" data-en="63 pages, 19.2 MB">63 pagine, 19,2 MB</small></a><a class="bottone chiaro" href="telaio.html?materiale=acciaio&amp;piani=2&amp;luci=6,6&amp;H=3.5&amp;B=6">Stessa maglia, tre materiali: apri il telaio</a></p>
+<section id="esempio" class="esempio-lezione" aria-label="Esempio della lezione"></section>
 
 <h2>A. L'esempio svolto: la trave di un solaio</h2>
 
@@ -36,11 +39,11 @@
     <div class="campo"><label for="L">Luce <span class="unita">L [m]</span></label><output id="Lv"></output>
       <input type="range" id="L" min="2" max="10" step="0.1" value="5"></div>
     <div class="campo"><label for="g1">Permanenti strutturali <span class="unita">g₁ [kN/m]</span></label><output id="g1v"></output>
-      <input type="range" id="g1" min="0" max="12" step="0.1" value="4"></div>
+      <input type="range" id="g1" min="0" max="12" step="0.05" value="4"></div>
     <div class="campo"><label for="g2">Permanenti non strutturali <span class="unita">g₂ [kN/m]</span></label><output id="g2v"></output>
-      <input type="range" id="g2" min="0" max="8" step="0.1" value="2"></div>
+      <input type="range" id="g2" min="0" max="8" step="0.05" value="2"></div>
     <div class="campo"><label for="q">Sovraccarico d'uso <span class="unita">q [kN/m]</span></label><output id="qv"></output>
-      <input type="range" id="q" min="0" max="20" step="0.1" value="5"></div>
+      <input type="range" id="q" min="0" max="20" step="0.05" value="5"></div>
     <div class="campo"><label for="acc">Acciaio</label>
       <select id="acc"><option>S235</option><option>S275</option><option>S355</option></select></div>
     <div class="campo"><label for="vinc">Schema (vincoli alle estremità)</label>
@@ -54,7 +57,7 @@
       <li><b>Capacità del materiale</b><br><span class="formula">f<sub>yd</sub> = f<sub>yk</sub> / γ<sub>M0</sub></span> = <b id="r_fyd"></b> MPa</li>
       <li><b>Modulo di resistenza minimo</b><br><span class="formula">W<sub>min</sub> = M<sub>Ed</sub> / f<sub>yd</sub></span> = <b id="r_Wmm"></b>·10³ mm³ = <b id="r_W"></b> cm³</li>
       <li><b><span class="liv">LIVELLO 2</span>Profilo</b><br><span id="r_prof"></span></li>
-      <li><b>Verifica della freccia (SLE)</b><br><span class="formula">δ = k·p<sub>k</sub>·L⁴ / (384·E·I<sub>y</sub>) ≤ L/250</span><br><span id="r_delta"></span></li>
+      <li><b>Verifica della freccia (SLE)</b><br><span class="formula">δ = k·p<sub>k</sub>·L⁴ / (384·E·I<sub>y</sub>) ≤ L/250</span><br><span id="r_imin"></span><br><span id="r_delta"></span></li>
     </ol>
     <svg id="sezA" class="fig" viewBox="0 0 560 190" role="img" aria-label="Sezione del profilo scelto in scala e confronto tra momento sollecitante e momento resistente"></svg>
     <p class="nota" data-en="The self-weight of the section must be included in g₁. The section is sized for bending (W&lt;sub&gt;min&lt;/sub&gt;) and then the deflection is &lt;b&gt;checked&lt;/b&gt; with the inertia of the chosen section: if it is not enough, the next section is taken. Shear, stability and full checks are level 3 (Tecnica delle Costruzioni).">Il peso proprio del profilo va compreso in g₁. Si dimensiona a flessione (W<sub>min</sub>) e poi si <b>verifica</b> la freccia con l'inerzia del profilo scelto: se non basta, si passa al profilo successivo. Taglio, stabilità e verifiche complete sono il livello 3 (Tecnica delle Costruzioni).</p>
@@ -62,27 +65,28 @@
   </div>
 </div>
 
-<h2>B. Domanda, capacità e margine di sicurezza</h2>
-<p>Domanda <i>S</i> e capacità <i>R</i> sono variabili aleatorie. I <b>valori caratteristici</b> sono frattili (95% per le azioni, 5% per le resistenze); i <b>coefficienti parziali</b> allontanano ulteriormente i valori di progetto <i>S<sub>d</sub></i> e <i>R<sub>d</sub></i>.</p>
+<h2 id="margine">B. Domanda e capacità: il margine</h2>
+<p data-en="The check compares two homogeneous quantities: the &lt;b&gt;demand&lt;/b&gt; &lt;i&gt;D&lt;/i&gt; (the effect of the actions) and the &lt;b&gt;capacity&lt;/b&gt; &lt;i&gt;C&lt;/i&gt; (what the structure can bear). Two «shields» protect them from uncertainty: &lt;b&gt;characteristic values&lt;/b&gt; and &lt;b&gt;partial factors&lt;/b&gt;. The demand is &lt;b&gt;increased&lt;/b&gt;, &lt;i&gt;D&lt;sub&gt;d&lt;/sub&gt;&lt;/i&gt; = &lt;i&gt;γ&lt;sub&gt;F&lt;/sub&gt;&lt;/i&gt;·&lt;i&gt;D&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt;; the capacity is &lt;b&gt;reduced&lt;/b&gt;, &lt;i&gt;C&lt;sub&gt;d&lt;/sub&gt;&lt;/i&gt; = &lt;i&gt;C&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt;/&lt;i&gt;γ&lt;sub&gt;M&lt;/sub&gt;&lt;/i&gt;. We check that &lt;i&gt;D&lt;sub&gt;d&lt;/sub&gt;&lt;/i&gt; ≤ &lt;i&gt;C&lt;sub&gt;d&lt;/sub&gt;&lt;/i&gt;.">La verifica confronta due grandezze omogenee: la <b>domanda</b> <i>D</i> (l'effetto delle azioni) e la <b>capacità</b> <i>C</i> (ciò che la struttura sopporta). Due «scudi» le proteggono dall'incertezza: i <b>valori caratteristici</b> e i <b>coefficienti parziali</b>. La domanda si <b>aumenta</b>, <i>D<sub>d</sub></i> = <i>γ<sub>F</sub></i>·<i>D<sub>k</sub></i>; la capacità si <b>riduce</b>, <i>C<sub>d</sub></i> = <i>C<sub>k</sub></i>/<i>γ<sub>M</sub></i>. Si verifica che <i>D<sub>d</sub></i> ≤ <i>C<sub>d</sub></i>.</p>
+<div class="pillole" role="group" aria-label="Esempi" id="presetB">
+  <button type="button" data-p="0">La panchina: persona normale</button>
+  <button type="button" data-p="1">L'elefante: azione molto più alta</button>
+  <button type="button" data-p="2">Materiale scadente</button>
+</div>
 <div class="griglia due">
   <div class="pannello">
-    <div class="campo"><label for="mS">Domanda media <span class="unita">μ<sub>S</sub></span></label><output id="mSv"></output>
-      <input type="range" id="mS" min="10" max="90" step="1" value="40"></div>
-    <div class="campo"><label for="cS">Dispersione domanda <span class="unita">CV<sub>S</sub> [%]</span></label><output id="cSv"></output>
-      <input type="range" id="cS" min="5" max="40" step="1" value="20"></div>
-    <div class="campo"><label for="mR">Capacità media <span class="unita">μ<sub>R</sub></span></label><output id="mRv"></output>
-      <input type="range" id="mR" min="40" max="130" step="1" value="100"></div>
-    <div class="campo"><label for="cR">Dispersione capacità <span class="unita">CV<sub>R</sub> [%]</span></label><output id="cRv"></output>
-      <input type="range" id="cR" min="3" max="30" step="1" value="10"></div>
+    <div class="campo"><label for="Dk">Domanda caratteristica <span class="unita">D<sub>k</sub> [kN·m]</span></label><output id="Dkv"></output>
+      <input type="range" id="Dk" min="10" max="150" step="1" value="60"></div>
     <div class="campo"><label for="gF">Coefficiente sulle azioni <span class="unita">γ<sub>F</sub></span></label><output id="gFv"></output>
-      <input type="range" id="gF" min="1" max="1.8" step="0.05" value="1.3"></div>
+      <input type="range" id="gF" min="1" max="1.8" step="0.05" value="1.5"></div>
+    <div class="campo"><label for="Ck">Capacità caratteristica <span class="unita">C<sub>k</sub> [kN·m]</span></label><output id="Ckv"></output>
+      <input type="range" id="Ck" min="40" max="200" step="1" value="120"></div>
     <div class="campo"><label for="gM">Coefficiente sul materiale <span class="unita">γ<sub>M</sub></span></label><output id="gMv"></output>
       <input type="range" id="gM" min="1" max="1.8" step="0.05" value="1.05"></div>
   </div>
   <div>
-    <svg id="fig" class="fig" viewBox="0 0 720 270" role="img" aria-label="Distribuzioni di domanda e capacità con valori caratteristici e di progetto"></svg>
+    <svg id="fig" class="fig" viewBox="0 0 560 280" role="img" aria-label="Barre della domanda e della capacità, con i valori caratteristici e di progetto"></svg>
     <p class="ris" id="esito" aria-live="polite"></p>
-    <p class="nota">La probabilità indicata è solo un ordine di grandezza didattico (distribuzioni normali, variabili indipendenti): le NTC non richiedono di calcolarla, ma la affidano ai coefficienti parziali.</p>
+    <p class="nota" data-en="Dashed: the characteristic value. Solid: the design value, after the partial factor. The more uncertain the quantity, the larger the factor (concrete has γ&lt;sub&gt;M&lt;/sub&gt; = 1.5, steel 1.05).">Tratteggiato: il valore caratteristico. Pieno: il valore di progetto, dopo il coefficiente parziale. Più incerta è la grandezza, più grande è il coefficiente (il calcestruzzo ha γ<sub>M</sub> = 1,5, l'acciaio 1,05).</p>
   </div>
 </div>
 
@@ -102,6 +106,7 @@
 <footer class="sito">Strumento didattico: non sostituisce la progettazione né le verifiche previste dalle NTC 2018. Valori dei profili da sagomario, da controllare sulle tabelle ufficiali.</footer>
 
 <script src="assets/js/calc.js"></script>
+<script src="assets/js/esempio.js"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
@@ -109,6 +114,7 @@
   function leggi(id) { return parseFloat($(id).value); }
   function mostra(id, txt) { $(id + 'v').textContent = txt; }
 
+  var ULT = {}, root = window;
   function esempio() {
     var L = leggi('L'), g1 = leggi('g1'), g2 = leggi('g2'), q = leggi('q');
     mostra('L', F(L, 1) + ' m'); mostra('g1', F(g1, 1)); mostra('g2', F(g2, 1)); mostra('q', F(q, 1));
@@ -122,6 +128,9 @@
     $('r_prof').innerHTML = sc.profW
       ? 'Primo IPE con W<sub>el,y</sub> ≥ W<sub>min</sub>: <b>' + sc.profW[0] + '</b> (W<sub>el,y</sub> = ' + F(sc.profW[2], 0) + ' cm³ ≥ ' + F(W, 0) + ' cm³)' + (prof && prof !== sc.profW ? '; la freccia non è verificata, si sceglie <b>' + prof[0] + '</b>' : '') + (prof ? ' <span class="ok">basta</span>' : '')
       : '<span class="ko">Nessun IPE basta: servono sezioni più grandi o un altro schema.</span>';
+    var Imin = RT.Imin(RT.KFRECCIA[vinc], pk, L, L);
+    $('r_imin').innerHTML = 'I<sub>y,min</sub> = k·p<sub>k</sub>·L⁴ / (384·E·L/250) = <b>' + F(Imin, 0) + ' cm⁴</b>';
+    ULT = { pd: pd, M: M, W: W, profW: sc.profW ? sc.profW[0] : '-', prof: prof ? prof[0] : '-', delta: sc.delta, hGeo: L * 1000 / RT.HLUCE[vinc], Imin: Imin };
     $('r_delta').innerHTML = prof ? 'p<sub>k</sub> = g₁ + g₂ + q = ' + F(pk, 1) + ' kN/m, I<sub>y</sub> = ' + F(prof[3], 0) + ' cm⁴: δ = <b>' + F(sc.delta, 1) + ' mm</b> ' + (sc.delta <= sc.lim ? '≤' : '>') + ' L/250 = ' + F(sc.lim, 1) + ' mm' : '-';
     var idx = prof ? RT.IPE.indexOf(prof) : RT.IPE.length - 1;
     var da = Math.max(0, idx - 2), a = Math.min(RT.IPE.length, idx + 2);
@@ -132,6 +141,7 @@
     }
     $('tab').innerHTML = righe;
     disegnaA(L, g1, g2, q, pd, M, beta, vinc, prof, fyd);
+    if (root.RTE) RTE.aggiorna();
   }
 
   function disegnaA(L, g1, g2, q, pd, M, beta, vinc, prof, fyd) {
@@ -177,40 +187,28 @@
     $('sezA').innerHTML = o2;
   }
 
+  var PRESET_B = [[60, 1.5, 120, 1.05], [110, 1.5, 120, 1.05], [60, 1.5, 80, 1.05]];
   function sicurezza() {
-    var mS = leggi('mS'), sS = mS * leggi('cS') / 100, mR = leggi('mR'), sR = mR * leggi('cR') / 100;
-    var gF = leggi('gF'), gM = leggi('gM');
-    mostra('mS', F(mS, 0)); mostra('cS', F(leggi('cS'), 0) + '%'); mostra('mR', F(mR, 0)); mostra('cR', F(leggi('cR'), 0) + '%');
-    mostra('gF', F(gF, 2)); mostra('gM', F(gM, 2));
-    var Sk = mS + 1.645 * sS, Rk = mR - 1.645 * sR, Sd = gF * Sk, Rd = Rk / gM;
-    var W = 720, H = 270, x0 = 20, x1 = 700, yb = 215, xmax = 150;
-    var X = function (v) { return x0 + (x1 - x0) * v / xmax; };
-    var picco = Math.max(RT.normPdf(mS, mS, sS), RT.normPdf(mR, mR, sR));
-    var Y = function (d) { return yb - 150 * d / picco; };
-    function curva(m, s, col) {
-      var d = '';
-      for (var v = Math.max(0, m - 4 * s); v <= m + 4 * s; v += xmax / 300) d += (d ? 'L' : 'M') + X(v).toFixed(1) + ' ' + Y(RT.normPdf(v, m, s)).toFixed(1);
-      return '<path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="2.5"/>';
+    var Dk = leggi('Dk'), gF = leggi('gF'), Ck = leggi('Ck'), gM = leggi('gM');
+    mostra('Dk', F(Dk, 0)); mostra('gF', F(gF, 2)); mostra('Ck', F(Ck, 0)); mostra('gM', F(gM, 2));
+    var Dd = gF * Dk, Cd = Ck / gM, mx = Math.max(Dd, Cd, Dk, Ck) * 1.08, H = 200, y0 = 232, k = H / mx, ok = Dd <= Cd;
+    function barra(x, w, v, col, tratt) {
+      var h = v * k;
+      return '<rect x="' + x + '" y="' + (y0 - h) + '" width="' + w + '" height="' + h + '" ' + (tratt ? 'fill="none" stroke="' + col + '" stroke-width="2" stroke-dasharray="6 4"' : 'fill="' + col + '"') + '/>';
     }
-    function linea(v, col, etichetta, y, sx, dash) {
-      return '<line x1="' + X(v) + '" x2="' + X(v) + '" y1="' + yb + '" y2="' + (y + 4) + '" stroke="' + col + '" stroke-width="1.6"' + (dash ? ' stroke-dasharray="4 3"' : '') + '/>' +
-        '<text x="' + (X(v) + sx) + '" y="' + y + '" fill="' + col + '" font-size="12" font-weight="700" text-anchor="' + (sx < 0 ? 'end' : 'start') + '">' + etichetta + '</text>';
-    }
-    var s = '<line x1="' + x0 + '" x2="' + x1 + '" y1="' + yb + '" y2="' + yb + '" stroke="#121212" stroke-width="1.5"/>';
-    s += curva(mS, sS, '#6e6e6e') + curva(mR, sR, '#121212');
-    s += '<text x="' + X(mS) + '" y="' + (Y(RT.normPdf(mS, mS, sS)) - 8) + '" text-anchor="middle" font-size="13" fill="#6e6e6e" font-weight="700">S domanda</text>';
-    s += '<text x="' + X(mR) + '" y="' + (Y(RT.normPdf(mR, mR, sR)) - 8) + '" text-anchor="middle" font-size="13" fill="#121212" font-weight="700">R capacità</text>';
-    s += linea(Sk, '#6e6e6e', 'S<tspan dy="3" font-size="9">k</tspan><tspan dy="-3"> (95%)</tspan>', 238, -4, true) + linea(Rk, '#121212', 'R<tspan dy="3" font-size="9">k</tspan><tspan dy="-3"> (5%)</tspan>', 238, 4, true);
-    s += linea(Sd, '#d1382b', 'S<tspan dy="3" font-size="9">d</tspan>', 28, -4, false) + linea(Rd, '#d1382b', 'R<tspan dy="3" font-size="9">d</tspan>', 28, 4, false);
-    s += '<text x="' + (x1) + '" y="' + (yb + 30) + '" text-anchor="end" font-size="11" fill="#6e6e6e">grandezza (es. momento flettente, unità arbitrarie)</text>';
+    var s = '<line x1="30" x2="530" y1="' + y0 + '" y2="' + y0 + '" stroke="#121212" stroke-width="1.5"/>';
+    s += barra(70, 100, Dk, '#d1382b', true) + barra(70, 100, Dd, '#d1382b', false);
+    s += barra(330, 100, Ck, '#1f5c8b', true) + barra(330, 100, Cd, '#1f5c8b', false);
+    s += '<text x="120" y="' + (y0 - Dd * k - 8) + '" text-anchor="middle" font-size="13" font-weight="700" fill="#d1382b">D<tspan dy="3" font-size="10">d</tspan><tspan dy="-3"> = ' + F(Dd, 1) + '</tspan></text>';
+    s += '<text x="380" y="' + (y0 - Math.max(Cd, Ck) * k - 8) + '" text-anchor="middle" font-size="13" font-weight="700" fill="#1f5c8b">C<tspan dy="3" font-size="10">d</tspan><tspan dy="-3"> = ' + F(Cd, 1) + '</tspan></text>';
+    s += '<text x="120" y="' + (y0 + 20) + '" text-anchor="middle" font-size="13" font-weight="700">Domanda</text><text x="380" y="' + (y0 + 20) + '" text-anchor="middle" font-size="13" font-weight="700">Capacità</text>';
+    s += '<text x="180" y="' + (y0 - Dk * k + 14) + '" font-size="11" fill="#6e6e6e">D<tspan dy="3" font-size="9">k</tspan><tspan dy="-3"> = ' + F(Dk, 0) + '</tspan></text>';
+    s += '<text x="440" y="' + (y0 - Ck * k + 14) + '" font-size="11" fill="#6e6e6e">C<tspan dy="3" font-size="9">k</tspan><tspan dy="-3"> = ' + F(Ck, 0) + '</tspan></text>';
     $('fig').innerHTML = s;
-    var ok = Sd <= Rd;
-    var pf = RT.Phi(-(mR - mS) / Math.sqrt(sR * sR + sS * sS));
-    var ind = pf < 1e-12 ? '< 1 su 10¹²' : '1 su ' + Math.round(1 / pf).toLocaleString('it-IT');
-    $('esito').innerHTML = 'S<sub>d</sub> = ' + F(Sd, 1) + ' &nbsp; R<sub>d</sub> = ' + F(Rd, 1) + ' &nbsp;→&nbsp; <span class="' + (ok ? 'ok' : 'ko') + '">' +
-      (ok ? 'verifica soddisfatta' : 'verifica NON soddisfatta') + '</span> &nbsp; margine ' + F(Rd - Sd, 1) +
-      '<br><span class="unita">Probabilità indicativa che S superi R: ' + ind + '</span>';
+    ULTB = { Dd: Dd, Cd: Cd };
+    $('esito').innerHTML = 'D<sub>d</sub> = ' + F(Dd, 1) + ' &nbsp; C<sub>d</sub> = ' + F(Cd, 1) + ' &nbsp;→&nbsp; <span class="' + (ok ? 'ok' : 'ko') + '">' + (ok ? 'verifica soddisfatta' : 'verifica NON soddisfatta') + '</span> &nbsp; margine ' + F(Cd - Dd, 1) + ' kN·m';
   }
+  var ULTB = {};
 
   function unita() {
     var a = parseFloat($('u1').value) || 0, b = parseFloat($('u2').value) || 0;
@@ -219,9 +217,36 @@
   }
 
   ['L', 'g1', 'g2', 'q', 'acc', 'vinc'].forEach(function (id) { $(id).addEventListener('input', esempio); });
-  ['mS', 'cS', 'mR', 'cR', 'gF', 'gM'].forEach(function (id) { $(id).addEventListener('input', sicurezza); });
+  ['Dk', 'gF', 'Ck', 'gM'].forEach(function (id) { $(id).addEventListener('input', sicurezza); });
+  Array.prototype.forEach.call(document.querySelectorAll('#presetB button'), function (b) {
+    b.addEventListener('click', function () {
+      var p = PRESET_B[parseInt(b.getAttribute('data-p'), 10)];
+      ['Dk', 'gF', 'Ck', 'gM'].forEach(function (id, i) { $(id).value = p[i]; });
+      sicurezza();
+    });
+  });
   ['u1', 'u2'].forEach(function (id) { $(id).addEventListener('input', unita); });
   esempio(); sicurezza(); unita();
+  RTE.avvia({
+    contenitore: 'esempio',
+    descrizione: 'È la trave di un solaio che svolgerai per esteso nella lezione 3: stessi dati, stessi risultati delle slide. Premi il pulsante e confronta.',
+    campi: ['L', 'g1', 'g2', 'q', 'acc', 'vinc'],
+    scenari: [{
+      titolo: 'Trave di un solaio',
+      nota: 'Acciaio S235, trave appoggiata di 6,5 m, interasse 1,5 m, G₁ = 3,0 · G₂ = 3,0 · Q = 0,5 kN/m² (quindi g₁ = 4,5 · g₂ = 4,5 · q = 0,75 kN/m).',
+      valori: { L: 6.5, g1: 4.5, g2: 4.5, q: 0.75, acc: 'S235', vinc: 'appoggiata' },
+      attesi: [
+        { e: 'Livello 1: h ≈ L/20 [mm]', s: 325, d: 0, p: function () { return ULT.hGeo; } },
+        { e: 'p_d,SLU [kN/m]', s: 13.73, d: 2, p: function () { return ULT.pd; } },
+        { e: 'M_Ed [kN·m]', s: 72.5, d: 1, p: function () { return ULT.M; } },
+        { e: 'W_y,min [cm³]', s: 324, d: 0, p: function () { return ULT.W; } },
+        { e: 'Profilo per la sola resistenza', s: 'IPE 240', p: function () { return ULT.profW; } },
+        { e: 'I_y,min [cm⁴]', s: 4151, d: 0, p: function () { return ULT.Imin; } },
+        { e: 'Profilo scelto (con la freccia)', s: 'IPE 270', p: function () { return ULT.prof; } },
+        { e: 'δ_max [mm]', s: 18.6, d: 1, p: function () { return ULT.delta; } }
+      ]
+    }]
+  });
 })();
 </script>
 <script src="assets/js/i18n-en.js"></script>

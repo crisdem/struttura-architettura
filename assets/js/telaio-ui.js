@@ -227,9 +227,14 @@
     return o;
   }
 
+  function toccoMin(g) {                                     // 32 px sullo schermo, espressi in unita' del disegno
+    var el = $('fig'), rapporto = (el && el.clientWidth) ? el.clientWidth / g.W : 1;
+    return Math.max(14, 32 / Math.max(rapporto, 0.2));
+  }
+
   // un'area cliccabile per ogni interpiano del tratto: si toglie solo l'ultimo, solo con la testa libera; altrimenti il clic spiega perche' no
   function svgAreeClic(g, p, st, j, e, x) {
-    var o = '', wc = Math.max(((e.lato || 600) / 1000) * g.s, 14);
+    var o = '', wc = Math.max(((e.lato || 600) / 1000) * g.s, toccoMin(g));
     for (var s = e.s0; s <= e.s1; s++) {
       var c = st.colonne[j][s], y1 = g.yg - (s - 1) * p.H * g.s, y2 = g.yg - s * p.H * g.s;
       var tit = c.togli ? 'Clicca per togliere il pilastro (ha la testa libera)' : 'Non si può togliere: ' + c.motivo;
@@ -243,7 +248,7 @@
     var o = '';
     r.alto.forEach(function (al, j) {
       for (var s3 = al + 1; s3 <= p.n; s3++) {
-        var wg = 0.3 * g.s, y1g = g.yg - (s3 - 1) * p.H * g.s, y2g = g.yg - s3 * p.H * g.s;
+        var wg = Math.max(0.3 * g.s, toccoMin(g)), y1g = g.yg - (s3 - 1) * p.H * g.s, y2g = g.yg - s3 * p.H * g.s;
         o += '<rect class="tg" data-col="' + j + ':' + s3 + '" x="' + (g.xs[j] - wg / 2) + '" y="' + y2g + '" width="' + wg + '" height="' + (y1g - y2g) + '" fill="rgba(18,18,18,.04)" stroke="' + GRIGIO + '" stroke-width="1" stroke-dasharray="4 4"><title>Pilastro tolto: clicca per rimetterlo (si rimette dal basso)</title></rect>';
       }
     });
@@ -339,6 +344,7 @@
         }
         var hh = ((t.h || 600) / 1000) * g.s;
         o += '<rect class="tg" data-key="' + key + '" x="' + g.xs[i] + '" y="' + (yl - hh / 2) + '" width="' + (g.xs[i + 1] - g.xs[i]) + '" height="' + hh + '" fill="' + ROSSO + '"><title>Clicca per togliere la trave</title></rect>';
+        if (hh < toccoMin(g)) o += '<rect class="tg" data-key="' + key + '" x="' + g.xs[i] + '" y="' + (yl - toccoMin(g) / 2) + '" width="' + (g.xs[i + 1] - g.xs[i]) + '" height="' + toccoMin(g) + '" fill="rgba(0,0,0,0)"></rect>';
         o += '<text x="' + ((g.xs[i] + g.xs[i + 1]) / 2) + '" y="' + (yl - hh / 2 - 5) + '" font-size="11" text-anchor="middle" fill="' + NERO + '" font-weight="700" pointer-events="none">' + etichettaTrave(t) + '</text>';
       });
       lv.sbalzi.forEach(function (t) {
@@ -573,8 +579,8 @@
     righe.forEach(function (e) {
       var ip = e.s0 === e.s1 ? e.s0 + (e.s0 === 1 ? ' (terra)' : '') : e.s0 + '–' + e.s1 + ' (doppia altezza)';
       if (e.libera) ip += ', testa libera';
-      var l1 = ac ? 'i<sub>min</sub> ≥ ' + F(e.imin, 0) + ' mm; ingombro ≈ ' + F(e.latoK / 10, 0) + ' cm'
-                  : 'ingombro ≈ ' + F(e.latoK / 10, 0) + ' cm; lato ≥ L₀/15 = ' + F(e.L0 * 1000 / RT.LATO_L0 / 10, 0) + ' cm';
+      var l1 = ac ? 'i<sub>min</sub> ≥ ' + F(e.imin, 0) + ' mm; ingombro ≈ ' + F(e.latoK, 0) + ' mm'
+                  : 'ingombro ≈ ' + F(e.latoK, 0) + ' mm; lato ≥ L₀/15 = ' + F(e.L0 * 1000 / RT.LATO_L0, 0) + ' mm';
       h += '<tr><td>' + ip + '</td><td>' + (e.j + 1) + '</td><td>' + F(e.Atot, 1) + '</td><td>' + F(e.N, 0) + (e.dN > 0 ? ' <span class="unita">(di cui sbalzo ' + F(e.dN, 0) + ')</span>' : '') + '</td><td>' + F(e.L0, 1) + '</td><td>' + l1 + '</td><td>' + F(ac ? e.A : e.A / 100, ac ? 1 : 0) + '</td>';
       if (ac) {
         h += e.prof ? '<td><b>' + e.prof[0] + '</b></td>' : '<td class="ko">oltre ' + r.serie + ' 600</td>';
@@ -820,12 +826,23 @@
     });
   }
 
-  // preset da URL: ?materiale=acciaio|legno|ca&piani=N&campate=N&sbalzo_sx=m&sbalzo_dx=m&serie=HEA|HEB&senza=1:0,2:1&senzaPil=2:3
+  // preset da URL: ?materiale=acciaio|legno|ca&piani=N&campate=N&luci=4,5.5&H=3.5&B=6&bordo=1&sbalzo_sx=m&sbalzo_dx=m&serie=HEA|HEB&senza=1:0,2:1&senzaPil=2:3
   //   &sbalziVuoto=2:1:1.5:2 (livello:campata:da sinistra:da destra, in m)&sbalziLivello=2:sx:0.8 (sbalzo di estremita' di un solo livello)
   function leggiUrl() {
     var qs = new URLSearchParams(location.search);
     if (qs.get('piani')) $('n').value = Math.min(6, Math.max(1, parseInt(qs.get('piani'), 10) || 2));
     if (qs.get('campate')) $('nc').value = Math.min(5, Math.max(1, parseInt(qs.get('campate'), 10) || 2));
+    if (qs.get('luci')) {                                        // luci delle campate in m, separate da virgole: luci=4,5.5
+      var lv = qs.get('luci').split(',').map(parseFloat).filter(function (x) { return x >= 2 && x <= 10; }).slice(0, 5);
+      if (lv.length) {
+        lv.forEach(function (x, i) { luci[i] = x; });
+        if (!qs.get('campate')) $('nc').value = Math.max(1, lv.length);
+        $('uguali').checked = lv.every(function (x) { return x === lv[0]; });
+      }
+    }
+    if (qs.get('H')) $('H').value = Math.min(5, Math.max(2.6, parseFloat(qs.get('H')) || 3.2));
+    if (qs.get('B')) $('B').value = Math.min(9, Math.max(2.5, parseFloat(qs.get('B')) || 5));
+    if (qs.get('bordo') === '1') $('bordo').checked = true;
     if (qs.get('sbalzo_sx')) $('sx').value = Math.min(3, Math.max(0, parseFloat(qs.get('sbalzo_sx')) || 0));
     if (qs.get('sbalzo_dx')) $('dx').value = Math.min(3, Math.max(0, parseFloat(qs.get('sbalzo_dx')) || 0));
     if (qs.get('serie') === 'HEA') $('serie').value = 'HEA';

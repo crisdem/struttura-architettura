@@ -2,9 +2,10 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lezione 2 - Area d'influenza | Struttura e Architettura</title>
-<meta name="description" content="Strumento interattivo per la lezione 2: area d'influenza di travi e pilastri, solaio a una via o a due vie, percorso dei carichi.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#121212">
+<title>Lezione 2 - Area d'influenza e carichi | Struttura e Architettura</title>
+<meta name="description" content="Strumento interattivo per la lezione 2: area d'influenza di travi e pilastri con campate diverse, solaio a una via o a due vie (ripartizione a 45°), carico della neve secondo le NTC 2018. Slide da scaricare.">
 <link rel="stylesheet" href="assets/css/style.css">
 <style>
  #pianta [data-t]{cursor:pointer}
@@ -22,27 +23,43 @@
  .leg i{display:inline-block;width:.8rem;height:.8rem;border-radius:2px;margin-right:.3rem;vertical-align:-1px}
  table.conf td.on,table.conf th.on{background:#fbe9e7;font-weight:700}
  table.conf{margin:.4rem 0}
+ .campo.inline{grid-template-columns:auto 1fr;gap:.5rem}
+ .campo.inline input[type=checkbox]{grid-column:auto;accent-color:var(--rosso);width:1.2rem;height:1.2rem}
+ #pianta{touch-action:manipulation}
+ .neve td:first-child{white-space:nowrap}
+ .neve .kpi{display:flex;gap:1rem;flex-wrap:wrap;margin:.5rem 0}
+ .neve .kpi div{background:var(--carta);border-top:3px solid var(--nero);padding:.4rem .8rem;border-radius:0 0 4px 4px}
+ .neve .kpi b{display:block;font-size:1.25rem}
+ .neve .kpi span{font-size:.75rem;color:var(--grigio);text-transform:uppercase;letter-spacing:.04em}
 </style>
 </head>
 <body>
 <header class="sito"><div class="in">
   <a href="index.html"><img src="assets/img/logo_romatre_bianco.png" alt="Roma Tre"></a>
   <div class="titolo">Struttura e Architettura<small>Laboratorio di Progettazione Architettonica 2 - Dipartimento di Architettura</small></div>
-  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="introduzione.html">Introduzione</a><a href="lezione1.html">Lezione 1</a><a href="lezione2.html" aria-current="page">Lezione 2</a><a href="lezione3.html">Lezione 3</a><a href="lezione4.html">Lezione 4</a><a href="telaio.html">Telaio piano</a></nav>
+  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="introduzione.html">Introduzione</a><a href="lezione1.html">Lezione 1</a><a href="lezione2.html" aria-current="page">Lezione 2</a><a href="lezione3.html">Lezione 3</a><a href="lezione4.html">Lezione 4</a><a href="telaio.html">Telaio piano</a><a href="index.html#download">Download</a></nav>
 </div></header>
 
 <main>
 <h1>Lezione 2 - Area d'influenza e percorso dei carichi</h1>
 <p class="sotto">Dal carico superficiale <i>q</i> [kN/m²] al carico lineare <i>p</i> [kN/m] sulle travi e al carico concentrato <i>N</i> [kN] sui pilastri. Clicca su una trave o su un pilastro.</p>
+<p class="azioni"><a class="bottone" href="pdf/lezione2.pdf" download>⬇ Scarica le slide (PDF) <small class="pdf-info" data-pdf="lezione2" data-en="33 pages, 8.9 MB">33 pagine, 8,9 MB</small></a><a class="bottone chiaro" href="#neve">Il carico della neve (NTC 2018)</a></p>
+<section id="esempio" class="esempio-lezione" aria-label="Esempio della lezione"></section>
 
 <div class="griglia due">
   <div>
     <div class="pannello">
       <div class="campo"><label for="nx">Campate in direzione x</label><output id="nxv"></output><input type="range" id="nx" min="1" max="4" step="1" value="2"></div>
-      <div class="campo"><label for="ny">Campate in direzione y</label><output id="nyv"></output><input type="range" id="ny" min="1" max="4" step="1" value="2"></div>
-      <div class="campo"><label for="Lx">Luce in x <span class="unita">L<sub>x</sub> [m]</span></label><output id="Lxv"></output><input type="range" id="Lx" min="2" max="9" step="0.1" value="5"></div>
-      <div class="campo"><label for="Ly">Luce in y <span class="unita">L<sub>y</sub> [m]</span></label><output id="Lyv"></output><input type="range" id="Ly" min="2" max="9" step="0.1" value="4"></div>
-      <div class="campo"><label for="q">Carico superficiale <span class="unita">q [kN/m²]</span></label><output id="qv"></output><input type="range" id="q" min="1" max="20" step="0.25" value="9"></div>
+      <div id="campiX"></div>
+      <div class="campo inline"><input type="checkbox" id="ugX"><label for="ugX">Campate in x tutte uguali</label></div>
+      <div class="campo"><label for="ny">Campate in direzione y (interassi)</label><output id="nyv"></output><input type="range" id="ny" min="1" max="4" step="1" value="2"></div>
+      <div id="campiY"></div>
+      <div class="campo inline"><input type="checkbox" id="ugY"><label for="ugY">Campate in y tutte uguali</label></div>
+      <h3>Carichi del solaio [kN/m²]</h3>
+      <div class="campo"><label for="g1">G₁ strutturali</label><output id="g1v"></output><input type="range" id="g1" min="0.5" max="6" step="0.1" value="3"></div>
+      <div class="campo"><label for="g2">G₂ non strutturali</label><output id="g2v"></output><input type="range" id="g2" min="0.5" max="6" step="0.1" value="3"></div>
+      <div class="campo"><label for="q">Q variabile (o neve in copertura)</label><output id="qv"></output><input type="range" id="q" min="0" max="8" step="0.05" value="0.5"></div>
+      <p class="ris" id="qdOut" aria-live="polite" style="margin:.3rem 0 .6rem"></p>
       <div class="campo"><label for="ord">Solaio</label>
         <select id="ord">
           <option value="y">Una via: orditura lungo y (appoggia sulle travi lungo x)</option>
@@ -62,123 +79,156 @@
     <p class="ris" id="equilibrio" aria-live="polite"></p>
   </div>
 </div>
+
+<h2 id="neve">Il carico della neve in copertura <span class="unita">NTC 2018, §3.4</span></h2>
+<p data-en="On the roof, besides the floor loads, the actions of the environment arrive. This year we consider &lt;b&gt;snow&lt;/b&gt;: &lt;i&gt;q&lt;sub&gt;s&lt;/sub&gt;&lt;/i&gt; = &lt;i&gt;μ&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt;·&lt;i&gt;q&lt;sub&gt;sk&lt;/sub&gt;&lt;/i&gt;·&lt;i&gt;C&lt;sub&gt;E&lt;/sub&gt;&lt;/i&gt;·&lt;i&gt;C&lt;sub&gt;t&lt;/sub&gt;&lt;/i&gt; [kN/m²], vertical and referred to the &lt;b&gt;horizontal projection&lt;/b&gt; of the roof.">In copertura, oltre ai carichi del solaio, arrivano le azioni dell'ambiente. Quest'anno consideriamo la <b>neve</b>: <i>q<sub>s</sub></i> = <i>μ<sub>i</sub></i>·<i>q<sub>sk</sub></i>·<i>C<sub>E</sub></i>·<i>C<sub>t</sub></i> [kN/m²], verticale e riferito alla <b>proiezione orizzontale</b> della copertura.</p>
+<div class="griglia due neve">
+  <div class="pannello">
+    <div class="campo"><label for="zona">Zona di carico della neve <span class="unita">q<sub>sk</sub></span></label>
+      <select id="zona">
+        <option value="I-A">Zona I - Alpina (Aosta, Bolzano, Trento, Sondrio...)</option>
+        <option value="I-M">Zona I - Mediterranea (Milano, Bologna, Torino pianura...)</option>
+        <option value="II">Zona II (Firenze, Perugia, Bari, Venezia...)</option>
+        <option value="III" selected>Zona III (Roma, Napoli, Cagliari, Palermo...)</option>
+      </select></div>
+    <div class="campo"><label for="as">Quota sul livello del mare <span class="unita">a<sub>s</sub> [m]</span></label><output id="asv"></output><input type="range" id="as" min="0" max="1500" step="10" value="20"></div>
+    <div class="campo"><label for="alfa">Inclinazione della falda <span class="unita">α [°]</span></label><output id="alfav"></output><input type="range" id="alfa" min="0" max="70" step="1" value="15"></div>
+    <div class="campo"><label for="esp">Esposizione al vento <span class="unita">C<sub>E</sub></span></label>
+      <select id="esp"><option value="vento">Battuta dai venti: C_E = 0,9</option><option value="normale" selected>Normale: C_E = 1,0</option><option value="riparata">Riparata: C_E = 1,1</option></select></div>
+    <p class="nota" data-en="Thermal coefficient C&lt;sub&gt;t&lt;/sub&gt; = 1 (without specific studies on the insulation of the roof).">Coefficiente termico C<sub>t</sub> = 1 (senza studi specifici sull'isolamento della copertura).</p>
+  </div>
+  <div>
+    <div class="kpi" id="kpiNeve" aria-live="polite"></div>
+    <div id="passiNeve"></div>
+    <div class="azioni"><button type="button" class="bottone chiaro" id="usaNeve">Usa il valore calcolato come Q in copertura (carichi del solaio qui sopra)</button></div>
+    <p class="nota" data-en="Values without local studies, for altitudes up to 1500 m (above that, local conditions are needed). Zone I - Alpine: q&lt;sub&gt;sk&lt;/sub&gt; = 1.50 for a&lt;sub&gt;s&lt;/sub&gt; ≤ 200 m, otherwise 1.39·[1 + (a&lt;sub&gt;s&lt;/sub&gt;/728)²]. Zone I - Mediterranean: 1.50, then 1.35·[1 + (a&lt;sub&gt;s&lt;/sub&gt;/602)²]. Zone II: 1.00, then 0.85·[1 + (a&lt;sub&gt;s&lt;/sub&gt;/481)²]. Zone III: 0.60, then 0.51·[1 + (a&lt;sub&gt;s&lt;/sub&gt;/481)²]. Shape coefficient, roof with one or two pitches: μ₁ = 0.8 for 0° ≤ α ≤ 30°; 0.8·(60 − α)/30 for 30° &amp;lt; α &amp;lt; 60°; 0 for α ≥ 60° (if the snow is not prevented from sliding). For roofs with several pitches, parapets or drifts, other standards are needed.">Valori in assenza di studi locali, per quote fino a 1500 m (oltre servono condizioni locali). Zona I - Alpina: q<sub>sk</sub> = 1,50 per a<sub>s</sub> ≤ 200 m, altrimenti 1,39·[1 + (a<sub>s</sub>/728)²]. Zona I - Mediterranea: 1,50, poi 1,35·[1 + (a<sub>s</sub>/602)²]. Zona II: 1,00, poi 0,85·[1 + (a<sub>s</sub>/481)²]. Zona III: 0,60, poi 0,51·[1 + (a<sub>s</sub>/481)²]. Coefficiente di forma, copertura a una o due falde: μ₁ = 0,8 per 0° ≤ α ≤ 30°; 0,8·(60 − α)/30 per 30° &lt; α &lt; 60°; 0 per α ≥ 60° (se la neve non è impedita di scivolare). Per coperture a più falde, con parapetti o accumuli servono altre norme.</p>
+  </div>
+</div>
 </main>
-<footer class="sito">Strumento didattico: carichi ripartiti secondo area d'influenza, senza continuità delle travi né peso proprio. Non sostituisce l'analisi strutturale.</footer>
+<footer class="sito">Strumento didattico: carichi ripartiti secondo area d'influenza, senza continuità delle travi né peso proprio. Non sostituisce l'analisi strutturale. Neve: NTC 2018 (D.M. 17 gennaio 2018), §3.4.</footer>
 
 <script src="assets/js/calc.js"></script>
+<script src="assets/js/esempio.js"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
   var F = RT.fmt;
-  var sel = { t: 'c', i: 1, j: 1 };
+  var sel = { t: 'bx', i: 1, j: 1 };
+  var Lx = [4, 5.5, 5, 5], Ly = [5, 6, 5, 5];            // luci delle campate (m): l'esempio svolto della lezione
+  var ULT = {};
 
-  function stato() { return { nx: +$('nx').value, ny: +$('ny').value, Lx: +$('Lx').value, Ly: +$('Ly').value, q: +$('q').value, ord: $('ord').value }; }
+  function costruisciCampate() {
+    var nx = +$('nx').value, ny = +$('ny').value;
+    function blocco(arr, n, prefisso, nome, cont) {
+      var h = '';
+      for (var i = 0; i < n; i++) h += '<div class="campo"><label for="' + prefisso + i + '">' + nome + ' ' + (i + 1) + ' <span class="unita">[m]</span></label><output id="' + prefisso + i + 'v">' + F(arr[i], 1) + ' m</output><input type="range" id="' + prefisso + i + '" data-i="' + i + '" min="2" max="9" step="0.1" value="' + arr[i] + '"></div>';
+      $(cont).innerHTML = h;
+      Array.prototype.forEach.call($(cont).querySelectorAll('input'), function (el) {
+        el.addEventListener('input', function () {
+          var i = +el.dataset.i, v = +el.value, ug = $(prefisso === 'Lx' ? 'ugX' : 'ugY').checked;
+          if (ug) { for (var j = 0; j < 4; j++) arr[j] = v; for (var k = 0; k < n; k++) { $(prefisso + k).value = v; $(prefisso + k + 'v').textContent = F(v, 1) + ' m'; } }
+          else { arr[i] = v; $(prefisso + i + 'v').textContent = F(v, 1) + ' m'; }
+          aggiorna();
+        });
+      });
+    }
+    blocco(Lx, nx, 'Lx', 'Luce in x, campata', 'campiX');
+    blocco(Ly, ny, 'Ly', 'Interasse in y, campata', 'campiY');
+  }
+
+  function stato() {
+    var nx = +$('nx').value, ny = +$('ny').value, G = RT.GAMMA, g1 = +$('g1').value, g2 = +$('g2').value, qv = +$('q').value;
+    var s = { nx: nx, ny: ny, Lx: Lx.slice(0, nx), Ly: Ly.slice(0, ny), xs: [0], ys: [0], qd: G.G1 * g1 + G.G2 * g2 + G.Q * qv, ord: $('ord').value };
+    s.Lx.forEach(function (l) { s.xs.push(s.xs[s.xs.length - 1] + l); });
+    s.Ly.forEach(function (l) { s.ys.push(s.ys[s.ys.length - 1] + l); });
+    s.q = s.qd;
+    return s;
+  }
 
   // poligono (array di [x,y] in metri) -> area
   function area(P) { var a = 0; for (var k = 0; k < P.length; k++) { var u = P[k], v = P[(k + 1) % P.length]; a += u[0] * v[1] - v[0] * u[1]; } return Math.abs(a) / 2; }
 
-  // Zona d'influenza di una trave su un lato: lungo la trave lunghezza len, verso l'interno profondita' dep.
-  // (u0,v0) origine locale, asse u lungo la trave, asse v verso la campata; dir = +1/-1 sul segno di v. horiz: trave lungo x.
+  // Zona d'influenza di un lato di una trave. horiz: trave lungo x alla linea b, segmento a; altrimenti lungo y.
+  // side: -1 (verso indici minori) o +1; la profondita' dipende dalla campata adiacente (luci diverse).
   function zonaTrave(s, horiz, a, b, side) {
-    // a: indice lungo la trave (segmento), b: indice della linea; side: -1 (verso indici minori) o +1
-    var lenB = horiz ? s.Lx : s.Ly, depB = horiz ? s.Ly : s.Lx;
-    var u0 = a * lenB, v0 = b * depB, P;
+    var pr = side < 0 ? b - 1 : b;
+    var lenB = horiz ? s.Lx[a] : s.Ly[a], depB = horiz ? s.Ly[pr] : s.Lx[pr];
+    var u0 = horiz ? s.xs[a] : s.ys[a], v0 = horiz ? s.ys[b] : s.xs[b];
     var d = s.ord === 'due' ? Math.min(lenB, depB) / 2 : depB / 2;
     var loc = s.ord === 'due' ? [[0, 0], [lenB, 0], [lenB - d, d], [d, d]] : [[0, 0], [lenB, 0], [lenB, d], [0, d]];
-    P = loc.map(function (p) {
-      var u = u0 + p[0], v = v0 + side * p[1];
-      return horiz ? [u, v] : [v, u];
-    });
-    return P;
+    return loc.map(function (p) { var u = u0 + p[0], v = v0 + side * p[1]; return horiz ? [u, v] : [v, u]; });
   }
 
   function carica(s, tipo, a, b) {
-    // restituisce {zone:[poligoni], A, picco}
-    var zone = [], picco = 0, n = tipo === 'bx' ? s.ny : s.nx, nOrt = tipo === 'bx' ? s.nx : s.ny;
+    var zone = [], n = tipo === 'bx' ? s.ny : s.nx;
     if (tipo === 'bx' || tipo === 'by') {
       var horiz = tipo === 'bx';
-      var carica_ = s.ord === 'due' || (s.ord === 'y' && horiz) || (s.ord === 'x' && !horiz);
-      if (carica_) {
-        [-1, 1].forEach(function (side) {
-          var esiste = side < 0 ? b > 0 : b < n;
-          if (esiste) zone.push(zonaTrave(s, horiz, a, b, side));
-        });
-        var lenB = horiz ? s.Lx : s.Ly, depB = horiz ? s.Ly : s.Lx;
-        var d = s.ord === 'due' ? Math.min(lenB, depB) / 2 : depB / 2;
-        picco = s.q * d * zone.length;
+      if (s.ord === 'due' || (s.ord === 'y' && horiz) || (s.ord === 'x' && !horiz)) {
+        [-1, 1].forEach(function (side) { if (side < 0 ? b > 0 : b < n) zone.push(zonaTrave(s, horiz, a, b, side)); });
       }
     }
-    var A = zone.reduce(function (t, P) { return t + area(P); }, 0);
-    return { zone: zone, A: A, picco: picco };
+    return { zone: zone, A: zone.reduce(function (t, P) { return t + area(P); }, 0) };
   }
 
   function pilastro(s, i, j) {
-    var x0 = i * s.Lx - (i > 0 ? s.Lx / 2 : 0), x1 = i * s.Lx + (i < s.nx ? s.Lx / 2 : 0);
-    var y0 = j * s.Ly - (j > 0 ? s.Ly / 2 : 0), y1 = j * s.Ly + (j < s.ny ? s.Ly / 2 : 0);
-    var P = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
-    return { zone: [P], A: (x1 - x0) * (y1 - y0) };
+    var x0 = s.xs[i] - (i > 0 ? s.Lx[i - 1] / 2 : 0), x1 = s.xs[i] + (i < s.nx ? s.Lx[i] / 2 : 0);
+    var y0 = s.ys[j] - (j > 0 ? s.Ly[j - 1] / 2 : 0), y1 = s.ys[j] + (j < s.ny ? s.Ly[j] / 2 : 0);
+    return { zone: [[[x0, y0], [x1, y0], [x1, y1], [x0, y1]]], A: (x1 - x0) * (y1 - y0) };
   }
 
   function disegna() {
     var s = stato();
-    var Wm = s.nx * s.Lx, Hm = s.ny * s.Ly, W = 760, mx = 50, my = 40;
+    var Wm = s.xs[s.nx], Hm = s.ys[s.ny], W = 760, mx = 50, my = 40;
     var k = Math.min(80, (W - 2 * mx) / Wm, 380 / Hm);
     var H = Hm * k + 2 * my;
     var X = function (m) { return mx + (W - 2 * mx - Wm * k) / 2 + m * k; }, Y = function (m) { return my + m * k; };
     var svg = $('pianta'); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
     var out = '<defs><pattern id="tr" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#d1382b" stroke-width="2"/></pattern></defs>';
-    // zona selezionata
     var cur = sel.t === 'c' ? pilastro(s, sel.i, sel.j) : carica(s, sel.t, sel.i, sel.j);
     cur.zone.forEach(function (P) {
       out += '<polygon points="' + P.map(function (p) { return X(p[0]).toFixed(1) + ',' + Y(p[1]).toFixed(1); }).join(' ') + '" fill="url(#tr)" fill-opacity=".55" stroke="#d1382b" stroke-width="1.5"/>';
     });
-    // solaio: orditura (una via) o ripartizione a 45 gradi (due vie)
     out += '<defs><marker id="fr" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L8 4 L0 8 z" fill="#8a8a86"/></marker></defs>';
     var ci, cj;
     for (cj = 0; cj < s.ny; cj++) for (ci = 0; ci < s.nx; ci++) {
-      var x0 = ci * s.Lx, y0 = cj * s.Ly;
+      var x0 = s.xs[ci], y0 = s.ys[cj], pw = s.Lx[ci], ph = s.Ly[cj];
       if (s.ord === 'due') {
-        var dd = Math.min(s.Lx, s.Ly) / 2;
-        var seg = [[[0, 0], [dd, dd]], [[s.Lx, 0], [s.Lx - dd, dd]], [[0, s.Ly], [dd, s.Ly - dd]], [[s.Lx, s.Ly], [s.Lx - dd, s.Ly - dd]],
-                   s.Lx >= s.Ly ? [[dd, dd], [s.Lx - dd, dd]] : [[dd, dd], [dd, s.Ly - dd]]];
-        if (s.Lx >= s.Ly) seg[4] = [[dd, s.Ly / 2], [s.Lx - dd, s.Ly / 2]]; else seg[4] = [[s.Lx / 2, dd], [s.Lx / 2, s.Ly - dd]];
+        var dd = Math.min(pw, ph) / 2;
+        var seg = [[[0, 0], [dd, dd]], [[pw, 0], [pw - dd, dd]], [[0, ph], [dd, ph - dd]], [[pw, ph], [pw - dd, ph - dd]], null];
+        seg[4] = pw >= ph ? [[dd, ph / 2], [pw - dd, ph / 2]] : [[pw / 2, dd], [pw / 2, ph - dd]];
         seg.forEach(function (sg) { out += '<line x1="' + X(x0 + sg[0][0]) + '" y1="' + Y(y0 + sg[0][1]) + '" x2="' + X(x0 + sg[1][0]) + '" y2="' + Y(y0 + sg[1][1]) + '" stroke="#8a8a86" stroke-width="1.2" stroke-dasharray="4 3"/>'; });
-        out += '<text x="' + X(x0 + s.Lx / 2) + '" y="' + (Y(y0 + s.Ly / 2) + 4) + '" text-anchor="middle" font-size="11" fill="#8a8a86">2 vie</text>';
+        out += '<text x="' + X(x0 + pw / 2) + '" y="' + (Y(y0 + ph / 2) + 4) + '" text-anchor="middle" font-size="11" fill="#8a8a86">2 vie</text>';
       } else {
-        var hx = s.ord === 'x', cx = X(x0 + s.Lx / 2), cy = Y(y0 + s.Ly / 2), L2 = (hx ? s.Lx : s.Ly) * k * 0.32;
+        var hx = s.ord === 'x', cx = X(x0 + pw / 2), cy = Y(y0 + ph / 2), L2 = (hx ? pw : ph) * k * 0.32;
         [-1, 0, 1].forEach(function (o) {
-          var ox = hx ? 0 : o * s.Lx * k * 0.22, oy = hx ? o * s.Ly * k * 0.22 : 0;
+          var ox = hx ? 0 : o * pw * k * 0.22, oy = hx ? o * ph * k * 0.22 : 0;
           out += '<line x1="' + (cx + ox - (hx ? L2 : 0)) + '" y1="' + (cy + oy - (hx ? 0 : L2)) + '" x2="' + (cx + ox + (hx ? L2 : 0)) + '" y2="' + (cy + oy + (hx ? 0 : L2)) + '" stroke="#8a8a86" stroke-width="1.6" marker-end="url(#fr)" marker-start="url(#fr)"/>';
         });
       }
     }
-    // etichetta dell'area d'influenza del pilastro selezionato
     if (sel.t === 'c') {
       var Pz = cur.zone[0], axs = (Pz[0][0] + Pz[1][0]) / 2, ays = (Pz[0][1] + Pz[3][1]) / 2;
       out += '<text x="' + X(axs) + '" y="' + (Y(ays) + 24) + '" text-anchor="middle" font-size="12" font-weight="700" fill="#d1382b">A = ' + F(cur.A, 2) + ' m²</text>';
     }
-    // travi
     function trave(horiz, a, b) {
-      var x1 = horiz ? a * s.Lx : b * s.Lx, y1 = horiz ? b * s.Ly : a * s.Ly;
-      var x2 = horiz ? (a + 1) * s.Lx : x1, y2 = horiz ? y1 : (a + 1) * s.Ly;
+      var x1 = horiz ? s.xs[a] : s.xs[b], y1 = horiz ? s.ys[b] : s.ys[a];
+      var x2 = horiz ? s.xs[a + 1] : x1, y2 = horiz ? y1 : s.ys[a + 1];
       var tipo = horiz ? 'bx' : 'by', attivo = sel.t === tipo && sel.i === a && sel.j === b;
       return '<g data-t="' + tipo + '" data-i="' + a + '" data-j="' + b + '" tabindex="0" role="button" aria-label="Trave ' + (horiz ? 'lungo x' : 'lungo y') + ' ' + (a + 1) + ',' + (b + 1) + '">' +
-        '<line class="hit" x1="' + X(x1) + '" y1="' + Y(y1) + '" x2="' + X(x2) + '" y2="' + Y(y2) + '" stroke="transparent" stroke-width="16"/>' +
+        '<line class="hit" x1="' + X(x1) + '" y1="' + Y(y1) + '" x2="' + X(x2) + '" y2="' + Y(y2) + '" stroke="transparent" stroke-width="26"/>' +
         '<line x1="' + X(x1) + '" y1="' + Y(y1) + '" x2="' + X(x2) + '" y2="' + Y(y2) + '" stroke="' + (attivo ? '#d1382b' : '#121212') + '" stroke-width="' + (attivo ? 5 : 3.2) + '"/></g>';
     }
     var i, j;
     for (j = 0; j <= s.ny; j++) for (i = 0; i < s.nx; i++) out += trave(true, i, j);
     for (i = 0; i <= s.nx; i++) for (j = 0; j < s.ny; j++) out += trave(false, j, i);
-    // pilastri
     for (j = 0; j <= s.ny; j++) for (i = 0; i <= s.nx; i++) {
       var att = sel.t === 'c' && sel.i === i && sel.j === j;
       out += '<g data-t="c" data-i="' + i + '" data-j="' + j + '" tabindex="0" role="button" aria-label="Pilastro ' + (i + 1) + ',' + (j + 1) + '">' +
-        '<rect class="hit" x="' + (X(i * s.Lx) - 11) + '" y="' + (Y(j * s.Ly) - 11) + '" width="22" height="22" fill="transparent"/>' +
-        '<rect x="' + (X(i * s.Lx) - 7) + '" y="' + (Y(j * s.Ly) - 7) + '" width="14" height="14" fill="' + (att ? '#d1382b' : '#121212') + '"/><text x="' + (X(i * s.Lx) + 10) + '" y="' + (Y(j * s.Ly) - 9) + '" font-size="11" font-weight="700" fill="' + (att ? '#d1382b' : '#6e6e6e') + '">P' + (j * (s.nx + 1) + i + 1) + '</text></g>';
+        '<rect class="hit" x="' + (X(s.xs[i]) - 16) + '" y="' + (Y(s.ys[j]) - 16) + '" width="32" height="32" fill="transparent"/>' +
+        '<rect x="' + (X(s.xs[i]) - 7) + '" y="' + (Y(s.ys[j]) - 7) + '" width="14" height="14" fill="' + (att ? '#d1382b' : '#121212') + '"/><text x="' + (X(s.xs[i]) + 10) + '" y="' + (Y(s.ys[j]) - 9) + '" font-size="11" font-weight="700" fill="' + (att ? '#d1382b' : '#6e6e6e') + '">P' + (j * (s.nx + 1) + i + 1) + '</text></g>';
     }
-    // quote
-    out += '<text x="' + X(Wm / 2) + '" y="' + (my - 14) + '" text-anchor="middle" font-size="12" fill="#6e6e6e">' + s.nx + ' × ' + F(s.Lx, 1) + ' m = ' + F(Wm, 1) + ' m</text>';
-    out += '<text transform="translate(' + (X(0) - 22) + ',' + Y(Hm / 2) + ') rotate(-90)" text-anchor="middle" font-size="12" fill="#6e6e6e">' + s.ny + ' × ' + F(s.Ly, 1) + ' m = ' + F(Hm, 1) + ' m</text>';
+    out += '<text x="' + X(Wm / 2) + '" y="' + (my - 14) + '" text-anchor="middle" font-size="12" fill="#6e6e6e">' + s.Lx.map(function (l) { return F(l, 1); }).join(' + ') + ' = ' + F(Wm, 1) + ' m</text>';
+    out += '<text transform="translate(' + (X(0) - 22) + ',' + Y(Hm / 2) + ') rotate(-90)" text-anchor="middle" font-size="12" fill="#6e6e6e">' + s.Ly.map(function (l) { return F(l, 1); }).join(' + ') + ' = ' + F(Hm, 1) + ' m</text>';
     svg.innerHTML = out;
     Array.prototype.forEach.call(svg.querySelectorAll('[data-t]'), function (g) {
       var f = function () { sel = { t: g.dataset.t, i: +g.dataset.i, j: +g.dataset.j }; aggiorna(); };
@@ -195,20 +245,19 @@
     if (sel.t === 'c') {
       var c = pilastro(s, sel.i, sel.j), N = s.q * c.A, tp = tipoPil(s, sel.i, sel.j);
       h = '<h3 style="margin-top:0">Pilastro P' + (sel.j * (s.nx + 1) + sel.i + 1) + ' (' + NOMI[tp] + ')</h3>' +
-        '<dl><dt>Area d\'influenza</dt><dd>' + F(c.A, 2) + ' m²</dd><dt>Carico concentrato</dt><dd>N = q·A = ' + F(s.q, 2) + ' × ' + F(c.A, 2) + ' = ' + F(N, 1) + ' kN</dd></dl>' +
+        '<dl><dt>Area d\'influenza</dt><dd>' + F(c.A, 2) + ' m²</dd><dt>Carico concentrato</dt><dd>N = q·A = ' + F(s.q, 2) + ' × ' + F(c.A, 2) + ' = ' + F(N, 2) + ' kN</dd></dl>' +
         '<p class="nota">Il tipo di solaio cambia come il carico arriva alle travi, <b>non</b> il carico totale che arriva al pilastro: l\'area d\'influenza è la stessa (metà campata attorno al pilastro) con una via o con due vie.</p>';
     } else {
-      var c2 = carica(s, sel.t, sel.i, sel.j), L = sel.t === 'bx' ? s.Lx : s.Ly, W = s.q * c2.A;
-      h = '<h3 style="margin-top:0">Trave lungo ' + (sel.t === 'bx' ? 'x' : 'y') + '</h3>';
+      var c2 = carica(s, sel.t, sel.i, sel.j), L = sel.t === 'bx' ? s.Lx[sel.i] : s.Ly[sel.i], W = s.q * c2.A;
+      h = '<h3 style="margin-top:0">Trave lungo ' + (sel.t === 'bx' ? 'x' : 'y') + ', luce ' + F(L, 1) + ' m</h3>';
       if (c2.A === 0) h += '<p>Trave parallela all\'orditura: non riceve carico dal solaio (solo il proprio peso, qui trascurato).</p>';
-      else h += '<dl><dt>Luce della trave</dt><dd>' + F(L, 1) + ' m</dd><dt>Area d\'influenza</dt><dd>' + F(c2.A, 2) + ' m²</dd><dt>Carico totale</dt><dd>W = q·A = ' + F(W, 1) + ' kN</dd><dt>Carico lineare equivalente</dt><dd>p = W/L = ' + F(W / L, 2) + ' kN/m</dd></dl>';
-      // confronto tra i tre tipi di solaio per la trave selezionata
+      else h += '<dl><dt>Area d\'influenza</dt><dd>' + F(c2.A, 2) + ' m²</dd><dt>Carico totale</dt><dd>W = q·A = ' + F(W, 2) + ' kN</dd><dt>Carico lineare equivalente</dt><dd>p = W/L = ' + F(W / L, 2) + ' kN/m</dd></dl>';
       var modi = [['y', 'Una via, orditura y'], ['x', 'Una via, orditura x'], ['due', 'Due vie']];
-      h += '<h4 style="margin:.7rem 0 .2rem;font-size:.9rem">Come cambia il carico con il solaio</h4><table class="conf"><tr><th></th>' + modi.map(function (m) { return '<th class="' + (m[0] === s.ord ? 'on' : '') + '">' + m[1] + '</th>'; }).join('') + '</tr>';
+      h += '<h4 style="margin:.7rem 0 .2rem;font-size:.9rem">Come cambia il carico con il solaio</h4><div class="scroll"><table class="conf"><tr><th></th>' + modi.map(function (m) { return '<th class="' + (m[0] === s.ord ? 'on' : '') + '">' + m[1] + '</th>'; }).join('') + '</tr>';
       var rows = modi.map(function (m) { var s2 = Object.assign({}, s, { ord: m[0] }), cc = carica(s2, sel.t, sel.i, sel.j); return { A: cc.A, p: cc.A ? s.q * cc.A / L : 0, on: m[0] === s.ord }; });
-      h += '<tr><td>Area [m²]</td>' + rows.map(function (r) { return '<td class="' + (r.on ? 'on' : '') + '">' + F(r.A, 1) + '</td>'; }).join('') + '</tr>';
-      h += '<tr><td>p [kN/m]</td>' + rows.map(function (r) { return '<td class="' + (r.on ? 'on' : '') + '">' + (r.A ? F(r.p, 1) : '0 (parallela)') + '</td>'; }).join('') + '</tr></table>';
-      h += '<p class="nota">' + (s.ord === 'due' ? 'Con due vie il carico non è uniforme (trapezio o triangolo): il valore equivalente è utile per il taglio, meno per il momento.' : 'Con una via, le travi perpendicolari all\'orditura prendono metà campata per lato; quelle parallele non ricevono carico.') + '</p>';
+      h += '<tr><td>Area [m²]</td>' + rows.map(function (r) { return '<td class="' + (r.on ? 'on' : '') + '">' + F(r.A, 2) + '</td>'; }).join('') + '</tr>';
+      h += '<tr><td>p [kN/m]</td>' + rows.map(function (r) { return '<td class="' + (r.on ? 'on' : '') + '">' + (r.A ? F(r.p, 2) : '0 (parallela)') + '</td>'; }).join('') + '</tr></table></div>';
+      h += '<p class="nota">' + (s.ord === 'due' ? 'Con due vie il carico non è uniforme (trapezio o triangolo): il valore equivalente è utile per il taglio, meno per il momento. Triangolo: A = L<sub>c</sub>²/4; trapezio: A = L<sub>c</sub>·(2L<sub>l</sub> − L<sub>c</sub>)/4.' : 'Con una via, le travi perpendicolari all\'orditura prendono metà campata per lato; quelle parallele non ricevono carico.') + '</p>';
     }
     $('sel').innerHTML = h;
   }
@@ -219,7 +268,7 @@
     for (var j = 0; j <= s.ny; j++) for (var i = 0; i <= s.nx; i++) {
       var N = s.q * pilastro(s, i, j).A; tot += N;
       var on = sel.t === 'c' && sel.i === i && sel.j === j;
-      h += '<div class="' + tipoPil(s, i, j) + (on ? ' sel' : '') + '" data-i="' + i + '" data-j="' + j + '" tabindex="0" role="button"><small>P' + (j * (s.nx + 1) + i + 1) + '</small>' + F(N, 0) + ' kN</div>';
+      h += '<div class="' + tipoPil(s, i, j) + (on ? ' sel' : '') + '" data-i="' + i + '" data-j="' + j + '" tabindex="0" role="button"><small>P' + (j * (s.nx + 1) + i + 1) + '</small>' + F(N, 1) + ' kN</div>';
     }
     $('mappa').innerHTML = h;
     Array.prototype.forEach.call($('mappa').querySelectorAll('div'), function (d) {
@@ -227,20 +276,100 @@
       d.addEventListener('click', f);
       d.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); f(); } });
     });
-    var att = s.q * s.nx * s.Lx * s.ny * s.Ly;
-    $('equilibrio').innerHTML = 'Σ N = ' + F(tot, 1) + ' kN &nbsp;=&nbsp; q·A<sub>tot</sub> = ' + F(s.q, 2) + ' × ' + F(s.nx * s.Lx * s.ny * s.Ly, 1) + ' m² = ' + F(att, 1) + ' kN &nbsp; <span class="' + (Math.abs(tot - att) < 1e-6 ? 'ok' : 'ko') + '">' + (Math.abs(tot - att) < 1e-6 ? 'equilibrio verificato' : 'equilibrio NON verificato') + '</span>';
+    var Atot = s.xs[s.nx] * s.ys[s.ny], att = s.q * Atot;
+    ULT.sommaN = tot;
+    $('equilibrio').innerHTML = 'Σ N = ' + F(tot, 2) + ' kN &nbsp;=&nbsp; q·A<sub>tot</sub> = ' + F(s.q, 2) + ' × ' + F(Atot, 2) + ' m² = ' + F(att, 2) + ' kN &nbsp; <span class="' + (Math.abs(tot - att) < 1e-6 ? 'ok' : 'ko') + '">' + (Math.abs(tot - att) < 1e-6 ? 'equilibrio verificato' : 'equilibrio NON verificato') + '</span>';
+  }
+
+  function risultati() {                                      // valori dell'esempio svolto, indipendenti dalla selezione
+    var s = stato(), u = { qd: s.qd };
+    if (s.nx >= 2 && s.ny >= 2) {
+      var tr = carica(s, 'bx', 1, 1);
+      u.pd = s.q * tr.A / s.Lx[1]; u.linf = tr.A / s.Lx[1];
+      u.A0 = pilastro(s, 0, 1).A; u.A1 = pilastro(s, 1, 1).A; u.A2 = pilastro(s, 2 < s.nx + 1 ? 2 : 1, 1).A;
+      u.N0 = s.q * u.A0; u.N1 = s.q * u.A1; u.N2 = s.q * u.A2;
+    }
+    var t1 = carica(s, 'by', 0, 0), t2 = carica(s, 'bx', 0, 0);
+    u.tri = t1.A; u.trap = t2.A; u.somma2 = 2 * (t1.A + t2.A);
+    return u;
+  }
+
+  // ---- neve (NTC 2018, par. 3.4)
+  var EN = false; try { EN = localStorage.getItem('lang') === 'en'; } catch (e) {}
+  function T(it, en) { return EN ? en : it; }
+  function neve() {
+    var zona = $('zona').value, as = +$('as').value, alfa = +$('alfa').value, esp = $('esp').value;
+    $('asv').textContent = F(as, 0) + ' m'; $('alfav').textContent = F(alfa, 0) + '°';
+    var r = RT.caricoNeve(zona, as, alfa, esp, 1), z = RT.ZONE_NEVE[zona];
+    ULT.neve = r;
+    var fqsk = as <= 200 ? F(z.base, 2) + ' (a<sub>s</sub> ≤ 200 m)' : F(z.k, 2) + '·[1 + (' + F(as, 0) + '/' + z.a0 + ')²] = ' + F(r.qsk, 2);
+    var fmu = alfa <= 30 ? '0,8 (α ≤ 30°)' : (alfa < 60 ? '0,8·(60 − ' + F(alfa, 0) + ')/30 = ' + F(r.mu, 2) : '0 (α ≥ 60°)');
+    var nomeZona = { 'I-A': T('Zona I - Alpina', 'Zone I - Alpine'), 'I-M': T('Zona I - Mediterranea', 'Zone I - Mediterranean'), 'II': T('Zona II', 'Zone II'), 'III': T('Zona III', 'Zone III') }[zona];
+    $('kpiNeve').innerHTML = '<div><b>' + F(r.qs, 2) + ' kN/m²</b><span>' + T('carico della neve', 'snow load') + ' q_s</span></div><div><b>' + F(r.qsk, 2) + '</b><span>q_sk ' + T('al suolo', 'on the ground') + '</span></div><div><b>' + F(r.mu, 2) + '</b><span>μ₁ (' + T('forma', 'shape') + ')</span></div>';
+    $('passiNeve').innerHTML =
+      '<div class="passo"><h3>' + T('1. Al suolo', '1. On the ground') + ': q<sub>sk</sub></h3><p>' + nomeZona + ', a<sub>s</sub> = ' + F(as, 0) + ' m: q<sub>sk</sub> = <b>' + fqsk + ' kN/m²</b></p>' + (as > 1500 ? '<p class="ko">' + T('Oltre 1500 m servono le condizioni locali.', 'Above 1500 m local conditions are needed.') + '</p>' : '') + '</div>' +
+      '<div class="passo"><h3>' + T('2. Forma della copertura', '2. Roof shape') + ': μ<sub>1</sub></h3><p>α = ' + F(alfa, 0) + '°: μ<sub>1</sub> = <b>' + fmu + '</b></p></div>' +
+      '<div class="passo"><h3>' + T('3. Esposizione e coefficiente termico', '3. Exposure and thermal coefficient') + '</h3><p>C<sub>E</sub> = <b>' + F(r.CE, 1) + '</b>, C<sub>t</sub> = <b>1,0</b></p></div>' +
+      '<div class="passo"><h3>' + T('4. Carico sulla copertura', '4. Load on the roof') + '</h3><p>q<sub>s</sub> = μ<sub>1</sub>·q<sub>sk</sub>·C<sub>E</sub>·C<sub>t</sub> = ' + F(r.mu, 2) + '·' + F(r.qsk, 2) + '·' + F(r.CE, 1) + '·1,0 = <b class="ris">' + F(r.qs, 2) + ' kN/m²</b></p></div>';
+    if (window.RTE) RTE.aggiorna();
   }
 
   function aggiorna() {
     var s = stato();
-    $('nxv').textContent = s.nx; $('nyv').textContent = s.ny; $('Lxv').textContent = F(s.Lx, 1) + ' m'; $('Lyv').textContent = F(s.Ly, 1) + ' m'; $('qv').textContent = F(s.q, 2);
+    $('nxv').textContent = s.nx; $('nyv').textContent = s.ny;
+    $('g1v').textContent = F(+$('g1').value, 1); $('g2v').textContent = F(+$('g2').value, 1); $('qv').textContent = F(+$('q').value, 2);
+    $('qdOut').innerHTML = 'q<sub>d,SLU</sub> = 1,3·G₁ + 1,5·G₂ + 1,5·Q = <b>' + F(s.qd, 2) + ' kN/m²</b>';
     if (sel.t === 'c') { sel.i = Math.min(sel.i, s.nx); sel.j = Math.min(sel.j, s.ny); }
     else if (sel.t === 'bx') { sel.i = Math.min(sel.i, s.nx - 1); sel.j = Math.min(sel.j, s.ny); }
     else { sel.i = Math.min(sel.i, s.ny - 1); sel.j = Math.min(sel.j, s.nx); }
     disegna(); pannelloSel(); mappa();
+    ULT = Object.assign(ULT, risultati());
+    if (window.RTE) RTE.aggiorna();
   }
-  ['nx', 'ny', 'Lx', 'Ly', 'q', 'ord'].forEach(function (id) { $(id).addEventListener('input', aggiorna); });
-  aggiorna();
+
+  $('nx').addEventListener('input', function () { costruisciCampate(); aggiorna(); });
+  $('ny').addEventListener('input', function () { costruisciCampate(); aggiorna(); });
+  ['ugX', 'ugY'].forEach(function (id) { $(id).addEventListener('change', function () {
+    if (!this.checked) return;
+    var arr = id === 'ugX' ? Lx : Ly, v = arr[0]; for (var j = 0; j < 4; j++) arr[j] = v; costruisciCampate(); aggiorna(); }); });
+  ['g1', 'g2', 'q', 'ord'].forEach(function (id) { $(id).addEventListener('input', aggiorna); });
+  ['zona', 'as', 'alfa', 'esp'].forEach(function (id) { $(id).addEventListener('input', neve); });
+  $('usaNeve').addEventListener('click', function () { $('q').value = Math.round(ULT.neve.qs * 20) / 20; aggiorna(); });
+  costruisciCampate(); aggiorna(); neve();
+
+  // Esempio della lezione: gli stessi dati e gli stessi risultati delle slide (lezione2.tex)
+  var BASE = { nx: 2, ny: 2, Lx0: 4, Lx1: 5.5, Ly0: 5, Ly1: 6, ugX: false, ugY: false, g1: 3, g2: 3, q: 0.5, ord: 'y', zona: 'III', as: 20, alfa: 15, esp: 'normale' };
+  function sc(titolo, nota, v, attesi, sel0) { return { titolo: titolo, nota: nota, valori: Object.assign({}, BASE, v), attesi: attesi, sel: sel0 }; }
+  RTE.avvia({
+    contenitore: 'esempio',
+    descrizione: 'I dati e i risultati dell\'esempio svolto della lezione: il telaio centrale della lezione 2 (luci 4 e 5,5 m, interassi 5 e 6 m), il solaio a due vie a 45° e il carico della neve a Roma. Scegli un esempio, confronta con le slide, poi cambia i dati.',
+    campi: ['nx', 'ny', 'Lx0', 'Lx1', 'Ly0', 'Ly1', 'g1', 'g2', 'q', 'ord', 'zona', 'as', 'alfa', 'esp'],
+    prima: function (v) { if (v.nx !== undefined) { $('nx').value = v.nx; $('ny').value = v.ny; $('ugX').checked = !!v.ugX; $('ugY').checked = !!v.ugY; Lx[0] = v.Lx0; Lx[1] = v.Lx1; Ly[0] = v.Ly0; Ly[1] = v.Ly1; costruisciCampate(); } },
+    dopo: function () { var e = RTE.scenarioAttivo(); if (e && e.sel) { sel = e.sel; aggiorna(); } },
+    scenari: [
+      sc('Telaio centrale (acciaio)', 'Telaio in acciaio, campate L₁ = 4,00 m e L₂ = 5,50 m, interassi B₁ = 5,00 m e B₂ = 6,00 m. Copertura: G₁ = 3,00 · G₂ = 3,00 · neve 0,50 kN/m². Solaio a una via: il telaio centrale porta metà solaio da ogni lato.', {},
+        [{ e: 'q_d,SLU [kN/m²]', s: 9.15, d: 2, p: function () { return ULT.qd; } },
+         { e: 'L_inf,c = (B₁ + B₂)/2 [m]', s: 5.5, d: 2, p: function () { return ULT.linf; } },
+         { e: 'p_d,SLU sulla trave [kN/m]', s: 50.33, d: 2, p: function () { return ULT.pd; } },
+         { e: 'A_inf pilastro sinistro [m²]', s: 11, d: 2, p: function () { return ULT.A0; } },
+         { e: 'N pilastro sinistro [kN]', s: 100.65, d: 2, p: function () { return ULT.N0; } },
+         { e: 'A_inf pilastro centrale [m²]', s: 26.13, d: 2, p: function () { return ULT.A1; } },
+         { e: 'N pilastro centrale [kN]', s: 239.04, d: 2, p: function () { return ULT.N1; } },
+         { e: 'A_inf pilastro destro [m²]', s: 15.13, d: 2, p: function () { return ULT.A2; } },
+         { e: 'N pilastro destro [kN]', s: 138.39, d: 2, p: function () { return ULT.N2; } },
+         { e: 'Somma dei carichi sui pilastri del telaio [kN]', s: 478.09, d: 2, p: function () { return ULT.N0 + ULT.N1 + ULT.N2; } }], { t: 'bx', i: 1, j: 1 }),
+      sc('Solaio a due vie, 45°', 'Pannello di 6 × 5 m su quattro travi di bordo: la ripartizione a 45° dà due triangoli sulle travi corte e due trapezi sulle lunghe.', { nx: 1, ny: 1, Lx0: 6, Lx1: 5.5, Ly0: 5, Ly1: 6, ord: 'due' },
+        [{ e: 'Triangolo A = L_c²/4 [m²]', s: 6.25, d: 2, p: function () { return ULT.tri; } },
+         { e: 'Trapezio A = L_c(2L_l − L_c)/4 [m²]', s: 8.75, d: 2, p: function () { return ULT.trap; } },
+         { e: 'Somma 2·(triangolo + trapezio) [m²]', s: 30, d: 2, p: function () { return ULT.somma2; } }], { t: 'bx', i: 0, j: 0 }),
+      sc('Neve a Roma', 'Roma, zona III, a_s ≤ 200 m, falda con α ≤ 30°, esposizione normale: q_s = 0,80 · 0,60 = 0,48 kN/m². Nelle slide dell\'esempio si usa 0,5 kN/m² (arrotondato).', { zona: 'III', as: 20, alfa: 15, esp: 'normale' },
+        [{ e: 'q_sk al suolo [kN/m²]', s: 0.6, d: 2, p: function () { return ULT.neve.qsk; } },
+         { e: 'μ₁ (α ≤ 30°)', s: 0.8, d: 2, p: function () { return ULT.neve.mu; } },
+         { e: 'q_s = μ₁·q_sk·C_E·C_t [kN/m²]', s: 0.48, d: 2, p: function () { return ULT.neve.qs; } }], { t: 'bx', i: 1, j: 1 }),
+      sc('Neve: zona II, 600 m', 'Zona II, a_s = 600 m (oltre i 200 m): q_sk = 0,85·[1 + (600/481)²] = 2,17 kN/m².', { zona: 'II', as: 600, alfa: 15, esp: 'normale' },
+        [{ e: 'q_sk al suolo [kN/m²]', s: 2.17, d: 2, p: function () { return ULT.neve.qsk; } }], { t: 'bx', i: 1, j: 1 })
+    ]
+  });
 })();
 </script>
 <script src="assets/js/i18n-en.js"></script>

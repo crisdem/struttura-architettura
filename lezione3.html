@@ -2,9 +2,10 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#121212">
 <title>Lezione 3 - Acciaio: trave e pilastro | Struttura e Architettura</title>
-<meta name="description" content="Dimensionamento guidato di una trave IPE e di un pilastro HEB in acciaio, passo per passo.">
+<meta name="description" content="Dimensionamento guidato di una trave IPE e di un pilastro HEA o HEB in acciaio, passo per passo, con l'esempio svolto delle slide. Slide da scaricare.">
 <link rel="stylesheet" href="assets/css/style.css">
 <style>
  .kpi{display:flex;gap:1.2rem;flex-wrap:wrap;margin:.6rem 0}
@@ -28,31 +29,33 @@
 <header class="sito"><div class="in">
   <a href="index.html"><img src="assets/img/logo_romatre_bianco.png" alt="Roma Tre"></a>
   <div class="titolo">Struttura e Architettura<small>Laboratorio di Progettazione Architettonica 2 - Dipartimento di Architettura</small></div>
-  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="introduzione.html">Introduzione</a><a href="lezione1.html">Lezione 1</a><a href="lezione2.html">Lezione 2</a><a href="lezione3.html" aria-current="page">Lezione 3</a><a href="lezione4.html">Lezione 4</a><a href="telaio.html">Telaio piano</a></nav>
+  <nav aria-label="Navigazione"><a href="index.html">Indice</a><a href="introduzione.html">Introduzione</a><a href="lezione1.html">Lezione 1</a><a href="lezione2.html">Lezione 2</a><a href="lezione3.html" aria-current="page">Lezione 3</a><a href="lezione4.html">Lezione 4</a><a href="telaio.html">Telaio piano</a><a href="index.html#download">Download</a></nav>
 </div></header>
 
 <main>
 <h1>Lezione 3: acciaio, passo per passo</h1>
 <p class="sotto" data-en="Change the data and follow the steps. &lt;span class=&quot;liv&quot;&gt;LEVEL 1&lt;/span&gt;preliminary sizing: geometric rules for drawing. &lt;span class=&quot;liv&quot;&gt;LEVEL 2&lt;/span&gt;sizing: loads, moment, section modulus, section, &lt;b&gt;deflection check&lt;/b&gt;, column.">Cambia i dati e segui i passaggi. <span class="liv">LIVELLO 1</span>predimensionamento: regole geometriche per disegnare. <span class="liv">LIVELLO 2</span>dimensionamento: carichi, momento, modulo di resistenza, profilo, <b>verifica della freccia</b>, pilastro.</p>
+<p class="azioni"><a class="bottone" href="pdf/lezione3.pdf" download>⬇ Scarica le slide (PDF) <small class="pdf-info" data-pdf="lezione3" data-en="34 pages, 2.4 MB">34 pagine, 2,4 MB</small></a><a class="bottone chiaro" href="telaio.html?materiale=acciaio&amp;campate=2&amp;luci=4,5.5&amp;H=3.8&amp;B=5.5&amp;piani=1">Prova il telaio piano</a></p>
+<section id="esempio" class="esempio-lezione" aria-label="Esempio della lezione"></section>
 <div class="griglia due">
   <div class="pannello">
     <h3 style="margin-top:0">Trave</h3>
     <div class="campo"><label for="L">Luce <span class="unita">L [m]</span></label><output id="Lv"></output><input type="range" id="L" min="2" max="10" step="0.1" value="5.5"></div>
-    <div class="campo"><label for="B">Interasse dei telai <span class="unita">B [m]</span></label><output id="Bv"></output><input type="range" id="B" min="2.5" max="9" step="0.1" value="5"></div>
+    <div class="campo"><label for="B">Larghezza d'influenza della trave <span class="unita">interasse B [m]</span></label><output id="Bv"></output><input type="range" id="B" min="1" max="9" step="0.1" value="5.5"></div>
     <div class="campo"><label for="sch">Schema</label><select id="sch"><option value="appoggiata">Appoggiata: M = pL²/8</option><option value="semi" selected>Semi-incastro: M = pL²/10</option><option value="incastro">Incastro-incastro: M = pL²/12</option></select></div>
     <div class="campo"><label for="acc">Acciaio</label><select id="acc"><option selected>S235</option><option>S275</option><option>S355</option></select></div>
     <h3>Carichi [kN/m²]</h3>
-    <div class="campo"><label for="g1">G₁ strutturali</label><output id="g1v"></output><input type="range" id="g1" min="0.5" max="6" step="0.1" value="2.5"></div>
-    <div class="campo"><label for="g2">G₂ non strutturali</label><output id="g2v"></output><input type="range" id="g2" min="0.5" max="4" step="0.1" value="2"></div>
+    <div class="campo"><label for="g1">G₁ strutturali</label><output id="g1v"></output><input type="range" id="g1" min="0.5" max="6" step="0.1" value="3"></div>
+    <div class="campo"><label for="g2">G₂ non strutturali</label><output id="g2v"></output><input type="range" id="g2" min="0.5" max="4" step="0.1" value="3"></div>
     <div class="campo"><label for="q">Q variabile (o neve in copertura)</label><output id="qv"></output><input type="range" id="q" min="0" max="8" step="0.1" value="0.5"></div>
     <h3>Pilastro</h3>
-    <div class="campo"><label for="A">Area d'influenza <span class="unita">[m²]</span></label><output id="Av"></output><input type="range" id="A" min="5" max="60" step="0.25" value="23.75"></div>
+    <div class="campo"><label for="A">Area d'influenza <span class="unita">[m²]</span></label><output id="Av"></output><input type="range" id="A" min="5" max="60" step="0.125" value="26.125"></div>
     <div class="campo"><label for="np">Piani che scaricano sul pilastro</label><output id="npv"></output><input type="range" id="np" min="1" max="6" step="1" value="1"></div>
     <div class="campo"><label for="H">Altezza del pilastro <span class="unita">H [m]</span></label><output id="Hv"></output><input type="range" id="H" min="2.6" max="7" step="0.1" value="3.8"></div>
     <div class="campo"><label for="vincPil">Vincoli del pilastro (β)</label>
       <select id="vincPil"><option value="cc" selected>Cerniera–cerniera: β = 1</option><option value="ci">Incastro–cerniera: β = 0,7</option><option value="ii">Incastro–incastro: β = 0,5</option><option value="m">Mensola: β = 2</option></select></div>
     <div class="campo"><label for="serie">Serie di profili</label>
-      <select id="serie"><option value="HEB" selected>HEB</option><option value="HEA">HEA</option></select></div>
+      <select id="serie"><option value="HEB">HEB</option><option value="HEA" selected>HEA</option></select></div>
     <div class="campo"><label for="chi">Coefficiente χ₀</label><output id="chiv"></output><input type="range" id="chi" min="0.2" max="0.9" step="0.05" value="0.5"></div>
   </div>
   <div>
@@ -69,12 +72,13 @@
 </main>
 <footer class="sito">Strumento didattico del Modulo Struttura e Architettura. Valori dei profili e delle classi di resistenza da controllare sulle tabelle ufficiali. Riferimento normativo: NTC 2018 (D.M. 17 gennaio 2018).</footer>
 <script src="assets/js/calc.js"></script>
+<script src="assets/js/esempio.js"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); }, F = RT.fmt;
   function v(id) { return parseFloat($(id).value); }
   var BPIL = { cc: 1, ci: 0.7, ii: 0.5, m: 2 };
-  var famiglia = 'IPE';
+  var famiglia = 'IPE', ULT = {};
   function calcola() {
     $('Lv').textContent = F(v('L'), 1) + ' m'; $('Bv').textContent = F(v('B'), 1) + ' m';
     $('g1v').textContent = F(v('g1'), 1); $('g2v').textContent = F(v('g2'), 1); $('qv').textContent = F(v('q'), 1);
@@ -89,14 +93,17 @@
     var L0 = BPIL[$('vincPil').value] * v('H'), imin = RT.imin(L0), he = RT.sceltaHE(serie, Aming, imin);
     var heA = null; RT.HE[serie].some(function (r) { if (r[3] >= Aming) { heA = r; return true; } return false; });
     var latoK = RT.latoK('acciaio', v('A') * np);
+    var Imin = RT.Imin(k, ps, L, L), profI = null; RT.IPE.some(function (r) { if (r[3] >= Imin) { profI = r; return true; } return false; });
+    ULT = { hGeo: hGeo, qd: qd, pd: pd, M: M, W: W, Imin: Imin, profW: sc.profW ? sc.profW[0] : '-', profI: profI ? profI[0] : '-', prof: prof ? prof[0] : '-', delta: sc.delta,
+            N: N, Amin: Aming * 100, heA: heA ? heA[0] : '-', he: he ? he[0] : '-', imin: imin, iz: he ? he[6] : 0, WIPE: sc.profW ? sc.profW[2] : 0 };
     var p = '';
-    p += '<div class="passo"><h3><span class="liv">LIVELLO 1</span>Predimensionamento</h3><p>Trave: h ≈ L/' + RT.HLUCE[vinc] + ' = ' + F(L * 1000, 0) + '/' + RT.HLUCE[vinc] + ' = <b>' + F(hGeo, 0) + ' mm</b></p><p>Pilastro: i<sub>min</sub> ≥ β·H/100 = ' + F(BPIL[$('vincPil').value], 1) + '·' + F(v('H') * 1000, 0) + '/100 = <b>' + F(imin, 0) + ' mm</b>; ingombro ≈ 2,5·√(A·n) = <b>' + F(latoK / 10, 0) + ' cm</b></p></div>';
+    p += '<div class="passo"><h3><span class="liv">LIVELLO 1</span>Predimensionamento</h3><p>Trave: h ≈ L/' + RT.HLUCE[vinc] + ' = ' + F(L * 1000, 0) + '/' + RT.HLUCE[vinc] + ' = <b>' + F(hGeo, 0) + ' mm</b></p><p>Pilastro: i<sub>min</sub> ≥ β·H/100 = ' + F(BPIL[$('vincPil').value], 1) + '·' + F(v('H') * 1000, 0) + '/100 = <b>' + F(imin, 0) + ' mm</b>; ingombro ≈ κ·√(A·n) = 30·√(A·n) = <b>' + F(latoK, 0) + ' mm</b></p></div>';
     p += '<div class="passo"><h3><span class="liv">LIVELLO 2</span>1. Carichi</h3><p>q<sub>d,SLU</sub> = 1,3·G₁ + 1,5·G₂ + 1,5·Q = <b>' + F(qd, 2) + ' kN/m²</b></p><p>p<sub>d,SLU</sub> = q<sub>d</sub>·B = ' + F(qd, 2) + '·' + F(B, 1) + ' = <b class="ris">' + F(pd, 1) + ' kN/m</b>; p<sub>d,RARA</sub> = (G₁ + G₂ + Q)·B = <b>' + F(ps, 1) + ' kN/m</b></p></div>';
     p += '<div class="passo"><h3>2. Momento</h3><p>M<sub>Ed</sub> = p<sub>d,SLU</sub>·L²/β = ' + F(pd, 1) + '·' + F(L, 1) + '²/' + beta + ' = <b class="ris">' + F(M, 1) + ' kN·m</b></p></div>';
     p += '<div class="passo"><h3>3. Modulo di resistenza</h3><p>f<sub>yd</sub> = ' + fyk + '/1,05 = ' + F(fyd, 1) + ' MPa</p><p>W<sub>min</sub> = M<sub>Ed</sub>/f<sub>yd</sub> = ' + F(M, 1) + '·10⁶/' + F(fyd, 1) + ' = ' + F(W, 0) + '·10³ mm³ = <b class="ris">' + F(W, 0) + ' cm³</b></p></div>';
     if (prof) {
       var Iy = prof[3];
-      p += '<div class="passo"><h3>4. Profilo e verifica della freccia</h3><p>Primo IPE con W<sub>el,y</sub> ≥ W<sub>min</sub>: <b>' + sc.profW[0] + '</b> (W = ' + F(sc.profW[2], 0) + ' cm³)</p><p>δ = k·p<sub>d,RARA</sub>·L⁴/(384·E·I<sub>y</sub>) con I<sub>y</sub> = ' + F(Iy, 0) + ' cm⁴ = ' + F(Iy / 100, 2) + '·10⁶ mm⁴: δ = <b>' + F(sc.delta, 1) + ' mm</b> ' + (sc.delta <= sc.lim ? '≤' : '>') + ' L/250 = ' + F(sc.lim, 1) + ' mm</p>' +
+      p += '<div class="passo"><h3>4. Profilo e verifica della freccia</h3><p>Primo IPE con W<sub>el,y</sub> ≥ W<sub>min</sub>: <b>' + sc.profW[0] + '</b> (W = ' + F(sc.profW[2], 0) + ' cm³)</p><p>I<sub>y,min</sub> = k·p<sub>d,RARA</sub>·L⁴/(384·E·L/250) = <b>' + F(Imin, 0) + ' cm⁴</b> → primo IPE con I<sub>y</sub> ≥ I<sub>y,min</sub>: <b>' + (profI ? profI[0] : '-') + '</b></p><p>δ = k·p<sub>d,RARA</sub>·L⁴/(384·E·I<sub>y</sub>) con I<sub>y</sub> = ' + F(Iy, 0) + ' cm⁴ = ' + F(Iy / 100, 2) + '·10⁶ mm⁴: δ = <b>' + F(sc.delta, 1) + ' mm</b> ' + (sc.delta <= sc.lim ? '≤' : '>') + ' L/250 = ' + F(sc.lim, 1) + ' mm</p>' +
         (prof !== sc.profW ? '<p class="ko">Non basta: si passa al profilo successivo.</p>' : '') +
         '<p>Profilo: <b class="ris">' + prof[0] + '</b> (h = ' + prof[1] + ' mm; livello 1: ' + F(hGeo, 0) + ' mm)</p></div>';
     } else p += '<div class="passo"><h3>4. Profilo e verifica della freccia</h3><p class="ko">Nessun IPE soddisfa W e freccia: servono sezioni più grandi o un altro schema.</p></div>';
@@ -110,6 +117,7 @@
     if (he) { out += ipe(he[1], he[2], 200); out += '<text x="200" y="' + (he[1] * s + 30) + '" font-size="12">' + he[0] + '</text>'; }
     $('fig').setAttribute('viewBox', '0 0 400 200'); $('fig').innerHTML = out;
     sagomario(W, Aming, imin, sc, prof);
+    if (window.RTE) RTE.aggiorna();
   }
 
   function sagomario(W, Amin, imin, sc, prof) {
@@ -138,6 +146,53 @@
     famiglia = f; ['IPE', 'HEA', 'HEB'].forEach(function (g) { $('t' + g).setAttribute('aria-pressed', g === f); }); calcola(); }); });
   ['L', 'B', 'sch', 'acc', 'g1', 'g2', 'q', 'A', 'np', 'chi', 'H', 'vincPil', 'serie'].forEach(function (id) { $(id).addEventListener('input', calcola); });
   calcola();
+
+  // Esempio della lezione: gli stessi dati e gli stessi risultati delle slide (lezione3.tex)
+  var BASE = { acc: 'S235', g1: 3, g2: 3, q: 0.5, A: 26.125, np: 1, chi: 0.5, H: 3.8, vincPil: 'cc', serie: 'HEA' };
+  function sc(titolo, nota, v, attesi) { return { titolo: titolo, nota: nota, valori: Object.assign({}, BASE, v), attesi: attesi }; }
+  function trave(L, hGeo, pd, M, W, profW, Imin, profI, prof, tolI) {
+    return [
+      { e: 'Livello 1: h = L/25 [mm]', s: hGeo, d: 0, p: function () { return ULT.hGeo; } },
+      { e: 'p_d,SLU [kN/m]', s: pd, d: 1, p: function () { return ULT.pd; } },
+      { e: 'M_Ed [kN·m]', s: M, d: 1, p: function () { return ULT.M; } },
+      { e: 'W_y,min [cm³]', s: W, d: 0, p: function () { return ULT.W; } },
+      { e: 'Profilo per la sola resistenza', s: profW, p: function () { return ULT.profW; } },
+      { e: 'I_y,min [cm⁴]', s: Imin, d: 0, tol: tolI, p: function () { return ULT.Imin; } },
+      { e: 'Profilo per la sola deformabilità', s: profI, p: function () { return ULT.profI; } },
+      { e: 'Profilo scelto', s: prof, p: function () { return ULT.prof; } }
+    ];
+  }
+  function pilastro(Ainf, N, Amin, daA, scelto) {
+    return [
+      { e: 'N_Ed [kN]', s: N, d: 0, p: function () { return ULT.N; } },
+      { e: 'A_min [mm²]', s: Amin, d: 0, p: function () { return ULT.Amin; } },
+      { e: 'Profilo dalla sola area', s: daA, p: function () { return ULT.heA; } },
+      { e: 'i_min = H/100 [mm]', s: 38, d: 0, p: function () { return ULT.imin; } },
+      { e: 'Profilo con la stabilità', s: scelto, p: function () { return ULT.he; } }
+    ];
+  }
+  RTE.avvia({
+    contenitore: 'esempio',
+    descrizione: 'I dati e i risultati dell\'esempio svolto della lezione: la trave di un solaio e il telaio centrale della lezione 2 (travi di 5,5 m e di 4 m, tre pilastri). Scegli un esempio, controlla il confronto con le slide, poi cambia i dati.',
+    campi: ['L', 'B', 'sch', 'acc', 'g1', 'g2', 'q', 'A', 'np', 'chi', 'H', 'vincPil', 'serie'],
+    scenari: [
+      sc('Trave di un solaio', 'Acciaio S235, appoggiata, L = 6,5 m, interasse 1,5 m, G₁ = 3,0 · G₂ = 3,0 · Q = 0,5 kN/m² (carichi caratteristici).', { L: 6.5, B: 1.5, sch: 'appoggiata' },
+        [{ e: 'Livello 1: h ≈ L/20 [mm]', s: 325, d: 0, p: function () { return ULT.hGeo; } },
+         { e: 'p_d,SLU [kN/m]', s: 13.73, d: 2, p: function () { return ULT.pd; } },
+         { e: 'M_Ed [kN·m]', s: 72.5, d: 1, p: function () { return ULT.M; } },
+         { e: 'W_y,min [cm³]', s: 324, d: 0, p: function () { return ULT.W; } },
+         { e: 'Profilo per la sola resistenza', s: 'IPE 240', p: function () { return ULT.profW; } },
+         { e: 'I_y,min [cm⁴]', s: 4151, d: 0, p: function () { return ULT.Imin; } },
+         { e: 'Profilo per la sola deformabilità', s: 'IPE 270', p: function () { return ULT.profI; } },
+         { e: 'Profilo scelto', s: 'IPE 270', p: function () { return ULT.prof; } },
+         { e: 'δ_max [mm]', s: 18.6, d: 1, p: function () { return ULT.delta; } }]),
+      sc('Trave del telaio, 5,5 m', 'Telaio centrale della lezione 2: trave semi-incastrata (β = 10, k = 2,5), L = 5,5 m, larghezza d\'influenza 5,5 m.', { L: 5.5, B: 5.5, sch: 'semi' }, trave(5.5, 220, 50.3, 152.2, 680, 'IPE 330', 4616, 'IPE 270', 'IPE 330', 0.002)),
+      sc('Trave del telaio, 4 m', 'Stesso telaio, trave semi-incastrata di 4 m.', { L: 4, B: 5.5, sch: 'semi' }, trave(4, 160, 50.3, 80.5, 360, 'IPE 270', 1776, 'IPE 200', 'IPE 270', 0.002)),
+      sc('Pilastro sinistro', 'Un piano, H = 3,8 m, cerniera-cerniera (β = 1), χ₀ = 0,5. Area d\'influenza 2,00 × 5,50 = 11,0 m².', { A: 11 }, pilastro(11, 101, 899, 'HEA 100', 'HEA 160')),
+      sc('Pilastro centrale', 'Area d\'influenza 4,75 × 5,50 = 26,1 m².', { A: 26.125 }, pilastro(26.125, 239, 2136, 'HEA 120', 'HEA 160')),
+      sc('Pilastro destro', 'Area d\'influenza 2,75 × 5,50 = 15,1 m².', { A: 15.125 }, pilastro(15.125, 138, 1237, 'HEA 100', 'HEA 160'))
+    ]
+  });
 })();
 </script>
 <script src="assets/js/i18n-en.js"></script>

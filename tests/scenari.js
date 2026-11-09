@@ -66,6 +66,9 @@
       latoK: [1, 2, 3, 4, 5].map(function (n) { return ['ca', 'acciaio', 'legno'].map(function (m) { return RT.latoK(m, 36 * n); }); }),
       imin: [RT.imin(3.8), RT.imin(6.4)],
       hluce: RT.HLUCE,
+      neve: [RT.neveSuolo('III', 20), RT.neveSuolo('II', 600), RT.neveSuolo('I-A', 1000), RT.neveSuolo('I-M', 400), RT.neveSuolo('I-M', 150), RT.mu1(0), RT.mu1(30), RT.mu1(45), RT.mu1(60),
+             RT.caricoNeve('III', 20, 15, 'normale').qs, RT.caricoNeve('II', 600, 15, 'riparata').qs].map(r6),
+      Imin: [RT.Imin(5, 9.75, 6.5, 6.5), RT.Imin(2.5, 35.75, 5.5, 5.5)].map(r6),
       lezione4: [RT.dmin_emergente(159.6, 300, RT.fcd(25)), RT.bmin_spessore(159.6, 160, RT.fcd(25)), RT.su50(RT.dmin_emergente(159.6, 300, RT.fcd(25)) + 40)],
       stato: (function () {
         var st = RT.telaioStato(base({ n: 3, spans: [5, 5, 5], senza: { '3:2': true }, colSenza: { '3:3': true } }));
