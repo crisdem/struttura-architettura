@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#121212">
 <title>Lezione 2 - Area d'influenza e carichi | Struttura e Architettura</title>
 <meta name="description" content="Strumento interattivo per la lezione 2: area d'influenza di travi e pilastri con campate diverse, solaio a una via o a due vie (ripartizione a 45°), carico della neve secondo le NTC 2018. Slide da scaricare.">
-<link rel="stylesheet" href="assets/css/style.css?v=20261110">
+<link rel="stylesheet" href="assets/css/style.css?v=20261112">
 <style>
  #pianta [data-t]{cursor:pointer}
  #pianta [data-t]:focus-visible{outline:none}
@@ -20,6 +20,7 @@
  .mappa div.angolo{background:#dbe7f1}.mappa div.bordo{background:#dcecdf}.mappa div.interno{background:#f6dcd9}
  .mappa div.sel{border-color:#d1382b;box-shadow:0 0 0 2px #d1382b inset;font-weight:700}
  .leg{display:flex;gap:1rem;flex-wrap:wrap;font-size:.8rem;margin:.3rem 0}
+ i.sim{text-transform:none;font-style:normal;letter-spacing:0}
  .leg i{display:inline-block;width:.8rem;height:.8rem;border-radius:2px;margin-right:.3rem;vertical-align:-1px}
  table.conf td.on,table.conf th.on{background:#fbe9e7;font-weight:700}
  table.conf{margin:.4rem 0}
@@ -30,7 +31,7 @@
  .neve .kpi{display:flex;gap:1rem;flex-wrap:wrap;margin:.5rem 0}
  .neve .kpi div{background:var(--carta);border-top:3px solid var(--nero);padding:.4rem .8rem;border-radius:0 0 4px 4px}
  .neve .kpi b{display:block;font-size:1.25rem}
- .neve .kpi span{font-size:.75rem;color:var(--grigio);text-transform:uppercase;letter-spacing:.04em}
+ .neve .kpi span{font-size:.78rem;color:var(--grigio)}
 </style>
 </head>
 <body>
@@ -59,7 +60,19 @@
       <div class="campo"><label for="g1">G₁ strutturali</label><output id="g1v"></output><input type="range" id="g1" min="0.5" max="6" step="0.1" value="3"></div>
       <div class="campo"><label for="g2">G₂ non strutturali</label><output id="g2v"></output><input type="range" id="g2" min="0.5" max="6" step="0.1" value="3"></div>
       <div class="campo"><label for="q">Q variabile (o neve in copertura)</label><output id="qv"></output><input type="range" id="q" min="0" max="8" step="0.05" value="0.5"></div>
-      <p class="ris" id="qdOut" aria-live="polite" style="margin:.3rem 0 .6rem"></p>
+      <div class="campo"><label for="catQ">Categoria di Q <span class="unita">per i coefficienti ψ</span></label>
+        <select id="catQ"></select></div>
+      <div class="campo inline"><input type="checkbox" id="usaQ2"><label for="usaQ2">Aggiungi un secondo carico variabile Q₂</label></div>
+      <div id="boxQ2" hidden>
+        <div class="campo"><label for="q2">Q₂ variabile</label><output id="q2v"></output><input type="range" id="q2" min="0" max="8" step="0.05" value="2"></div>
+        <div class="campo"><label for="catQ2">Categoria di Q₂ <span class="unita">per i coefficienti ψ</span></label>
+          <select id="catQ2"></select></div>
+        <p class="nota" data-en="The slides do not work an example with two variable loads acting together: this is only to see how the combination and the ψ factors change the load. The most unfavourable case is taken: each variable is tried as the leading one." style="margin-top:-.2rem">Nelle slide non c'è un esempio svolto con due carichi variabili insieme: serve solo a vedere come cambiano la combinazione e i coefficienti ψ. Si prende il caso più sfavorevole: ogni variabile è provata come principale.</p>
+      </div>
+      <div class="campo"><label for="comb">Combinazione delle azioni</label>
+        <select id="comb"></select></div>
+      <p class="ris" id="qdOut" aria-live="polite" style="margin:.3rem 0 .2rem"></p>
+      <p class="nota" id="psiInfo" style="margin:0 0 .6rem"></p>
       <div class="campo"><label for="ord">Solaio</label>
         <select id="ord">
           <option value="y">Una via: orditura lungo y (appoggia sulle travi lungo x)</option>
@@ -94,7 +107,7 @@
     <div class="campo"><label for="as">Quota sul livello del mare <span class="unita">a<sub>s</sub> [m]</span></label><output id="asv"></output><input type="range" id="as" min="0" max="1500" step="10" value="20"></div>
     <div class="campo"><label for="alfa">Inclinazione della falda <span class="unita">α [°]</span></label><output id="alfav"></output><input type="range" id="alfa" min="0" max="70" step="1" value="15"></div>
     <div class="campo"><label for="esp">Esposizione al vento <span class="unita">C<sub>E</sub></span></label>
-      <select id="esp"><option value="vento">Battuta dai venti: C_E = 0,9</option><option value="normale" selected>Normale: C_E = 1,0</option><option value="riparata">Riparata: C_E = 1,1</option></select></div>
+      <select id="esp"><option value="vento">Battuta dai venti: 0,9</option><option value="normale" selected>Normale: 1,0</option><option value="riparata">Riparata: 1,1</option></select></div>
     <p class="nota" data-en="Thermal coefficient C&lt;sub&gt;t&lt;/sub&gt; = 1 (without specific studies on the insulation of the roof).">Coefficiente termico C<sub>t</sub> = 1 (senza studi specifici sull'isolamento della copertura).</p>
   </div>
   <div>
@@ -107,8 +120,8 @@
 </main>
 <footer class="sito">Strumento didattico: carichi ripartiti secondo area d'influenza, senza continuità delle travi né peso proprio. Non sostituisce l'analisi strutturale. Neve: NTC 2018 (D.M. 17 gennaio 2018), §3.4.</footer>
 
-<script src="assets/js/calc.js?v=20261110"></script>
-<script src="assets/js/esempio.js?v=20261110"></script>
+<script src="assets/js/calc.js?v=20261112"></script>
+<script src="assets/js/esempio.js?v=20261112"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
@@ -137,8 +150,11 @@
   }
 
   function stato() {
-    var nx = +$('nx').value, ny = +$('ny').value, G = RT.GAMMA, g1 = +$('g1').value, g2 = +$('g2').value, qv = +$('q').value;
-    var s = { nx: nx, ny: ny, Lx: Lx.slice(0, nx), Ly: Ly.slice(0, ny), xs: [0], ys: [0], qd: G.G1 * g1 + G.G2 * g2 + G.Q * qv, ord: $('ord').value };
+    var nx = +$('nx').value, ny = +$('ny').value, g1 = +$('g1').value, g2 = +$('g2').value, qv = +$('q').value;
+    var vars = [{ v: qv, cat: $('catQ').value }];
+    if ($('usaQ2').checked) vars.push({ v: +$('q2').value, cat: $('catQ2').value });
+    var cb = RT.combinazione($('comb').value, g1, g2, vars);
+    var s = { nx: nx, ny: ny, Lx: Lx.slice(0, nx), Ly: Ly.slice(0, ny), xs: [0], ys: [0], qd: cb.q, comb: cb, vars: vars, ord: $('ord').value };
     s.Lx.forEach(function (l) { s.xs.push(s.xs[s.xs.length - 1] + l); });
     s.Ly.forEach(function (l) { s.ys.push(s.ys[s.ys.length - 1] + l); });
     s.q = s.qd;
@@ -305,7 +321,8 @@
     var fqsk = as <= 200 ? F(z.base, 2) + ' (a<sub>s</sub> ≤ 200 m)' : F(z.k, 2) + '·[1 + (' + F(as, 0) + '/' + z.a0 + ')²] = ' + F(r.qsk, 2);
     var fmu = alfa <= 30 ? '0,8 (α ≤ 30°)' : (alfa < 60 ? '0,8·(60 − ' + F(alfa, 0) + ')/30 = ' + F(r.mu, 2) : '0 (α ≥ 60°)');
     var nomeZona = { 'I-A': T('Zona I - Alpina', 'Zone I - Alpine'), 'I-M': T('Zona I - Mediterranea', 'Zone I - Mediterranean'), 'II': T('Zona II', 'Zone II'), 'III': T('Zona III', 'Zone III') }[zona];
-    $('kpiNeve').innerHTML = '<div><b>' + F(r.qs, 2) + ' kN/m²</b><span>' + T('carico della neve', 'snow load') + ' q_s</span></div><div><b>' + F(r.qsk, 2) + '</b><span>q_sk ' + T('al suolo', 'on the ground') + '</span></div><div><b>' + F(r.mu, 2) + '</b><span>μ₁ (' + T('forma', 'shape') + ')</span></div>';
+    var sim = function (x) { return '<i class="sim">' + x + '</i>'; };     // simboli (q_s, μ₁...) senza il maiuscolo delle etichette
+    $('kpiNeve').innerHTML = '<div><b>' + F(r.qs, 2) + ' kN/m²</b><span>' + T('carico della neve', 'snow load') + ' ' + sim('q<sub>s</sub>') + '</span></div><div><b>' + F(r.qsk, 2) + '</b><span>' + sim('q<sub>sk</sub>') + ' ' + T('al suolo', 'on the ground') + '</span></div><div><b>' + F(r.mu, 2) + '</b><span>' + sim('μ<sub>1</sub>') + ' (' + T('forma', 'shape') + ')</span></div>';
     $('passiNeve').innerHTML =
       '<div class="passo"><h3>' + T('1. Al suolo', '1. On the ground') + ': q<sub>sk</sub></h3><p>' + nomeZona + ', a<sub>s</sub> = ' + F(as, 0) + ' m: q<sub>sk</sub> = <b>' + fqsk + ' kN/m²</b></p>' + (as > 1500 ? '<p class="ko">' + T('Oltre 1500 m servono le condizioni locali.', 'Above 1500 m local conditions are needed.') + '</p>' : '') + '</div>' +
       '<div class="passo"><h3>' + T('2. Forma della copertura', '2. Roof shape') + ': μ<sub>1</sub></h3><p>α = ' + F(alfa, 0) + '°: μ<sub>1</sub> = <b>' + fmu + '</b></p></div>' +
@@ -314,11 +331,42 @@
     if (window.RTE) RTE.aggiorna();
   }
 
+  // testo della combinazione scelta: formula simbolica e numerica, e il caso piu' sfavorevole se le variabili sono due
+  var SIM = { slu: 'q<sub>d,SLU</sub>', rara: 'q<sub>rara</sub>', freq: 'q<sub>freq</sub>', qp: 'q<sub>qp</sub>' };
+  function nc(x) { return F(x, Math.abs(x * 10 - Math.round(x * 10)) < 1e-9 ? 1 : 2); }          // coefficienti: 1,5 oppure 0,75
+  function numTermine(t) { return t.coef === 0 ? '0' : nc(t.coef) + '·' + F(t.v, 2); }
+  function testoCaso(s, caso, tipo) {
+    var cb = s.comb, sim, num, nomi = ['Q₁', 'Q₂'];
+    sim = (cb.cg1 === 1 ? '' : F(cb.cg1, 1) + '·') + 'G₁ + ' + (cb.cg2 === 1 ? '' : F(cb.cg2, 1) + '·') + 'G₂';
+    num = (cb.cg1 === 1 ? '' : F(cb.cg1, 1) + '·') + F(+$('g1').value, 1) + ' + ' + (cb.cg2 === 1 ? '' : F(cb.cg2, 1) + '·') + F(+$('g2').value, 1);
+    caso.term.forEach(function (t) {
+      var nome = s.vars.length > 1 ? nomi[t.i] : 'Q', coefSim = tipo === 'slu' ? (t.princ ? '1,5' : '1,5·ψ₀') : (tipo === 'rara' ? (t.princ ? '' : 'ψ₀') : t.psi);
+      sim += ' + ' + (coefSim ? coefSim + '·' : '') + nome;
+      num += ' + ' + numTermine(t);
+    });
+    return { sim: sim, num: num };
+  }
+  function testoCombinazione(s) {
+    var tipo = $('comb').value, c = testoCaso(s, s.comb.scelto, tipo), h = SIM[tipo] + ' = ' + c.sim + '<br>= ' + c.num + ' = <b>' + F(s.qd, 2) + ' kN/m²</b>';
+    if (s.vars.length > 1 && tipo !== 'qp') {
+      var nomi = ['Q₁', 'Q₂'];
+      h += '<br><span class="unita">Caso più sfavorevole: principale ' + nomi[s.comb.scelto.pr] + '. ' + s.comb.casi.map(function (k) { return 'Principale ' + nomi[k.pr] + ': ' + F(k.q, 2); }).join(' · ') + ' kN/m².</span>';
+    }
+    return h;
+  }
+  function testoPsi(s) {
+    var tipo = $('comb').value, nomi = ['Q₁', 'Q₂'];
+    if (tipo === 'qp') return 'Quasi permanente: solo ψ₂ su tutti i variabili. ' + s.vars.map(function (x, i) { return (s.vars.length > 1 ? nomi[i] : 'Q') + ': ψ₂ = ' + F(RT.PSI[x.cat].psi[2], 1); }).join(' · ') + '.';
+    return s.vars.map(function (x, i) { var P = RT.PSI[x.cat].psi; return (s.vars.length > 1 ? nomi[i] : 'Q') + ' — ' + RT.PSI[x.cat].nome + ': ψ₀ = ' + F(P[0], 1) + ', ψ₁ = ' + F(P[1], 1) + ', ψ₂ = ' + F(P[2], 1); }).join(' · ') + '. Valori: NTC 2018, Tab. 2.5.I.';
+  }
+
   function aggiorna() {
     var s = stato();
     $('nxv').textContent = s.nx; $('nyv').textContent = s.ny;
     $('g1v').textContent = F(+$('g1').value, 1); $('g2v').textContent = F(+$('g2').value, 1); $('qv').textContent = F(+$('q').value, 2);
-    $('qdOut').innerHTML = 'q<sub>d,SLU</sub> = 1,3·G₁ + 1,5·G₂ + 1,5·Q = <b>' + F(s.qd, 2) + ' kN/m²</b>';
+    $('q2v').textContent = F(+$('q2').value, 2);
+    $('qdOut').innerHTML = testoCombinazione(s);
+    $('psiInfo').innerHTML = testoPsi(s);
     if (sel.t === 'c') { sel.i = Math.min(sel.i, s.nx); sel.j = Math.min(sel.j, s.ny); }
     else if (sel.t === 'bx') { sel.i = Math.min(sel.i, s.nx - 1); sel.j = Math.min(sel.j, s.ny); }
     else { sel.i = Math.min(sel.i, s.ny - 1); sel.j = Math.min(sel.j, s.nx); }
@@ -332,18 +380,24 @@
   ['ugX', 'ugY'].forEach(function (id) { $(id).addEventListener('change', function () {
     if (!this.checked) return;
     var arr = id === 'ugX' ? Lx : Ly, v = arr[0]; for (var j = 0; j < 4; j++) arr[j] = v; costruisciCampate(); aggiorna(); }); });
-  ['g1', 'g2', 'q', 'ord'].forEach(function (id) { $(id).addEventListener('input', aggiorna); });
+  ['catQ', 'catQ2'].forEach(function (id) {
+    $(id).innerHTML = Object.keys(RT.PSI).map(function (k) { return '<option value="' + k + '">' + RT.PSI[k].nome + '</option>'; }).join('');
+  });
+  $('catQ').value = 'neve1'; $('catQ2').value = 'B';
+  $('comb').innerHTML = Object.keys(RT.COMBINAZIONI).map(function (k) { return '<option value="' + k + '">' + RT.COMBINAZIONI[k] + '</option>'; }).join('');
+  $('usaQ2').addEventListener('change', function () { $('boxQ2').hidden = !this.checked; aggiorna(); });
+  ['g1', 'g2', 'q', 'q2', 'catQ', 'catQ2', 'comb', 'ord'].forEach(function (id) { $(id).addEventListener('input', aggiorna); });
   ['zona', 'as', 'alfa', 'esp'].forEach(function (id) { $(id).addEventListener('input', neve); });
-  $('usaNeve').addEventListener('click', function () { $('q').value = Math.round(ULT.neve.qs * 20) / 20; aggiorna(); });
+  $('usaNeve').addEventListener('click', function () { $('q').value = Math.round(ULT.neve.qs * 20) / 20; $('catQ').value = +$('as').value > 1000 ? 'neve2' : 'neve1'; aggiorna(); });
   costruisciCampate(); aggiorna(); neve();
 
   // Esempio della lezione: gli stessi dati e gli stessi risultati delle slide (lezione2.tex)
-  var BASE = { nx: 2, ny: 2, Lx0: 4, Lx1: 5.5, Ly0: 5, Ly1: 6, ugX: false, ugY: false, g1: 3, g2: 3, q: 0.5, ord: 'y', zona: 'III', as: 20, alfa: 15, esp: 'normale' };
+  var BASE = { nx: 2, ny: 2, Lx0: 4, Lx1: 5.5, Ly0: 5, Ly1: 6, ugX: false, ugY: false, g1: 3, g2: 3, q: 0.5, catQ: 'neve1', usaQ2: false, q2: 2, catQ2: 'B', comb: 'slu', ord: 'y', zona: 'III', as: 20, alfa: 15, esp: 'normale' };
   function sc(titolo, nota, v, attesi, sel0) { return { titolo: titolo, nota: nota, valori: Object.assign({}, BASE, v), attesi: attesi, sel: sel0 }; }
   RTE.avvia({
     contenitore: 'esempio',
     descrizione: 'I dati e i risultati dell\'esempio svolto della lezione: il telaio centrale della lezione 2 (luci 4 e 5,5 m, interassi 5 e 6 m), il solaio a due vie a 45° e il carico della neve a Roma. Scegli un esempio, confronta con le slide, poi cambia i dati.',
-    campi: ['nx', 'ny', 'Lx0', 'Lx1', 'Ly0', 'Ly1', 'g1', 'g2', 'q', 'ord', 'zona', 'as', 'alfa', 'esp'],
+    campi: ['nx', 'ny', 'Lx0', 'Lx1', 'Ly0', 'Ly1', 'g1', 'g2', 'q', 'catQ', 'usaQ2', 'q2', 'catQ2', 'comb', 'ord', 'zona', 'as', 'alfa', 'esp'],
     prima: function (v) { if (v.nx !== undefined) { $('nx').value = v.nx; $('ny').value = v.ny; $('ugX').checked = !!v.ugX; $('ugY').checked = !!v.ugY; Lx[0] = v.Lx0; Lx[1] = v.Lx1; Ly[0] = v.Ly0; Ly[1] = v.Ly1; costruisciCampate(); } },
     dopo: function () { var e = RTE.scenarioAttivo(); if (e && e.sel) { sel = e.sel; aggiorna(); } },
     scenari: [
@@ -372,7 +426,7 @@
   });
 })();
 </script>
-<script src="assets/js/i18n-en.js?v=20261110"></script>
-<script src="assets/js/i18n.js?v=20261110"></script>
+<script src="assets/js/i18n-en.js?v=20261112"></script>
+<script src="assets/js/i18n.js?v=20261112"></script>
 </body>
 </html>

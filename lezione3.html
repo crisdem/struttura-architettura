@@ -6,12 +6,12 @@
 <meta name="theme-color" content="#121212">
 <title>Lezione 3 - Acciaio: trave e pilastro | Struttura e Architettura</title>
 <meta name="description" content="Dimensionamento guidato di una trave IPE e di un pilastro HEA o HEB in acciaio, passo per passo, con l'esempio svolto delle slide. Slide da scaricare.">
-<link rel="stylesheet" href="assets/css/style.css?v=20261110">
+<link rel="stylesheet" href="assets/css/style.css?v=20261112">
 <style>
  .kpi{display:flex;gap:1.2rem;flex-wrap:wrap;margin:.6rem 0}
  .kpi div{background:var(--carta);border-top:3px solid var(--nero);padding:.4rem .8rem;border-radius:0 0 4px 4px}
  .kpi b{display:block;font-size:1.25rem}
- .kpi span{font-size:.75rem;color:var(--grigio);text-transform:uppercase;letter-spacing:.04em}
+ .kpi span{font-size:.78rem;color:var(--grigio)}
  .campo.inline{grid-template-columns:auto 1fr;gap:.5rem}
  .campo.inline input[type=checkbox]{grid-column:auto;accent-color:var(--rosso);width:1.1rem;height:1.1rem}
  .passo{background:var(--bianco);border:1px solid var(--grigio-chiaro);border-left:4px solid var(--nero);padding:.6rem .9rem;margin:.7rem 0;border-radius:0 6px 6px 0}
@@ -35,7 +35,7 @@
 <main>
 <h1>Lezione 3: acciaio, passo per passo</h1>
 <p class="sotto" data-en="Change the data and follow the steps. &lt;span class=&quot;liv&quot;&gt;LEVEL 1&lt;/span&gt;preliminary sizing: geometric rules for drawing. &lt;span class=&quot;liv&quot;&gt;LEVEL 2&lt;/span&gt;sizing: loads, moment, W&lt;sub&gt;min&lt;/sub&gt;, &lt;b&gt;I&lt;sub&gt;min&lt;/sub&gt;&lt;/b&gt; and section of the beam, then the column (A&lt;sub&gt;min&lt;/sub&gt; and i&lt;sub&gt;min&lt;/sub&gt;).">Cambia i dati e segui i passaggi. <span class="liv">LIVELLO 1</span>predimensionamento: regole geometriche per disegnare. <span class="liv">LIVELLO 2</span>dimensionamento: carichi, momento, W<sub>min</sub>, <b>I<sub>min</sub></b> e profilo della trave, poi il pilastro (A<sub>min</sub> e i<sub>min</sub>).</p>
-<p class="azioni"><a class="bottone" href="pdf/lezione3.pdf" download>⬇ Scarica le slide (PDF) <small class="pdf-info" data-pdf="lezione3" data-en="34 pages, 256 KB">34 pagine, 256 KB</small></a><a class="bottone chiaro" href="telaio.html?materiale=acciaio&amp;campate=2&amp;luci=4,5.5&amp;H=3.8&amp;B=5.5&amp;piani=1&amp;acc=S235&amp;g1=3&amp;g2=3&amp;neve=0.5">Prova il telaio piano</a></p>
+<p class="azioni"><a class="bottone" href="pdf/lezione3.pdf" download>⬇ Scarica le slide (PDF) <small class="pdf-info" data-pdf="lezione3" data-en="35 pages, 269 KB">35 pagine, 269 KB</small></a><a class="bottone chiaro" href="telaio.html?materiale=acciaio&amp;campate=2&amp;luci=4,5.5&amp;H=3.8&amp;B=5.5&amp;piani=1&amp;acc=S235&amp;g1=3&amp;g2=3&amp;neve=0.5">Prova il telaio piano</a></p>
 <section id="esempio" class="esempio-lezione" aria-label="Esempio della lezione"></section>
 <div class="griglia due">
   <div class="pannello">
@@ -73,8 +73,8 @@
 </div>
 </main>
 <footer class="sito">Strumento didattico del Modulo Struttura e Architettura. Valori dei profili e delle classi di resistenza da controllare sulle tabelle ufficiali. Riferimento normativo: NTC 2018 (D.M. 17 gennaio 2018).</footer>
-<script src="assets/js/calc.js?v=20261110"></script>
-<script src="assets/js/esempio.js?v=20261110"></script>
+<script src="assets/js/calc.js?v=20261112"></script>
+<script src="assets/js/esempio.js?v=20261112"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); }, F = RT.fmt;
@@ -105,7 +105,7 @@
     p += '<div class="passo"><h3>3. Modulo di resistenza</h3><p>f<sub>yd</sub> = ' + fyk + '/1,05 = ' + F(fyd, 1) + ' MPa</p><p>W<sub>min</sub> = M<sub>Ed</sub>/f<sub>yd</sub> = ' + F(M, 1) + '·10⁶/' + F(fyd, 1) + ' = ' + F(W, 0) + '·10³ mm³ = <b class="ris">' + F(W, 0) + ' cm³</b></p></div>';
     if (prof) {
       var Iy = prof[3];
-      p += '<div class="passo"><h3>4. Momento d\'inerzia minimo e profilo</h3><p>I<sub>y,min</sub> = k·p<sub>d,RARA</sub>·L⁴/(384·E·δ<sub>lim</sub>), con δ<sub>lim</sub> = L/250 = ' + F(L * 4, 1) + ' mm: <b>' + F(Imin, 0) + ' cm⁴</b></p><p>Solo per W<sub>y</sub> ≥ W<sub>min</sub>: <b>' + sc.profW[0] + '</b> (W = ' + F(sc.profW[2], 0) + ' cm³). Solo per I<sub>y</sub> ≥ I<sub>y,min</sub>: <b>' + (profI ? profI[0] : '-') + '</b> (I<sub>y</sub> = ' + F(profI ? profI[3] : 0, 0) + ' cm⁴)</p>' +
+      p += '<div class="passo"><h3>4. Momento d\'inerzia minimo e profilo</h3><p>I<sub>y,min</sub> = k·p<sub>d,RARA</sub>·L⁴/(E·δ<sub>lim</sub>), con k = ' + ({ appoggiata: '5/384', semi: '2,5/384', incastro: '1/384' })[vinc] + ' e δ<sub>lim</sub> = L/250 = ' + F(L * 4, 1) + ' mm: <b>' + F(Imin, 0) + ' cm⁴</b></p><p>Solo per W<sub>y</sub> ≥ W<sub>min</sub>: <b>' + sc.profW[0] + '</b> (W = ' + F(sc.profW[2], 0) + ' cm³). Solo per I<sub>y</sub> ≥ I<sub>y,min</sub>: <b>' + (profI ? profI[0] : '-') + '</b> (I<sub>y</sub> = ' + F(profI ? profI[3] : 0, 0) + ' cm⁴)</p>' +
         (prof !== sc.profW ? '<p class="ko">Decide la deformabilità: per la sola resistenza basterebbe ' + sc.profW[0] + '.</p>' : '') +
         '<p>Primo IPE con W ≥ W<sub>min</sub> e I<sub>y</sub> ≥ I<sub>y,min</sub>: <b class="ris">' + prof[0] + '</b> (h = ' + prof[1] + ' mm; livello 1: ' + F(hGeo, 0) + ' mm)</p><p class="unita">Con il profilo scelto, a titolo informativo: δ = k·p<sub>d,RARA</sub>·L⁴/(384·E·I<sub>y</sub>) = ' + F(delta, 1) + ' mm ≤ L/250 = ' + F(L * 4, 1) + ' mm.</p></div>';
     } else p += '<div class="passo"><h3>4. Momento d\'inerzia minimo e profilo</h3><p class="ko">Nessun IPE soddisfa W e I<sub>min</sub>: servono sezioni più grandi o un altro schema.</p></div>';
@@ -199,7 +199,7 @@
   });
 })();
 </script>
-<script src="assets/js/i18n-en.js?v=20261110"></script>
-<script src="assets/js/i18n.js?v=20261110"></script>
+<script src="assets/js/i18n-en.js?v=20261112"></script>
+<script src="assets/js/i18n.js?v=20261112"></script>
 </body>
 </html>

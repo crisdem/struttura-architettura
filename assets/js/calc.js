@@ -179,6 +179,34 @@
     var pa = RT.PASSO_K[mat];
     return Math.max(RT.MIN_K[mat], pa * Math.ceil(RT.latoKgrezzo(mat, Lmax, pos, n) / pa - 1e-9));
   };
+  // Livello 1 del telaio (Lezione 1, esempio svolto): ingombri di travi e pilastri dalla sola geometria. L, L_solaio in m; risultati in mm.
+  //   acciaio: h = L/eta, eta = 20 | 25 | 30 (appoggiata | semi-incastro | incastro), b = h/2
+  //   c.a. emergente: h = L/10, b = 300; a spessore: h = L_solaio/25, b = L/6
+  //   legno lamellare: h = L/20 .. L/15, b = h/3 .. h/2 (qui h = L/15, b = h/2, per eccesso)
+  RT.predimTrave = function (mat, schema, L, Lsolaio) {
+    var h;
+    if (mat === 'acciaio') { var x = RT.HLUCE[schema]; h = L * 1000 / x; return { h: h, b: h / 2, hMin: h, hMax: h, regola: 'L/' + x }; }
+    if (mat === 'legno') { var h2 = L * 1000 / 15; return { h: h2, b: h2 / 2, hMin: L * 1000 / 20, hMax: h2, bMin: L * 1000 / 60, bMax: h2 / 2, regola: 'L/20–L/15' }; }
+    if (schema === 'spessore') { h = Lsolaio * 1000 / 25; return { h: h, b: L * 1000 / 6, hMin: h, hMax: h, regola: 'L_solaio/25' }; }
+    return { h: L * 100, b: 300, hMin: L * 100, hMax: L * 100, regola: 'L/10' };
+  };
+  // p: {mat: 'acciaio'|'ca'|'legno', schema, spans: [m], B1, B2 (interassi dei telai vicini, m), n (piani), H: [m] per interpiano}
+  // Telaio centrale: i pilastri di estremita' sono di bordo, gli altri interni; L_max = trave piu' lunga fra le campate adiacenti e le travi trasversali B1, B2.
+  // Il lato dei pilastri dipende da n (piani sopra il tratto), non dall'altezza H: la stabilita' e' del livello 2.
+  RT.predimTelaio = function (p) {
+    var nc = p.spans.length, Lsol = Math.max(p.B1, p.B2), j, s;
+    var travi = p.spans.map(function (L) { return RT.predimTrave(p.mat, p.schema, L, Lsol); });
+    var pil = [];
+    for (j = 0; j <= nc; j++) {
+      var Lm = Math.max(p.B1, p.B2, j > 0 ? p.spans[j - 1] : 0, j < nc ? p.spans[j] : 0);
+      var nome = (j === 0 || j === nc) ? 'bordo' : 'interno', pos = RT.POS_PILASTRO[nome], grezzi = [], lati = [];
+      for (s = 1; s <= p.n; s++) { var ns = p.n - s + 1; grezzi.push(RT.latoKgrezzo(p.mat, Lm, pos, ns)); lati.push(RT.latoK(p.mat, Lm, pos, ns)); }
+      pil.push({ j: j, posNome: nome, pos: pos, Lmax: Lm, grezzi: grezzi, lati: lati });
+    }
+    var hMax = Math.max.apply(null, travi.map(function (t) { return t.h; }));
+    var nette = []; for (s = 0; s < p.n; s++) nette.push(p.H[s] * 1000 - hMax);
+    return { travi: travi, pil: pil, hMax: hMax, nette: nette };
+  };
   RT.LAMBDA0 = 100;                                            // snellezza di riferimento: i_min >= beta H / lambda0
   RT.imin = function (L0_m) { return L0_m * 1000 / RT.LAMBDA0; };   // mm, L0 = beta * H libera (livello 2, acciaio)
   RT.LATO_L0 = 15;                                             // c.a. e legno: lato >= L0 / 15 (lambda circa 50, valore didattico; livello 2)
@@ -224,6 +252,41 @@
   RT.bmin_spessore = function (M_kNm, d, fcd) { return Math.pow(2.2, 2) * M_kNm * 1e6 / (d * d * fcd); }; // mm, rho' = 2,2
   RT.Amin_pilastro_cls = function (N_kN, fcd, nu) { return N_kN * 1e3 / ((nu || 0.5) * fcd); };          // mm2, nu (default 0,5)
   RT.su50 = function (x) { return Math.ceil(x / 50 - 1e-9) * 50; };
+
+  // ---- combinazioni delle azioni (NTC 2018, §2.5.3) e coefficienti psi (Tab. 2.5.I): [psi0, psi1, psi2] ----
+  RT.PSI = {
+    A:     { nome: 'Cat. A - ambienti residenziali', psi: [0.7, 0.5, 0.3] },
+    B:     { nome: 'Cat. B - uffici', psi: [0.7, 0.5, 0.3] },
+    C:     { nome: 'Cat. C - ambienti affollati', psi: [0.7, 0.7, 0.6] },
+    H:     { nome: 'Cat. H - coperture (sola manutenzione)', psi: [0, 0, 0] },
+    neve1: { nome: 'Neve (quota ≤ 1000 m s.l.m.)', psi: [0.5, 0.2, 0] },
+    neve2: { nome: 'Neve (quota > 1000 m s.l.m.)', psi: [0.7, 0.5, 0.2] },
+    vento: { nome: 'Vento', psi: [0.6, 0.2, 0] }
+  };
+  RT.COMBINAZIONI = { slu: 'SLU - combinazione fondamentale', rara: 'SLE - combinazione rara', freq: 'SLE - combinazione frequente', qp: 'SLE - combinazione quasi permanente' };
+  // Carico di superficie q [kN/m2] della combinazione 'tipo' per g1, g2 e le azioni variabili vars = [{v: valore caratteristico, cat: chiave di RT.PSI}].
+  //   slu:  1,3 G1 + 1,5 G2 + 1,5 Qk1 + sum 1,5 psi0i Qki      rara:  G1 + G2 + Qk1 + sum psi0i Qki
+  //   freq: G1 + G2 + psi11 Qk1 + sum psi2i Qki                qp:    G1 + G2 + sum psi2i Qki
+  // Si prova ogni variabile come principale e si tiene il caso piu' sfavorevole (nella quasi permanente non c'e' un principale).
+  RT.combinazione = function (tipo, g1, g2, vars) {
+    var G = RT.GAMMA, slu = (tipo === 'slu'), cg1 = slu ? G.G1 : 1, cg2 = slu ? G.G2 : 1, cq = slu ? G.Q : 1;
+    function caso(pr) {
+      var tot = cg1 * g1 + cg2 * g2, term = [];
+      vars.forEach(function (x, i) {
+        var P = RT.PSI[x.cat].psi, princ = (i === pr), c, nome;
+        if (tipo === 'slu' || tipo === 'rara') { c = princ ? cq : cq * P[0]; nome = princ ? '' : 'ψ₀'; }
+        else if (tipo === 'freq') { c = princ ? P[1] : P[2]; nome = princ ? 'ψ₁' : 'ψ₂'; }
+        else { c = P[2]; nome = 'ψ₂'; }
+        tot += c * x.v; term.push({ i: i, v: x.v, coef: c, psi: nome, princ: princ });
+      });
+      return { q: tot, pr: pr, term: term };
+    }
+    var casi = [];
+    if (tipo === 'qp' || vars.length === 0) casi.push(caso(-1));
+    else vars.forEach(function (x, i) { casi.push(caso(i)); });
+    var scelto = casi[0]; casi.forEach(function (c) { if (c.q > scelto.q + 1e-12) scelto = c; });
+    return { q: scelto.q, scelto: scelto, casi: casi, cg1: cg1, cg2: cg2 };
+  };
 
   // ---- statistica (per la lezione sulla sicurezza) ----
   // ---- carico della neve sulle coperture (NTC 2018, par. 3.4): q_s = mu_i * q_sk * C_E * C_t  [kN/m2, sulla proiezione orizzontale]
