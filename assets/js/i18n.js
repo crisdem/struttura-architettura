@@ -22,15 +22,22 @@
   if (LANG !== 'en' || !window.RT_EN) return;
 
   var D = window.RT_EN, chiavi = Object.keys(D).sort(function (a, b) { return b.length - a.length; }), cache = {};
-  function tr(testo) {
-    var t = testo.trim(); if (!t) return testo;
-    if (cache[t] !== undefined) return testo.replace(t, cache[t]);
+  function trad(t) {
     var r = D[t];
     if (r === undefined) {
       r = t;
       for (var i = 0; i < chiavi.length; i++) { var k = chiavi[i]; if (k.length > 2 && r.indexOf(k) >= 0) r = r.split(k).join(D[k]); }
     }
-    cache[t] = r; return testo.replace(t, r);
+    return r;
+  }
+  function tr(testo) {
+    var t = testo.trim(); if (!t) return testo;
+    var fine = /\s$/.test(testo), ck = fine ? t + '\u0001' : t;
+    if (cache[ck] !== undefined) return testo.replace(t, cache[ck]);
+    var r = trad(t);
+    // le etichette seguite da un <span> (« Altezza netta <span>[m]</span> ») finiscono con uno spazio, come la loro chiave nel dizionario
+    if (r === t && fine) { var r2 = trad(t + ' '); if (r2 !== t + ' ') r = r2.replace(/ $/, ''); }
+    cache[ck] = r; return testo.replace(t, r);
   }
   function nodo(n) {
     if (n.nodeType === 3) {

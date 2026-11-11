@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#121212">
 <title>Lezione 2 - Area d'influenza e carichi | Struttura e Architettura</title>
 <meta name="description" content="Strumento interattivo per la lezione 2: area d'influenza di travi e pilastri con campate diverse, solaio a una via o a due vie (ripartizione a 45°), carico della neve secondo le NTC 2018. Slide da scaricare.">
-<link rel="stylesheet" href="assets/css/style.css?v=20261114">
+<link rel="stylesheet" href="assets/css/style.css?v=20261115">
 <style>
  #pianta [data-t]{cursor:pointer}
  #pianta [data-t]:focus-visible{outline:none}
@@ -57,17 +57,18 @@
       <div id="campiY"></div>
       <div class="campo inline"><input type="checkbox" id="ugY"><label for="ugY">Campate in y tutte uguali</label></div>
       <h3>Carichi del solaio [kN/m²]</h3>
-      <div class="campo"><label for="g1">G₁ strutturali</label><output id="g1v"></output><input type="range" id="g1" min="0.5" max="6" step="0.1" value="3"></div>
-      <div class="campo"><label for="g2">G₂ non strutturali</label><output id="g2v"></output><input type="range" id="g2" min="0.5" max="6" step="0.1" value="3"></div>
-      <div class="campo"><label for="q">Q variabile (o neve in copertura)</label><output id="qv"></output><input type="range" id="q" min="0" max="8" step="0.05" value="0.5"></div>
-      <div class="campo"><label for="catQ">Categoria di Q <span class="unita">per i coefficienti ψ</span></label>
+      <p class="nota" style="margin:0 0 .2rem">Col cursore (passo 0,05) oppure scrivendo il valore a mano, con la precisione che serve (per es. 0,48).</p>
+      <div class="campo"><label for="g1">G₁ strutturali</label><input type="number" id="g1" min="0" step="0.05" value="3" inputmode="decimal"><input type="range" id="g1s" min="0.5" max="6" step="0.05" value="3" aria-label="G₁ strutturali, cursore"></div>
+      <div class="campo"><label for="g2">G₂ non strutturali</label><input type="number" id="g2" min="0" step="0.05" value="3" inputmode="decimal"><input type="range" id="g2s" min="0.5" max="6" step="0.05" value="3" aria-label="G₂ non strutturali, cursore"></div>
+      <div class="campo"><label for="q">Q₁ variabile</label><input type="number" id="q" min="0" step="0.05" value="0.5" inputmode="decimal"><input type="range" id="qs" min="0" max="8" step="0.05" value="0.5" aria-label="Q₁ variabile, cursore"></div>
+      <div class="campo"><label for="catQ">Categoria di Q₁ <span class="unita">per i coefficienti ψ</span></label>
         <select id="catQ"></select></div>
       <div class="campo inline"><input type="checkbox" id="usaQ2"><label for="usaQ2">Aggiungi un secondo carico variabile Q₂</label></div>
       <div id="boxQ2" hidden>
-        <div class="campo"><label for="q2">Q₂ variabile</label><output id="q2v"></output><input type="range" id="q2" min="0" max="8" step="0.05" value="2"></div>
+        <div class="campo"><label for="q2">Q₂ variabile</label><input type="number" id="q2" min="0" step="0.05" value="2" inputmode="decimal"><input type="range" id="q2s" min="0" max="8" step="0.05" value="2" aria-label="Q₂ variabile, cursore"></div>
         <div class="campo"><label for="catQ2">Categoria di Q₂ <span class="unita">per i coefficienti ψ</span></label>
           <select id="catQ2"></select></div>
-        <p class="nota" data-en="The slides do not work an example with two variable loads acting together: this is only to see how the combination and the ψ factors change the load. The most unfavourable case is taken: each variable is tried as the leading one." style="margin-top:-.2rem">Nelle slide non c'è un esempio svolto con due carichi variabili insieme: serve solo a vedere come cambiano la combinazione e i coefficienti ψ. Si prende il caso più sfavorevole: ogni variabile è provata come principale.</p>
+        <p class="nota" data-en="The slides do not work an example with two variable loads acting together: this is only to see how the combination and the ψ factors change the load. The most unfavourable case is taken: each variable is tried as the base action." style="margin-top:-.2rem">Nelle slide non c'è un esempio svolto con due carichi variabili insieme: serve solo a vedere come cambiano la combinazione e i coefficienti ψ. Si prende il caso più sfavorevole: ogni variabile è provata come azione di base.</p>
       </div>
       <div class="campo"><label for="comb">Combinazione delle azioni</label>
         <select id="comb"></select></div>
@@ -113,15 +114,15 @@
   <div>
     <div class="kpi" id="kpiNeve" aria-live="polite"></div>
     <div id="passiNeve"></div>
-    <div class="azioni"><button type="button" class="bottone chiaro" id="usaNeve">Usa il valore calcolato come Q in copertura (carichi del solaio qui sopra)</button></div>
+    <div class="azioni"><button type="button" class="bottone chiaro" id="usaNeve">Usa il valore calcolato come Q₁ in copertura (carichi del solaio qui sopra)</button></div>
     <p class="nota" data-en="Values without local studies, for altitudes up to 1500 m (above that, local conditions are needed). Zone I - Alpine: q&lt;sub&gt;sk&lt;/sub&gt; = 1.50 for a&lt;sub&gt;s&lt;/sub&gt; ≤ 200 m, otherwise 1.39·[1 + (a&lt;sub&gt;s&lt;/sub&gt;/728)²]. Zone I - Mediterranean: 1.50, then 1.35·[1 + (a&lt;sub&gt;s&lt;/sub&gt;/602)²]. Zone II: 1.00, then 0.85·[1 + (a&lt;sub&gt;s&lt;/sub&gt;/481)²]. Zone III: 0.60, then 0.51·[1 + (a&lt;sub&gt;s&lt;/sub&gt;/481)²]. Shape coefficient, roof with one or two pitches: μ₁ = 0.8 for 0° ≤ α ≤ 30°; 0.8·(60 − α)/30 for 30° &amp;lt; α &amp;lt; 60°; 0 for α ≥ 60° (if the snow is not prevented from sliding). For roofs with several pitches, parapets or drifts, other standards are needed.">Valori in assenza di studi locali, per quote fino a 1500 m (oltre servono condizioni locali). Zona I - Alpina: q<sub>sk</sub> = 1,50 per a<sub>s</sub> ≤ 200 m, altrimenti 1,39·[1 + (a<sub>s</sub>/728)²]. Zona I - Mediterranea: 1,50, poi 1,35·[1 + (a<sub>s</sub>/602)²]. Zona II: 1,00, poi 0,85·[1 + (a<sub>s</sub>/481)²]. Zona III: 0,60, poi 0,51·[1 + (a<sub>s</sub>/481)²]. Coefficiente di forma, copertura a una o due falde: μ₁ = 0,8 per 0° ≤ α ≤ 30°; 0,8·(60 − α)/30 per 30° &lt; α &lt; 60°; 0 per α ≥ 60° (se la neve non è impedita di scivolare). Per coperture a più falde, con parapetti o accumuli servono altre norme.</p>
   </div>
 </div>
 </main>
 <footer class="sito">Strumento didattico: carichi ripartiti secondo area d'influenza, senza continuità delle travi né peso proprio. Non sostituisce l'analisi strutturale. Neve: NTC 2018 (D.M. 17 gennaio 2018), §3.4.</footer>
 
-<script src="assets/js/calc.js?v=20261114"></script>
-<script src="assets/js/esempio.js?v=20261114"></script>
+<script src="assets/js/calc.js?v=20261115"></script>
+<script src="assets/js/esempio.js?v=20261115"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
@@ -129,6 +130,15 @@
   var sel = { t: 'bx', i: 1, j: 1 };
   var Lx = [4, 5.5, 5, 5], Ly = [5, 6, 5, 5];            // luci delle campate (m): l'esempio svolto della lezione
   var ULT = {};
+
+  // I carichi si danno col cursore (passo 0,05) oppure si scrivono a mano con la precisione che serve (per es. 0,48).
+  // Il campo numerico e' la fonte del valore; il cursore lo segue. Se il campo e' vuoto o non valido (mentre si scrive) vale l'ultimo valore buono.
+  var CAR = ['g1', 'g2', 'q', 'q2'], ULTIMO = {};
+  function val(id) {
+    var x = parseFloat($(id).value);
+    if (isFinite(x) && x >= 0) { ULTIMO[id] = x; return x; }
+    return ULTIMO[id] !== undefined ? ULTIMO[id] : 0;
+  }
 
   function costruisciCampate() {
     var nx = +$('nx').value, ny = +$('ny').value;
@@ -150,9 +160,9 @@
   }
 
   function stato() {
-    var nx = +$('nx').value, ny = +$('ny').value, g1 = +$('g1').value, g2 = +$('g2').value, qv = +$('q').value;
+    var nx = +$('nx').value, ny = +$('ny').value, g1 = val('g1'), g2 = val('g2'), qv = val('q');
     var vars = [{ v: qv, cat: $('catQ').value }];
-    if ($('usaQ2').checked) vars.push({ v: +$('q2').value, cat: $('catQ2').value });
+    if ($('usaQ2').checked) vars.push({ v: val('q2'), cat: $('catQ2').value });
     var cb = RT.combinazione($('comb').value, g1, g2, vars);
     var s = { nx: nx, ny: ny, Lx: Lx.slice(0, nx), Ly: Ly.slice(0, ny), xs: [0], ys: [0], qd: cb.q, comb: cb, vars: vars, ord: $('ord').value };
     s.Lx.forEach(function (l) { s.xs.push(s.xs[s.xs.length - 1] + l); });
@@ -319,15 +329,15 @@
     var r = RT.caricoNeve(zona, as, alfa, esp, 1), z = RT.ZONE_NEVE[zona];
     ULT.neve = r;
     var fqsk = as <= 200 ? F(z.base, 2) + ' (a<sub>s</sub> ≤ 200 m)' : F(z.k, 2) + '·[1 + (' + F(as, 0) + '/' + z.a0 + ')²] = ' + F(r.qsk, 2);
-    var fmu = alfa <= 30 ? '0,8 (α ≤ 30°)' : (alfa < 60 ? '0,8·(60 − ' + F(alfa, 0) + ')/30 = ' + F(r.mu, 2) : '0 (α ≥ 60°)');
+    var fmu = alfa <= 30 ? F(0.8, 1) + ' (α ≤ 30°)' : (alfa < 60 ? F(0.8, 1) + '·(60 − ' + F(alfa, 0) + ')/30 = ' + F(r.mu, 2) : '0 (α ≥ 60°)');
     var nomeZona = { 'I-A': T('Zona I - Alpina', 'Zone I - Alpine'), 'I-M': T('Zona I - Mediterranea', 'Zone I - Mediterranean'), 'II': T('Zona II', 'Zone II'), 'III': T('Zona III', 'Zone III') }[zona];
     var sim = function (x) { return '<i class="sim">' + x + '</i>'; };     // simboli (q_s, μ₁...) senza il maiuscolo delle etichette
     $('kpiNeve').innerHTML = '<div><b>' + F(r.qs, 2) + ' kN/m²</b><span>' + T('carico della neve', 'snow load') + ' ' + sim('q<sub>s</sub>') + '</span></div><div><b>' + F(r.qsk, 2) + '</b><span>' + sim('q<sub>sk</sub>') + ' ' + T('al suolo', 'on the ground') + '</span></div><div><b>' + F(r.mu, 2) + '</b><span>' + sim('μ<sub>1</sub>') + ' (' + T('forma', 'shape') + ')</span></div>';
     $('passiNeve').innerHTML =
       '<div class="passo"><h3>' + T('1. Al suolo', '1. On the ground') + ': q<sub>sk</sub></h3><p>' + nomeZona + ', a<sub>s</sub> = ' + F(as, 0) + ' m: q<sub>sk</sub> = <b>' + fqsk + ' kN/m²</b></p>' + (as > 1500 ? '<p class="ko">' + T('Oltre 1500 m servono le condizioni locali.', 'Above 1500 m local conditions are needed.') + '</p>' : '') + '</div>' +
       '<div class="passo"><h3>' + T('2. Forma della copertura', '2. Roof shape') + ': μ<sub>1</sub></h3><p>α = ' + F(alfa, 0) + '°: μ<sub>1</sub> = <b>' + fmu + '</b></p></div>' +
-      '<div class="passo"><h3>' + T('3. Esposizione e coefficiente termico', '3. Exposure and thermal coefficient') + '</h3><p>C<sub>E</sub> = <b>' + F(r.CE, 1) + '</b>, C<sub>t</sub> = <b>1,0</b></p></div>' +
-      '<div class="passo"><h3>' + T('4. Carico sulla copertura', '4. Load on the roof') + '</h3><p>q<sub>s</sub> = μ<sub>1</sub>·q<sub>sk</sub>·C<sub>E</sub>·C<sub>t</sub> = ' + F(r.mu, 2) + '·' + F(r.qsk, 2) + '·' + F(r.CE, 1) + '·1,0 = <b class="ris">' + F(r.qs, 2) + ' kN/m²</b></p></div>';
+      '<div class="passo"><h3>' + T('3. Esposizione e coefficiente termico', '3. Exposure and thermal coefficient') + '</h3><p>C<sub>E</sub> = <b>' + F(r.CE, 1) + '</b>, C<sub>t</sub> = <b>' + F(1, 1) + '</b></p></div>' +
+      '<div class="passo"><h3>' + T('4. Carico sulla copertura', '4. Load on the roof') + '</h3><p>q<sub>s</sub> = μ<sub>1</sub>·q<sub>sk</sub>·C<sub>E</sub>·C<sub>t</sub> = ' + F(r.mu, 2) + '·' + F(r.qsk, 2) + '·' + F(r.CE, 1) + '·' + F(1, 1) + ' = <b class="ris">' + F(r.qs, 2) + ' kN/m²</b></p></div>';
     if (window.RTE) RTE.aggiorna();
   }
 
@@ -338,9 +348,9 @@
   function testoCaso(s, caso, tipo) {
     var cb = s.comb, sim, num, nomi = ['Q₁', 'Q₂'];
     sim = (cb.cg1 === 1 ? '' : F(cb.cg1, 1) + '·') + 'G₁ + ' + (cb.cg2 === 1 ? '' : F(cb.cg2, 1) + '·') + 'G₂';
-    num = (cb.cg1 === 1 ? '' : F(cb.cg1, 1) + '·') + F(+$('g1').value, 1) + ' + ' + (cb.cg2 === 1 ? '' : F(cb.cg2, 1) + '·') + F(+$('g2').value, 1);
+    num = (cb.cg1 === 1 ? '' : F(cb.cg1, 1) + '·') + nc(val('g1')) + ' + ' + (cb.cg2 === 1 ? '' : F(cb.cg2, 1) + '·') + nc(val('g2'));
     caso.term.forEach(function (t) {
-      var nome = s.vars.length > 1 ? nomi[t.i] : 'Q', coefSim = tipo === 'slu' ? (t.princ ? '1,5' : '1,5·ψ₀') : (tipo === 'rara' ? (t.princ ? '' : 'ψ₀') : t.psi);
+      var nome = nomi[t.i], coefSim = tipo === 'slu' ? (t.princ ? F(1.5, 1) : F(1.5, 1) + '·ψ₀') : (tipo === 'rara' ? (t.princ ? '' : 'ψ₀') : t.psi);
       sim += ' + ' + (coefSim ? coefSim + '·' : '') + nome;
       num += ' + ' + numTermine(t);
     });
@@ -350,21 +360,20 @@
     var tipo = $('comb').value, c = testoCaso(s, s.comb.scelto, tipo), h = SIM[tipo] + ' = ' + c.sim + '<br>= ' + c.num + ' = <b>' + F(s.qd, 2) + ' kN/m²</b>';
     if (s.vars.length > 1 && tipo !== 'qp') {
       var nomi = ['Q₁', 'Q₂'];
-      h += '<br><span class="unita">Caso più sfavorevole: principale ' + nomi[s.comb.scelto.pr] + '. ' + s.comb.casi.map(function (k) { return 'Principale ' + nomi[k.pr] + ': ' + F(k.q, 2); }).join(' · ') + ' kN/m².</span>';
+      h += '<br><span class="unita">Caso più sfavorevole: azione di base ' + nomi[s.comb.scelto.pr] + '.<br>' + s.comb.casi.map(function (k) { return 'Base ' + nomi[k.pr] + ': ' + F(k.q, 2); }).join(' · ') + ' kN/m².</span>';
     }
     return h;
   }
   function testoPsi(s) {
     var tipo = $('comb').value, nomi = ['Q₁', 'Q₂'];
-    if (tipo === 'qp') return 'Quasi permanente: solo ψ₂ su tutti i variabili. ' + s.vars.map(function (x, i) { return (s.vars.length > 1 ? nomi[i] : 'Q') + ': ψ₂ = ' + F(RT.PSI[x.cat].psi[2], 1); }).join(' · ') + '.';
-    return s.vars.map(function (x, i) { var P = RT.PSI[x.cat].psi; return (s.vars.length > 1 ? nomi[i] : 'Q') + ' — ' + RT.PSI[x.cat].nome + ': ψ₀ = ' + F(P[0], 1) + ', ψ₁ = ' + F(P[1], 1) + ', ψ₂ = ' + F(P[2], 1); }).join(' · ') + '. Valori: NTC 2018, Tab. 2.5.I.';
+    if (tipo === 'qp') return 'Quasi permanente: solo ψ₂ su tutti i variabili. ' + s.vars.map(function (x, i) { return nomi[i] + ': ψ₂ = ' + F(RT.PSI[x.cat].psi[2], 1); }).join(' · ') + '.';
+    return s.vars.map(function (x, i) { var P = RT.PSI[x.cat].psi; return nomi[i] + ' — ' + RT.PSI[x.cat].nome + ': ψ₀ = ' + F(P[0], 1) + ', ψ₁ = ' + F(P[1], 1) + ', ψ₂ = ' + F(P[2], 1); }).join(' · ') + '. Valori: NTC 2018, Tab. 2.5.I.';
   }
 
   function aggiorna() {
     var s = stato();
     $('nxv').textContent = s.nx; $('nyv').textContent = s.ny;
-    $('g1v').textContent = F(+$('g1').value, 1); $('g2v').textContent = F(+$('g2').value, 1); $('qv').textContent = F(+$('q').value, 2);
-    $('q2v').textContent = F(+$('q2').value, 2);
+    CAR.forEach(function (id) { $(id + 's').value = val(id); });       // il cursore segue il valore scritto (si ferma agli estremi se il valore e' fuori scala)
     $('qdOut').innerHTML = testoCombinazione(s);
     $('psiInfo').innerHTML = testoPsi(s);
     if (sel.t === 'c') { sel.i = Math.min(sel.i, s.nx); sel.j = Math.min(sel.j, s.ny); }
@@ -387,8 +396,12 @@
   $('comb').innerHTML = Object.keys(RT.COMBINAZIONI).map(function (k) { return '<option value="' + k + '">' + RT.COMBINAZIONI[k] + '</option>'; }).join('');
   $('usaQ2').addEventListener('change', function () { $('boxQ2').hidden = !this.checked; aggiorna(); });
   ['g1', 'g2', 'q', 'q2', 'catQ', 'catQ2', 'comb', 'ord'].forEach(function (id) { $(id).addEventListener('input', aggiorna); });
+  CAR.forEach(function (id) {
+    $(id + 's').addEventListener('input', function () { $(id).value = this.value; aggiorna(); });
+    $(id).addEventListener('change', function () { this.value = val(id); aggiorna(); });             // all'uscita dal campo: se era vuoto o non valido torna l'ultimo valore buono
+  });
   ['zona', 'as', 'alfa', 'esp'].forEach(function (id) { $(id).addEventListener('input', neve); });
-  $('usaNeve').addEventListener('click', function () { $('q').value = Math.round(ULT.neve.qs * 20) / 20; $('catQ').value = +$('as').value > 1000 ? 'neve2' : 'neve1'; aggiorna(); });
+  $('usaNeve').addEventListener('click', function () { $('q').value = Math.round(ULT.neve.qs * 100) / 100; $('catQ').value = +$('as').value > 1000 ? 'neve2' : 'neve1'; aggiorna(); });
   costruisciCampate(); aggiorna(); neve();
 
   // Esempio della lezione: gli stessi dati e gli stessi risultati delle slide (lezione2.tex)
@@ -426,7 +439,7 @@
   });
 })();
 </script>
-<script src="assets/js/i18n-en.js?v=20261114"></script>
-<script src="assets/js/i18n.js?v=20261114"></script>
+<script src="assets/js/i18n-en.js?v=20261115"></script>
+<script src="assets/js/i18n.js?v=20261115"></script>
 </body>
 </html>

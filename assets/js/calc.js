@@ -267,7 +267,7 @@
   // Carico di superficie q [kN/m2] della combinazione 'tipo' per g1, g2 e le azioni variabili vars = [{v: valore caratteristico, cat: chiave di RT.PSI}].
   //   slu:  1,3 G1 + 1,5 G2 + 1,5 Qk1 + sum 1,5 psi0i Qki      rara:  G1 + G2 + Qk1 + sum psi0i Qki
   //   freq: G1 + G2 + psi11 Qk1 + sum psi2i Qki                qp:    G1 + G2 + sum psi2i Qki
-  // Si prova ogni variabile come principale e si tiene il caso piu' sfavorevole (nella quasi permanente non c'e' un principale).
+  // Si prova ogni variabile come azione di base (NTC 2018, §2.5.3) e si tiene il caso piu' sfavorevole (nella quasi permanente non c'e' un'azione di base).
   RT.combinazione = function (tipo, g1, g2, vars) {
     var G = RT.GAMMA, slu = (tipo === 'slu'), cg1 = slu ? G.G1 : 1, cg2 = slu ? G.G2 : 1, cq = slu ? G.Q : 1;
     function caso(pr) {
