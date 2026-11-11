@@ -857,5 +857,18 @@ window.RT_EN = {
 ": decide la stabilità)": ": stability governs)",
 ": decide la resistenza)": ": strength governs)",
 ", lato ≥ √A": ", side ≥ √A",
-"Peso proprio compreso in G₁. Pilastro: lato da A": "Self-weight included in G₁. Column: side from A"
+"Peso proprio compreso in G₁. Pilastro: lato da A": "Self-weight included in G₁. Column: side from A",
+"Telaio e trave": "Frame and beam",
+"Prima campata ": "First span ",
+"Seconda campata ": "Second span ",
+"Trave studiata": "Studied beam",
+"Seconda campata (L)": "Second span (L)",
+"Prima campata (L₁)": "First span (L₁)",
+"Larghezza d'influenza del telaio ": "Influence width of the frame ",
+"Prospetto in scala. In rosso la trave studiata e il pilastro studiato; le altre travi e gli altri pilastri sono dimensionati con lo stesso procedimento, con lo stesso carico per tutti i piani.": "Elevation to scale. In red the studied beam and the studied column; the other beams and columns are sized with the same procedure, with the same load on every storey.",
+"Prospetto del telaio di riferimento con travi IPE e pilastri HE in scala": "Elevation of the reference frame with IPE beams and HE columns to scale",
+"Pilastro studiato (al piano terra)": "Studied column (ground floor)",
+"Centrale (interno)": "Central (interior)",
+"Area d'influenza del pilastro (pianta)": "Influence area of the column (plan)",
+"A = ": "A = "
 };
