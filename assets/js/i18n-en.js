@@ -870,5 +870,11 @@ window.RT_EN = {
 "Pilastro studiato (al piano terra)": "Studied column (ground floor)",
 "Centrale (interno)": "Central (interior)",
 "Area d'influenza del pilastro (pianta)": "Influence area of the column (plan)",
-"A = ": "A = "
+"A = ": "A = ",
+"Stessa maglia, acciaio e c.a.: apri il telaio": "Same grid, steel and r.c.: open the frame",
+"Stessa maglia, due materiali": "Same grid, two materials",
+"Lo stesso telaio in due materiali": "The same frame in two materials",
+"Confronto dei due materiali": "Comparison of the two materials",
+"Stessa geometria e stessi carichi, cambia solo il materiale (acciaio con la serie scelta sopra e c.a. con le impostazioni correnti).": "Same geometry and same loads, only the material changes (steel with the series chosen above and r.c. with the current settings).",
+"Campate, piani, luci, sbalzi e luce fuori piano per acciaio e c.a., con le sezioni disegnate in scala. Si possono togliere travi (vuoti, doppie altezze) e pilastri dall'alto. Carichi diversi ai vari piani.": "Spans, storeys, lengths, cantilevers and out-of-plane length for steel and r.c., with the sections drawn to scale. Beams (voids, double heights) and columns from the top can be removed. Different loads on the floors."
 };

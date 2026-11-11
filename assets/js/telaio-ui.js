@@ -16,6 +16,10 @@
   var sel = null;                                  // elemento scelto per il pannello: 'k:i' (vuoto) oppure 'k:sx' / 'k:dx' (sbalzo di estremita')
   var carPiani = {};                               // carichi dei singoli piani (k < n), con «carichi diversi ai piani»: chiave k -> {g1, g2, q, qb}
   var carTetto = null;                             // carichi della copertura, con «carichi diversi ai piani»: {g1, g2, q (neve)}
+  // Il legno e' tolto dalle pagine html (richiesta 11/11/2026) ma resta qui e in telaio-calc.js: per rimetterlo servono il pulsante #mLeg,
+  // il blocco #optLeg (#cleg, #bleg), le righe #iCo2Leg e #iCoLeg e 'legno' in MATERIALI_PAGINA; i campi mancanti hanno valori di ripiego.
+  var MATERIALI_PAGINA = ['acciaio', 'ca'];
+  function valore(id, ripiego) { var el = $(id); return el ? el.value : ripiego; }
   var CHI = { acciaio: 0.5, legno: 0.3, ca: 0.5 };
   var DEF = { acciaio: { g1: 2.5, g2: 2.0, q: 2.0, neve: 0.5 }, legno: { g1: 1.5, g2: 1.5, q: 2.0, neve: 0.5 }, ca: { g1: 3.5, g2: 2.0, q: 2.0, neve: 0.5 } };
   var ROSSO = '#d1382b', BLU = '#1f5c8b', NERO = '#121212', GRIGIO = '#6e6e6e';
@@ -30,7 +34,7 @@
     return {
       n: intero('n'), spans: luci.slice(0, nc), H: leggi('H'), B: leggi('B'), bordo: $('bordo').checked,
       g1: leggi('g1'), g2: leggi('g2'), q: leggi('q'), neve: $('usaNeve').checked ? leggi('neve') : 0, qb: leggi('qb'), sx: leggi('sx'), dx: leggi('dx'),
-      mat: materiale, acciaio: $('acc').value, serie: $('serie').value, classeLegno: $('cleg').value, bLegno: parseInt($('bleg').value, 10),
+      mat: materiale, acciaio: $('acc').value, serie: $('serie').value, classeLegno: valore('cleg', 'GL24h'), bLegno: parseInt(valore('bleg', '160'), 10),
       chi: leggi('chi'), fck: $('fck').value, vincolo: $('vinc').value, travaTipo: $('tipoTrave').value, senza: senza, colSenza: colSenza, sbalziVuoto: vuoti, sbalziLivello: lung,
       carichiLiv: carichiLivelli(intero('n'))
     };
@@ -95,10 +99,10 @@
   function impostaMateriale(m, ripristina) {
     materiale = m;
     $('mAcc').setAttribute('aria-pressed', m === 'acciaio');
-    $('mLeg').setAttribute('aria-pressed', m === 'legno');
+    if ($('mLeg')) $('mLeg').setAttribute('aria-pressed', m === 'legno');
     $('mCa').setAttribute('aria-pressed', m === 'ca');
     $('optAcc').hidden = m !== 'acciaio';
-    $('optLeg').hidden = m !== 'legno';
+    if ($('optLeg')) $('optLeg').hidden = m !== 'legno';
     $('optCa').hidden = m !== 'ca';
     if (ripristina) {
       ['g1', 'g2', 'q', 'neve'].forEach(function (k) { $(k).value = DEF[m][k]; }); $('chi').value = CHI[m];
@@ -704,11 +708,11 @@
   var NOMI_MAT = { acciaio: 'Acciaio', legno: 'Legno', ca: 'C.a.' };
 
   function impostaIpotesi() {
-    IPOTESI.forEach(function (x) { $(x[0]).value = RT.IMPATTO_DEF[x[1]][x[2]]; });
+    IPOTESI.forEach(function (x) { if ($(x[0])) $(x[0]).value = RT.IMPATTO_DEF[x[1]][x[2]]; });
   }
   function leggiIpotesi() {
     var ip = { co2: {}, costo: {}, armatura: {} };
-    IPOTESI.forEach(function (x) { ip[x[1]][x[2]] = parseFloat($(x[0]).value); });
+    IPOTESI.forEach(function (x) { ip[x[1]][x[2]] = $(x[0]) ? parseFloat($(x[0]).value) : RT.IMPATTO_DEF[x[1]][x[2]]; });
     return ip;
   }
 
@@ -728,10 +732,10 @@
     return k;
   }
 
-  // stesso telaio (stessa geometria e stessi carichi) nei tre materiali
+  // stesso telaio (stessa geometria e stessi carichi) nei materiali delle pagine
   function tabellaConfronto(p, ip, conSolaio) {
     var h = '<thead><tr><th>Materiale</th><th>CO₂e [kg/m²]</th><th>Costo [€/m²]</th><th>CO₂e totale [kg]</th><th>Costo totale [€]</th></tr></thead><tbody>';
-    ['acciaio', 'legno', 'ca'].forEach(function (m) {
+    MATERIALI_PAGINA.forEach(function (m) {
       var pm = Object.assign({}, p, { mat: m, chi: m === materiale ? p.chi : CHI[m] }), im = RT.impatto(RT.telaio(pm), pm, ip, conSolaio), cur = m === materiale;
       var cella = function (t) { return cur ? '<b>' + t + '</b>' : t; };
       h += '<tr' + (cur ? ' class="corrente"' : '') + '><td>' + cella(NOMI_MAT[m]) + '</td><td>' + cella(im.area > 0 ? F(im.co2m2, 0) : '-') + '</td><td>' + cella(im.area > 0 ? F(im.costom2, 0) : '-') +
@@ -855,13 +859,13 @@
 
   function collegaEventi() {
     $('mAcc').addEventListener('click', function () { impostaMateriale('acciaio', true); });
-    $('mLeg').addEventListener('click', function () { impostaMateriale('legno', true); });
+    if ($('mLeg')) $('mLeg').addEventListener('click', function () { impostaMateriale('legno', true); });
     $('mCa').addEventListener('click', function () { impostaMateriale('ca', true); });
     $('nc').addEventListener('input', function () { costruisciCampate(); costruisciMatrice(); calcola(); });
     $('n').addEventListener('input', function () { costruisciMatrice(); costruisciMatriceCarichi(); calcola(); });
     ['sx', 'dx'].forEach(function (id) { $(id).addEventListener('input', function () { costruisciMatrice(); calcola(); }); });
     $('uguali').addEventListener('change', function () { if (this.checked) { for (var j = 1; j < 5; j++) luci[j] = luci[0]; costruisciCampate(); calcola(); } });
-    ['H', 'B', 'bordo', 'chi', 'carichi', 'omini', 'parola', 'vinc', 'acc', 'serie', 'cleg', 'bleg', 'fck', 'tipoTrave', 'livPianta', 'conSolaio'].concat(IPOTESI.map(function (x) { return x[0]; })).forEach(function (id) { $(id).addEventListener('input', calcola); });
+    ['H', 'B', 'bordo', 'chi', 'carichi', 'omini', 'parola', 'vinc', 'acc', 'serie', 'cleg', 'bleg', 'fck', 'tipoTrave', 'livPianta', 'conSolaio'].concat(IPOTESI.map(function (x) { return x[0]; })).forEach(function (id) { if ($(id)) $(id).addEventListener('input', calcola); });
     ['g1', 'g2', 'q', 'qb', 'neve'].forEach(function (id) {                 // cursori generali: con i carichi per livello impostano tutti i livelli
       $(id).addEventListener('input', function () { if (perLivello()) { applicaGenerale(id); costruisciMatriceCarichi(); } calcola(); });
     });
@@ -948,7 +952,7 @@
       if (q) lung[q[1]] = parseFloat(q[2]);
     });
     var m = qs.get('materiale');
-    return m === 'ca' ? 'ca' : (m === 'legno' ? 'legno' : 'acciaio');
+    return m === 'ca' ? 'ca' : (m === 'legno' && MATERIALI_PAGINA.indexOf('legno') >= 0 ? 'legno' : 'acciaio');
   }
 
   // carichi da URL (dopo impostaMateriale, che rimette i valori del materiale): g1, g2, q, qb, neve in kN/m2 e, per i carichi diversi ai piani,
