@@ -4,9 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#121212">
-<title>Lezione 1 - Dalla combinazione alla sezione | Struttura e Architettura</title>
-<meta name="description" content="Strumento interattivo per la lezione 1: dalla combinazione delle azioni al profilo, domanda e capacità con i coefficienti parziali, unità di misura. Slide da scaricare.">
-<link rel="stylesheet" href="assets/css/style.css?v=20261110">
+<title>Lezione 1 – Sicurezza e predimensionamento | Struttura e Architettura</title>
+<meta name="description" content="Strumento interattivo per la lezione 1: predimensionamento (livello 1) di travi e pilastri di un telaio, domanda e capacità con i coefficienti parziali, unità di misura. Slide da scaricare.">
+<link rel="stylesheet" href="assets/css/style.css?v=20261112">
+<style>
+ [hidden]{display:none !important}
+ table.mx{width:auto;font-size:.8rem}
+ table.mx th,table.mx td{padding:.15rem .5rem;text-align:center}
+ table.mx th[scope=row]{text-align:left;white-space:nowrap}
+ table.mx input.num{width:4.2rem;padding:.2rem .3rem;border:1px solid var(--grigio);border-radius:4px;font:inherit;font-size:max(16px,1rem);text-align:right}
+ .liv{display:inline-block;background:var(--rosso);color:#fff;font-size:.68rem;font-weight:700;letter-spacing:.04em;padding:.1rem .45rem;margin-right:.4rem;vertical-align:middle}
+ #tTrAv td,#tPil1 td,#tNetta td,#tTre td{text-align:center}
+ #tTrAv td:first-child,#tPil1 td:first-child,#tNetta td:first-child,#tTre td:first-child{text-align:left}
+</style>
 </head>
 <body>
 <header class="sito"><div class="in">
@@ -16,55 +26,48 @@
 </div></header>
 
 <main>
-<h1>Lezione 1 - Dalla combinazione alla sezione</h1>
-<p class="sotto">Cambia i dati e osserva come cambiano domanda, capacità e profilo scelto.</p>
-<p class="azioni"><a class="bottone" href="pdf/lezione1.pdf" download>⬇ Scarica le slide (PDF) <small class="pdf-info" data-pdf="lezione1" data-en="63 pages, 1.1 MB">63 pagine, 1,1 MB</small></a><a class="bottone chiaro" href="telaio.html?materiale=acciaio&amp;piani=2&amp;luci=6,6&amp;H=3.5&amp;B=6">Stessa maglia, tre materiali: apri il telaio</a></p>
-<p class="nota" data-en="In the frame the middle column is an interior column (pos = 1) and the end ones are edge columns (pos = 0,7). The sizes on the slides (steel 300, timber 300, r.c. 400 mm) are those of the interior column, with L&lt;sub&gt;max&lt;/sub&gt; = 6 m and n = 2 storeys.">Nel telaio il pilastro centrale è interno (pos = 1) e quelli di estremità sono di bordo (pos = 0,7). Le misure delle slide (acciaio 300, legno 300, c.a. 400 mm) sono quelle del pilastro interno, con L<sub>max</sub> = 6 m e n = 2 piani.</p>
+<h1>Lezione 1 – Sicurezza e predimensionamento</h1>
+<p class="sotto">Cambia i dati e osserva come cambiano domanda, capacità e ingombri delle sezioni.</p>
+<p class="azioni"><a class="bottone" href="pdf/lezione1.pdf" download>⬇ Scarica le slide (PDF) <small class="pdf-info" data-pdf="lezione1" data-en="68 pages, 1.1 MB">68 pagine, 1,1 MB</small></a><a class="bottone chiaro" href="telaio.html?materiale=acciaio&amp;piani=2&amp;luci=6,6&amp;H=3.5&amp;B=6">Stessa maglia, tre materiali: apri il telaio</a></p>
 <section id="esempio" class="esempio-lezione" aria-label="Esempio della lezione"></section>
 
-<h2>A. L'esempio svolto: la trave di un solaio</h2>
-
-<div class="griglia due" style="margin-bottom:1rem">
-  <figure style="margin:0">
-    <img src="assets/img/solaio_travi.png" alt="Solaio appoggiato su travi e pilastri, con i carichi che scendono" style="width:100%;max-height:300px;object-fit:contain;background:#fff;border:1px solid var(--grigio-chiaro);border-radius:6px">
-    <figcaption class="nota">Il solaio appoggia sulle <b>travi</b> (in rosso), le travi sui <b>pilastri</b>. Qui studiamo <b>una</b> trave: quella che porta la striscia di solaio evidenziata.</figcaption>
-  </figure>
-  <div>
-    <svg id="schemaA" class="fig" viewBox="0 0 560 330" role="img" aria-label="Schema statico della trave con i carichi e diagramma del momento flettente"></svg>
-    <p class="nota" style="margin-top:.3rem">In alto lo <b>schema statico</b>: la trave, i vincoli e i carichi (somma di g₁, g₂, q con i coefficienti dell'SLU). Sotto il <b>momento flettente</b>: è la "domanda" che la sezione deve sopportare.</p>
-  </div>
-</div>
-
+<h2 id="predim">A. Predimensionamento: l'esempio svolto <span class="unita">livello 1</span></h2>
+<p data-en="The central frame of a grid: from the spans, the number of storeys and the material alone we estimate the &lt;b&gt;overall sizes&lt;/b&gt; of beams and columns, before knowing the loads. Change the grid, the storeys, the storey heights and the material. The storey height &lt;b&gt;does not change the section of the columns&lt;/b&gt;: stability is part of level 2.">Il telaio centrale di una maglia: dalle sole luci, dal numero di piani e dal materiale si stimano gli <b>ingombri</b> di travi e pilastri, prima di conoscere i carichi. Cambia la maglia, i piani, gli interpiani e il materiale. L'altezza di interpiano <b>non cambia la sezione dei pilastri</b>: la stabilità entra nel livello 2.</p>
 <div class="griglia due">
   <div class="pannello">
-    <div class="campo"><label for="L">Luce <span class="unita">L [m]</span></label><output id="Lv"></output>
-      <input type="range" id="L" min="2" max="10" step="0.1" value="5"></div>
-    <div class="campo"><label for="g1">Permanenti strutturali <span class="unita">g₁ [kN/m]</span></label><output id="g1v"></output>
-      <input type="range" id="g1" min="0" max="12" step="0.05" value="4"></div>
-    <div class="campo"><label for="g2">Permanenti non strutturali <span class="unita">g₂ [kN/m]</span></label><output id="g2v"></output>
-      <input type="range" id="g2" min="0" max="8" step="0.05" value="2"></div>
-    <div class="campo"><label for="q">Sovraccarico d'uso <span class="unita">q [kN/m]</span></label><output id="qv"></output>
-      <input type="range" id="q" min="0" max="20" step="0.05" value="5"></div>
-    <div class="campo"><label for="acc">Acciaio</label>
-      <select id="acc"><option>S235</option><option>S275</option><option>S355</option></select></div>
-    <div class="campo"><label for="vinc">Schema (vincoli alle estremità)</label>
-      <select id="vinc"><option value="appoggiata">Appoggiata: M = pL²/8</option><option value="semi">Semi-incastro: M = pL²/10</option><option value="incastro">Incastro-incastro: M = pL²/12</option></select></div>
+    <div class="campo"><label for="mat">Materiale</label>
+      <select id="mat"><option value="acciaio" selected>Acciaio</option><option value="ca">Calcestruzzo armato</option><option value="legno">Legno lamellare</option></select></div>
+    <div class="campo" id="rAc"><label for="schAc">Schema delle travi</label>
+      <select id="schAc"><option value="appoggiata">Appoggiata: h = L/20</option><option value="semi" selected>Continua, semi-incastro: h = L/25</option><option value="incastro">Incastro-incastro: h = L/30</option></select></div>
+    <div class="campo" id="rCa" hidden><label for="tipoCa">Travi in c.a.</label>
+      <select id="tipoCa"><option value="emergente" selected>Emergenti: h = L/10, b = 300 mm</option><option value="spessore">A spessore: h = L<sub>solaio</sub>/25, b = L/6</option></select></div>
+    <h3>Maglia</h3>
+    <div class="campo"><label for="nc">Campate del telaio</label><output id="ncv"></output><input type="range" id="nc" min="1" max="4" step="1" value="2"></div>
+    <div id="campate"></div>
+    <div class="campo"><label for="B1">Interasse a sinistra del telaio <span class="unita">B₁ [m]</span></label><output id="B1v"></output><input type="range" id="B1" min="2.5" max="9" step="0.1" value="5"></div>
+    <div class="campo"><label for="B2">Interasse a destra del telaio <span class="unita">B₂ [m]</span></label><output id="B2v"></output><input type="range" id="B2" min="2.5" max="9" step="0.1" value="6"></div>
+    <h3>Piani</h3>
+    <div class="campo"><label for="n">Numero di piani</label><output id="nv"></output><input type="range" id="n" min="1" max="6" step="1" value="1"></div>
+    <div class="campo"><label for="H">Altezza di interpiano <span class="unita">H [m], tutti i piani</span></label><output id="Hv"></output><input type="range" id="H" min="2.6" max="5" step="0.1" value="3.8"></div>
+    <p class="nota" style="margin:-.2rem 0 .3rem" data-en="The slider sets all the storeys; then correct each one in the table.">Il cursore imposta tutti gli interpiani; poi correggi il singolo piano nella tabella.</p>
+    <div id="altezze" class="scroll" role="group" aria-label="Altezze di interpiano"></div>
   </div>
   <div>
-    <ol class="passi ris" aria-live="polite">
-      <li><b><span class="liv">LIVELLO 1</span>Predimensionamento</b><br><span class="formula">h ≈ L / <span id="r_x"></span></span> = <b id="r_hgeo"></b> mm <span class="unita">(regola pratica: primo tentativo, per eccesso)</span></li>
-      <li><b>Carico di progetto (SLU)</b><br><span class="formula">p<sub>d</sub> = 1,3·g₁ + 1,5·g₂ + 1,5·q</span> = <b id="r_pd"></b> kN/m</li>
-      <li><b>Domanda</b><br><span class="formula">M<sub>Ed</sub> = p<sub>d</sub>·L² / β</span> = <b id="r_M"></b> kN·m <span class="unita">(β = <span id="r_beta"></span>)</span></li>
-      <li><b>Capacità del materiale</b><br><span class="formula">f<sub>yd</sub> = f<sub>yk</sub> / γ<sub>M0</sub></span> = <b id="r_fyd"></b> MPa</li>
-      <li><b>Modulo di resistenza minimo</b><br><span class="formula">W<sub>min</sub> = M<sub>Ed</sub> / f<sub>yd</sub></span> = <b id="r_Wmm"></b>·10³ mm³ = <b id="r_W"></b> cm³</li>
-      <li><b>Momento d'inerzia minimo (SLE)</b><br><span class="formula">I<sub>y,min</sub> = k·p<sub>k</sub>·L⁴ / (384·E·δ<sub>lim</sub>), δ<sub>lim</sub> = L/250</span><br><span id="r_imin"></span></li>
-      <li><b><span class="liv">LIVELLO 2</span>Profilo</b><br><span id="r_prof"></span><br><span id="r_delta"></span></li>
-    </ol>
-    <svg id="sezA" class="fig" viewBox="0 0 560 190" role="img" aria-label="Sezione del profilo scelto in scala e confronto tra momento sollecitante e momento resistente"></svg>
-    <p class="nota" data-en="The self-weight of the section must be included in g₁. The section is sized for bending (W&lt;sub&gt;min&lt;/sub&gt;) and for stiffness (I&lt;sub&gt;min&lt;/sub&gt;, from the deflection limit L/250): the first section with W ≥ W&lt;sub&gt;min&lt;/sub&gt; and I ≥ I&lt;sub&gt;min&lt;/sub&gt; is chosen. The deflection itself is not checked. Shear, stability and full checks are level 3 (Tecnica delle Costruzioni).">Il peso proprio del profilo va compreso in g₁. Si dimensiona a flessione (W<sub>min</sub>) e a rigidezza (I<sub>min</sub>, dal limite di freccia L/250): si sceglie il primo profilo con W ≥ W<sub>min</sub> e I ≥ I<sub>min</sub>. La freccia in sé non si verifica. Taglio, stabilità e verifiche complete sono il livello 3 (Tecnica delle Costruzioni).</p>
-    <div class="scroll"><table aria-label="Profili IPE vicini al minimo"><thead><tr><th>Profilo</th><th>W<sub>el,y</sub> [cm³]</th><th>Utilizzo W<sub>min</sub>/W</th><th>Massa [kg/m]</th></tr></thead><tbody id="tab"></tbody></table></div>
+    <svg id="pianta1" class="fig" role="img" aria-label="Pianta della maglia con il telaio centrale e gli ingombri dei pilastri"></svg>
+    <svg id="prosp1" class="fig" role="img" aria-label="Prospetto del telaio centrale con gli ingombri di travi e pilastri"></svg>
+    <p class="nota" data-en="In red, the overall sizes (level 1) drawn to scale, from the central frame (thick line in the plan). The numbers in the circles are the columns of the tables.">In rosso gli ingombri del livello 1, disegnati in scala, per il telaio centrale (linea spessa in pianta). I numeri nei cerchietti sono i pilastri delle tabelle.</p>
   </div>
 </div>
+<h3>Travi <span class="unita">h dalla luce</span></h3>
+<div class="scroll"><table id="tTrAv" aria-label="Ingombri delle travi"></table></div>
+<h3>Pilastri <span class="unita">lato ≈ κ·L<sub>max</sub>·pos·√n</span></h3>
+<p class="nota" style="margin-top:-.2rem" data-en="κ = 45 for r.c., 30 for steel and timber; pos = 1 interior column, 0,7 edge column; L&lt;sub&gt;max&lt;/sub&gt; = longest beam arriving at the column (also the transverse ones, B₁ and B₂); n = storeys carried by the column. Rounded up to 50 mm, minimum 300 mm (r.c.) or 200 mm (steel, timber). In each cell: calculated value → rounded size.">κ = 45 per il c.a., 30 per acciaio e legno; pos = 1 pilastro interno, 0,7 di bordo; L<sub>max</sub> = trave più lunga che arriva nel pilastro (anche quelle trasversali, B₁ e B₂); n = piani che il pilastro porta. Arrotondato per eccesso a 50 mm, minimo 300 mm (c.a.) o 200 mm (acciaio, legno). In ogni cella: valore calcolato → lato arrotondato [mm].</p>
+<div class="scroll"><table id="tPil1" aria-label="Ingombri dei pilastri"></table></div>
+<h3>Altezza netta <span class="unita">H − h</span></h3>
+<div class="scroll"><table id="tNetta" aria-label="Altezza netta degli interpiani"></table></div>
+<h3>Stessa maglia, tre materiali</h3>
+<p class="nota" style="margin-top:-.2rem" data-en="The same grid and the same number of storeys, three materials (steel and r.c. with the layout chosen above). Sizes in mm.">Stessa maglia e stesso numero di piani, tre materiali (acciaio e c.a. con lo schema scelto sopra). Misure in mm.</p>
+<div class="scroll"><table id="tTre" aria-label="Confronto dei tre materiali"></table></div>
 
 <h2 id="margine">B. Domanda e capacità: il margine</h2>
 <p data-en="The check compares two homogeneous quantities: the &lt;b&gt;demand&lt;/b&gt; &lt;i&gt;D&lt;/i&gt; (the effect of the actions) and the &lt;b&gt;capacity&lt;/b&gt; &lt;i&gt;C&lt;/i&gt; (what the structure can bear). Two «defence systems» protect them from uncertainty: (1) &lt;b&gt;characteristic values&lt;/b&gt; and (2) &lt;b&gt;safety factors&lt;/b&gt;. The demand is &lt;b&gt;increased&lt;/b&gt;, &lt;i&gt;D&lt;sub&gt;d&lt;/sub&gt;&lt;/i&gt; = &lt;i&gt;γ&lt;sub&gt;F&lt;/sub&gt;&lt;/i&gt; × &lt;i&gt;D&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt; (&lt;i&gt;γ&lt;sub&gt;F&lt;/sub&gt;&lt;/i&gt; depends on the action and on the limit state); the capacity is &lt;b&gt;reduced&lt;/b&gt;, &lt;i&gt;C&lt;sub&gt;d&lt;/sub&gt;&lt;/i&gt; = &lt;i&gt;C&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt;/&lt;i&gt;γ&lt;sub&gt;M&lt;/sub&gt;&lt;/i&gt; (&lt;i&gt;γ&lt;sub&gt;M&lt;/sub&gt;&lt;/i&gt; depends on the material). We check that &lt;i&gt;D&lt;sub&gt;d&lt;/sub&gt;&lt;/i&gt; ≤ &lt;i&gt;C&lt;sub&gt;d&lt;/sub&gt;&lt;/i&gt;.">La verifica confronta due grandezze omogenee: la <b>domanda</b> <i>D</i> (l'effetto delle azioni) e la <b>capacità</b> <i>C</i> (ciò che la struttura sopporta). Due «sistemi di difesa» le proteggono dall'incertezza: (1) i <b>valori caratteristici</b> e (2) i <b>coefficienti di sicurezza</b>. La domanda si <b>aumenta</b>, <i>D<sub>d</sub></i> = <i>γ<sub>F</sub></i> × <i>D<sub>k</sub></i> (<i>γ<sub>F</sub></i> dipende dall'azione e dallo stato limite); la capacità si <b>riduce</b>, <i>C<sub>d</sub></i> = <i>C<sub>k</sub></i>/<i>γ<sub>M</sub></i> (<i>γ<sub>M</sub></i> dipende dal materiale). Si verifica che <i>D<sub>d</sub></i> ≤ <i>C<sub>d</sub></i>.</p>
@@ -87,7 +90,7 @@
   <div>
     <svg id="fig" class="fig" viewBox="0 0 560 280" role="img" aria-label="Barre della domanda e della capacità, con i valori caratteristici e di progetto"></svg>
     <p class="ris" id="esito" aria-live="polite"></p>
-    <p class="nota" data-en="Dashed: the characteristic value. Solid: the design value, after the partial factor. The more uncertain the quantity, the larger the factor (concrete has γ&lt;sub&gt;M&lt;/sub&gt; = 1.5, steel 1.05).">Tratteggiato: il valore caratteristico. Pieno: il valore di progetto, dopo il coefficiente parziale. Più incerta è la grandezza, più grande è il coefficiente (il calcestruzzo ha γ<sub>M</sub> = 1,5, l'acciaio 1,05).</p>
+    <p class="nota" data-en="Dashed: the characteristic value. Solid: the design value, after the partial factor. The more uncertain the quantity, the larger the factor (concrete has γ&lt;sub&gt;M&lt;/sub&gt; = 1.5, structural steel 1.05).">Tratteggiato: il valore caratteristico. Pieno (trasparente): il valore di progetto, dopo il coefficiente parziale. Più incerta è la grandezza, più grande è il coefficiente (il calcestruzzo ha γ<sub>M</sub> = 1,5, l'acciaio strutturale 1,05).</p>
   </div>
 </div>
 
@@ -98,16 +101,18 @@
     <div class="campo"><label for="u2">Carico superficiale <span class="unita">[kN/m²]</span></label><input type="number" id="u2" value="2.5" step="any"></div>
   </div>
   <div class="ris">
-    <p><b id="u1o"></b> kN ≈ <b id="u1k"></b> kgf</p>
-    <p><b id="u2o"></b> kN/m² ≈ <b id="u2k"></b> kgf/m²</p>
-    <p class="nota">Si usa 1 kgf = 9,81 N, quindi 1 kN ≈ 102 kgf.</p>
+    <p><b id="u1o"></b> kN ≈ <b id="u1k"></b> kgf <span class="unita">(1 kgf = 9,81 N)</span></p>
+    <p><b id="u2o"></b> kN/m² ≈ <b id="u2k"></b> kgf/m² <span class="unita">(1 kgf = 9,81 N)</span></p>
+    <p class="nota">Il calcolo «corretto» usa 1 kgf = 9,81 N, quindi 1 kN ≈ 102 kgf.</p>
+    <p><b id="u1m"></b> kN ≈ <b id="u1km"></b> kgf &nbsp;·&nbsp; <b id="u2m"></b> kN/m² ≈ <b id="u2km"></b> kgf/m² <span class="unita">(a mano)</span></p>
+    <p class="nota">Per il calcolo «manuale» si usa 1 kgf = 10 N, quindi 1 kN ≈ 100 kgf.</p>
   </div>
 </div>
 </main>
 <footer class="sito">Strumento didattico: non sostituisce la progettazione né le verifiche previste dalle NTC 2018. Valori dei profili da sagomario, da controllare sulle tabelle ufficiali.</footer>
 
-<script src="assets/js/calc.js?v=20261110"></script>
-<script src="assets/js/esempio.js?v=20261110"></script>
+<script src="assets/js/calc.js?v=20261112"></script>
+<script src="assets/js/esempio.js?v=20261112"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
@@ -116,76 +121,116 @@
   function mostra(id, txt) { $(id + 'v').textContent = txt; }
 
   var ULT = {}, root = window;
-  function esempio() {
-    var L = leggi('L'), g1 = leggi('g1'), g2 = leggi('g2'), q = leggi('q');
-    mostra('L', F(L, 1) + ' m'); mostra('g1', F(g1, 1)); mostra('g2', F(g2, 1)); mostra('q', F(q, 1));
-    var vinc = $('vinc').value, beta = RT.BETA[vinc];
-    var fyk = RT.ACCIAI[$('acc').value], fyd = RT.fyd(fyk);
-    var pd = RT.pSLU(g1, g2, q), M = RT.momento(pd, L, beta), W = RT.Wmin(M, fyd);
-    $('r_pd').textContent = F(pd, 1); $('r_M').textContent = F(M, 1); $('r_beta').textContent = beta;
-    $('r_fyd').textContent = F(fyd, 1); $('r_W').textContent = F(W, 0); $('r_Wmm').textContent = F(W, 0);
-    $('r_x').textContent = RT.HLUCE[vinc]; $('r_hgeo').textContent = F(L * 1000 / RT.HLUCE[vinc], 0);
-    var pk = g1 + g2 + q, Imin = RT.Imin(RT.KFRECCIA[vinc], pk, L, L), sc = RT.sceltaIPE(W, Imin), prof = sc.prof;
-    var delta = prof ? RT.deltaIPE(RT.KFRECCIA[vinc], pk, L, prof[3]) : null;       // solo informativa: la freccia non si verifica, si usa I_min
-    $('r_imin').innerHTML = 'δ<sub>lim</sub> = L/250 = ' + F(L * 4, 1) + ' mm; p<sub>k</sub> = g₁ + g₂ + q = ' + F(pk, 1) + ' kN/m: I<sub>y,min</sub> = <b>' + F(Imin, 0) + ' cm⁴</b>';
-    $('r_prof').innerHTML = prof
-      ? 'Primo IPE con W<sub>el,y</sub> ≥ W<sub>min</sub> (' + F(W, 0) + ' cm³) e I<sub>y</sub> ≥ I<sub>y,min</sub> (' + F(Imin, 0) + ' cm⁴): <b>' + prof[0] + '</b> (W<sub>el,y</sub> = ' + F(prof[2], 0) + ' cm³, I<sub>y</sub> = ' + F(prof[3], 0) + ' cm⁴)' + (prof !== sc.profW ? '; per la sola resistenza basterebbe ' + sc.profW[0] + ': decide la deformabilità' : '') + ' <span class="ok">basta</span>'
-      : '<span class="ko">Nessun IPE basta: servono sezioni più grandi o un altro schema.</span>';
-    ULT = { pd: pd, M: M, W: W, profW: sc.profW ? sc.profW[0] : '-', prof: prof ? prof[0] : '-', delta: delta, hGeo: L * 1000 / RT.HLUCE[vinc], Imin: Imin };
-    $('r_delta').innerHTML = prof ? '<span class="unita">A titolo informativo, con il profilo scelto: δ = ' + F(delta, 1) + ' mm ≤ ' + F(L * 4, 1) + ' mm.</span>' : '';
-    var idx = prof ? RT.IPE.indexOf(prof) : RT.IPE.length - 1;
-    var da = Math.max(0, idx - 2), a = Math.min(RT.IPE.length, idx + 2);
-    var righe = '';
-    for (var i = da; i < a; i++) {
-      var p = RT.IPE[i], u = W / p[2], ok = u <= 1;
-      righe += '<tr' + (p === prof ? ' style="background:#f4f2ed;font-weight:700"' : '') + '><td>' + p[0] + '</td><td>' + F(p[2], 0) + '</td><td class="' + (ok ? 'ok' : 'ko') + '">' + F(u, 2) + '</td><td>' + F(p[4], 1) + '</td></tr>';
+  var ROSSO = '#d1382b', NERO = '#121212', GRIGIO = '#6e6e6e', ROSSO_T = 'rgba(209,56,43,.45)';
+  var luci = [4, 5.5, 5, 5], Hk = [3.8, 3.8, 3.8, 3.8, 3.8, 3.8];      // luci delle campate e altezze degli interpiani (m)
+  var NOME_POS = { interno: 'interno ×1', bordo: 'di bordo ×0,7' };
+  function somma(a) { return a.reduce(function (x, y) { return x + y; }, 0); }
+
+  // ---- A. predimensionamento (livello 1) del telaio centrale
+  function costruisciCampate() {
+    var nc = +$('nc').value, h = '';
+    for (var i = 0; i < nc; i++) h += '<div class="campo"><label for="L' + i + '">Campata ' + (i + 1) + ' <span class="unita">L [m]</span></label><output id="L' + i + 'v">' + F(luci[i], 1) + ' m</output><input type="range" id="L' + i + '" data-i="' + i + '" min="2" max="9" step="0.1" value="' + luci[i] + '"></div>';
+    $('campate').innerHTML = h;
+    Array.prototype.forEach.call($('campate').querySelectorAll('input'), function (el) {
+      el.addEventListener('input', function () { var i2 = +el.dataset.i; luci[i2] = parseFloat(el.value); $('L' + i2 + 'v').textContent = F(luci[i2], 1) + ' m'; aggiornaA(); });
+    });
+  }
+  function costruisciAltezze() {
+    var n = +$('n').value, h = '<table class="mx"><thead><tr><th></th><th>H [m]</th></tr></thead><tbody>';
+    for (var k = n; k >= 1; k--) h += '<tr><th scope="row">Interpiano ' + k + (k === 1 ? ' (terra)' : '') + '</th><td><input type="number" class="num" id="Hk' + k + '" step="0.1" min="2.5" max="7" inputmode="decimal" value="' + Hk[k - 1] + '" aria-label="Altezza dell\'interpiano ' + k + '"></td></tr>';
+    $('altezze').innerHTML = h + '</tbody></table>';
+  }
+  function schemaDi(mat) { return mat === 'acciaio' ? $('schAc').value : (mat === 'ca' ? $('tipoCa').value : 'legno'); }
+  function leggiTelaio(mat) { var n = +$('n').value; return { mat: mat, schema: schemaDi(mat), spans: luci.slice(0, +$('nc').value), B1: leggi('B1'), B2: leggi('B2'), n: n, H: Hk.slice(0, n) }; }
+  function bh(t, intero) { return F(t.b, 0) + '×' + F(t.h, 0); }
+  function celleTrave(t) { return t.hMin === t.hMax ? F(t.h, 0) : F(t.hMin, 0) + '–' + F(t.hMax, 0); }
+
+  function cerchio(x, y, num) {
+    return '<g pointer-events="none"><circle cx="' + x + '" cy="' + y + '" r="8" fill="#fff" stroke="' + NERO + '" stroke-width="1.2"/><text x="' + x + '" y="' + (y + 3.8) + '" font-size="11" font-weight="700" text-anchor="middle" fill="' + NERO + '">' + num + '</text></g>';
+  }
+  function disegnaProspetto(p, r) {
+    var nc = p.spans.length, n = p.n, W = 720, mx = 50, tot = somma(p.spans), sH = somma(p.H);
+    var s = Math.min(60, (W - 2 * mx - 130) / tot, 250 / sH), yg = 34 + sH * s, xs = [mx], k, j, i, o = '';
+    for (i = 0; i < nc; i++) xs.push(xs[i] + p.spans[i] * s);
+    var yl = [yg]; for (k = 1; k <= n; k++) yl.push(yl[k - 1] - p.H[k - 1] * s);            // quota (in px) del livello k
+    o += '<line x1="' + (xs[0] - 30) + '" x2="' + (xs[nc] + 30) + '" y1="' + yg + '" y2="' + yg + '" stroke="' + NERO + '" stroke-width="2"/>';
+    for (var t = xs[0] - 30; t < xs[nc] + 30; t += 10) o += '<line x1="' + t + '" x2="' + (t - 7) + '" y1="' + yg + '" y2="' + (yg + 8) + '" stroke="' + GRIGIO + '"/>';
+    for (k = 1; k <= n; k++) for (j = 0; j <= nc; j++) {                                    // pilastri: un tratto per interpiano, con il proprio lato
+      var lato = r.pil[j].lati[k - 1], w = Math.max(lato / 1000 * s, 3);
+      o += '<rect x="' + (xs[j] - w / 2) + '" y="' + yl[k] + '" width="' + w + '" height="' + (yl[k - 1] - yl[k]) + '" fill="' + ROSSO_T + '" stroke="' + ROSSO + '" stroke-width="1"/>';
+      o += '<text x="' + (xs[j] + w / 2 + 4) + '" y="' + ((yl[k] + yl[k - 1]) / 2 + 4) + '" font-size="10" fill="' + NERO + '">' + lato + '×' + lato + '</text>';
     }
-    $('tab').innerHTML = righe;
-    disegnaA(L, g1, g2, q, pd, M, beta, vinc, prof, fyd);
-    if (root.RTE) RTE.aggiorna();
+    for (k = 1; k <= n; k++) for (i = 0; i < nc; i++) {                                     // travi: appese al livello k (altezza netta = H - h)
+      var t2 = r.travi[i], hh = Math.max(t2.h / 1000 * s, 3);
+      o += '<rect x="' + xs[i] + '" y="' + yl[k] + '" width="' + (xs[i + 1] - xs[i]) + '" height="' + hh + '" fill="' + ROSSO_T + '" stroke="' + ROSSO + '" stroke-width="1"/>';
+      o += '<text x="' + ((xs[i] + xs[i + 1]) / 2) + '" y="' + (yl[k] - 4) + '" font-size="10" font-weight="700" text-anchor="middle" fill="' + NERO + '">' + bh(t2) + '</text>';
+    }
+    for (k = 1; k <= n; k++) o += '<text x="' + (xs[nc] + 66) + '" y="' + ((yl[k] + yl[k - 1]) / 2 - 2) + '" font-size="10" fill="' + GRIGIO + '">H = ' + F(p.H[k - 1], 2) + ' m</text><text x="' + (xs[nc] + 66) + '" y="' + ((yl[k] + yl[k - 1]) / 2 + 11) + '" font-size="10" font-weight="700" fill="' + ROSSO + '">netta ' + F(r.nette[k - 1] / 1000, 2) + ' m</text>';
+    for (i = 0; i < nc; i++) o += '<line x1="' + xs[i] + '" x2="' + xs[i + 1] + '" y1="' + (yg + 22) + '" y2="' + (yg + 22) + '" stroke="' + GRIGIO + '"/><text x="' + ((xs[i] + xs[i + 1]) / 2) + '" y="' + (yg + 37) + '" font-size="11" text-anchor="middle" fill="' + GRIGIO + '">' + F(p.spans[i], 1) + ' m</text>';
+    for (j = 0; j <= nc; j++) o += cerchio(xs[j], yg + 13, j + 1);
+    $('prosp1').setAttribute('viewBox', '0 0 ' + W + ' ' + (yg + 50)); $('prosp1').innerHTML = o;
+  }
+  function disegnaPianta(p, r) {
+    var nc = p.spans.length, W = 720, mx = 60, tot = somma(p.spans), sp = Math.min(46, (W - 2 * mx - 40) / tot, 200 / (p.B1 + p.B2)), j, i, o = '';
+    var xs = [mx + 20]; for (i = 0; i < nc; i++) xs.push(xs[i] + p.spans[i] * sp);
+    var y0 = 26, yC = y0 + p.B1 * sp, yF = yC + p.B2 * sp;
+    for (j = 0; j <= nc; j++) o += '<line x1="' + xs[j] + '" x2="' + xs[j] + '" y1="' + y0 + '" y2="' + yF + '" stroke="#b9b6ad" stroke-width="2.2"/>';          // travi trasversali
+    [y0, yF].forEach(function (y) { o += '<line x1="' + xs[0] + '" x2="' + xs[nc] + '" y1="' + y + '" y2="' + y + '" stroke="#b9b6ad" stroke-width="2.2"/>'; });
+    o += '<line x1="' + xs[0] + '" x2="' + xs[nc] + '" y1="' + yC + '" y2="' + yC + '" stroke="' + NERO + '" stroke-width="4"/>';                                     // telaio centrale
+    for (j = 0; j <= nc; j++) [y0, yF].forEach(function (y) { o += '<rect x="' + (xs[j] - 3) + '" y="' + (y - 3) + '" width="6" height="6" fill="#6e6e6e"/>'; });
+    for (j = 0; j <= nc; j++) {                                                                                                                                      // ingombri del telaio centrale (terra), in scala
+      var l = r.pil[j].lati[0], w = Math.max(l / 1000 * sp, 7);
+      o += '<rect x="' + (xs[j] - w / 2) + '" y="' + (yC - w / 2) + '" width="' + w + '" height="' + w + '" fill="' + ROSSO_T + '" stroke="' + ROSSO + '" stroke-width="1.2"/>' + cerchio(xs[j], yC + w / 2 + 11, j + 1);
+    }
+    o += '<text x="' + (xs[0] + 4) + '" y="' + (yC - 8) + '" font-size="10" font-weight="700" fill="' + NERO + '">telaio centrale</text>';
+    for (i = 0; i < nc; i++) o += '<line x1="' + xs[i] + '" x2="' + xs[i + 1] + '" y1="' + (yF + 18) + '" y2="' + (yF + 18) + '" stroke="' + GRIGIO + '"/><text x="' + ((xs[i] + xs[i + 1]) / 2) + '" y="' + (yF + 32) + '" font-size="11" text-anchor="middle" fill="' + GRIGIO + '">' + F(p.spans[i], 1) + ' m</text>';
+    o += '<line x1="' + (xs[0] - 22) + '" x2="' + (xs[0] - 22) + '" y1="' + y0 + '" y2="' + yC + '" stroke="' + GRIGIO + '"/><text x="' + (xs[0] - 26) + '" y="' + ((y0 + yC) / 2 + 4) + '" font-size="11" text-anchor="end" fill="' + GRIGIO + '">B₁ = ' + F(p.B1, 1) + '</text>';
+    o += '<line x1="' + (xs[0] - 22) + '" x2="' + (xs[0] - 22) + '" y1="' + yC + '" y2="' + yF + '" stroke="' + GRIGIO + '"/><text x="' + (xs[0] - 26) + '" y="' + ((yC + yF) / 2 + 4) + '" font-size="11" text-anchor="end" fill="' + GRIGIO + '">B₂ = ' + F(p.B2, 1) + '</text>';
+    o += '<text x="' + xs[0] + '" y="14" font-size="12" font-weight="700" fill="' + NERO + '">Pianta (ingombri del piano terra)</text>';
+    $('pianta1').setAttribute('viewBox', '0 0 ' + W + ' ' + (yF + 44)); $('pianta1').innerHTML = o;
   }
 
-  function disegnaA(L, g1, g2, q, pd, M, beta, vinc, prof, fyd) {
-    var out = '', x0 = 70, x1 = 470, yb = 130, G = RT.GAMMA;
-    // carico: tre strati (SLU) sopra la trave
-    var c = [[G.G1 * g1, '#9a9a96', 'g₁'], [G.G2 * g2, '#c9c6bd', 'g₂'], [G.Q * q, '#1f5c8b', 'q']], tot = pd, k = 52 / Math.max(tot, 20), y = yb - 6;
-    out += '<text x="10" y="16" font-size="12" font-weight="700" fill="#121212">Schema statico</text>';
-    c.forEach(function (b) { var h = b[0] * k; y -= h; out += '<rect x="' + x0 + '" y="' + y + '" width="' + (x1 - x0) + '" height="' + h + '" fill="' + b[1] + '" fill-opacity=".85"/>'; if (h > 9) out += '<text x="' + (x0 + 6) + '" y="' + (y + h / 2 + 4) + '" font-size="10" fill="#fff" font-weight="700">' + b[2] + '</text>'; });
-    for (var i = 0; i <= 14; i++) { var xa = x0 + (x1 - x0) * i / 14; out += '<line x1="' + xa + '" x2="' + xa + '" y1="' + (y - 14) + '" y2="' + (y - 1) + '" stroke="#121212" stroke-width="1.2"/><path d="M' + (xa - 3) + ',' + (y - 5) + ' L' + xa + ',' + (y - 1) + ' L' + (xa + 3) + ',' + (y - 5) + '" fill="none" stroke="#121212" stroke-width="1.2"/>'; }
-    out += '<line x1="' + x0 + '" x2="' + x1 + '" y1="' + (y - 14) + '" y2="' + (y - 14) + '" stroke="#121212" stroke-width="1.2"/>';
-    out += '<text x="' + ((x0 + x1) / 2) + '" y="' + (y - 20) + '" text-anchor="middle" font-size="12" font-weight="700" fill="#d1382b">p_d = ' + F(pd, 1) + ' kN/m</text>';
-    // trave
-    out += '<line x1="' + x0 + '" x2="' + x1 + '" y1="' + yb + '" y2="' + yb + '" stroke="#d1382b" stroke-width="6"/>';
-    function cerniera(x) { return '<path d="M' + x + ',' + (yb + 3) + ' l-11,18 h22 z" fill="#fff" stroke="#121212" stroke-width="1.6"/><line x1="' + (x - 15) + '" x2="' + (x + 15) + '" y1="' + (yb + 22) + '" y2="' + (yb + 22) + '" stroke="#121212" stroke-width="1.6"/>'; }
-    function incastro(x, lato) { var xx = lato < 0 ? x - 12 : x; var o = '<rect x="' + xx + '" y="' + (yb - 20) + '" width="12" height="40" fill="#e0ded7" stroke="#121212" stroke-width="1.4"/>'; return o; }
-    if (vinc === 'incastro') out += incastro(x0, -1) + incastro(x1, 1);
-    else { out += cerniera(x0) + cerniera(x1) + '<circle cx="' + x1 + '" cy="' + (yb + 26) + '" r="0"/>'; if (vinc === 'semi') out += '<path d="M' + (x0 + 14) + ',' + (yb - 14) + ' a10,10 0 1 1 -2,16" fill="none" stroke="#6e6e6e" stroke-width="1.5"/><path d="M' + (x1 - 14) + ',' + (yb - 14) + ' a10,10 0 1 0 2,16" fill="none" stroke="#6e6e6e" stroke-width="1.5"/>'; }
-    out += '<line x1="' + x0 + '" x2="' + x1 + '" y1="' + (yb + 38) + '" y2="' + (yb + 38) + '" stroke="#6e6e6e"/><text x="' + ((x0 + x1) / 2) + '" y="' + (yb + 52) + '" text-anchor="middle" font-size="12" fill="#6e6e6e">L = ' + F(L, 1) + ' m</text>';
-    out += '<text x="' + (x1 + 12) + '" y="' + (yb + 4) + '" font-size="11" fill="#6e6e6e">' + (vinc === 'appoggiata' ? 'appoggiata' : (vinc === 'semi' ? 'semi-incastro' : 'incastro')) + '</text>';
-    // momento flettente
-    var yb2 = 236, hM = 62;
-    out += '<text x="10" y="205" font-size="12" font-weight="700" fill="#121212">Momento flettente (domanda)</text>';
-    out += '<line x1="' + x0 + '" x2="' + x1 + '" y1="' + yb2 + '" y2="' + yb2 + '" stroke="#6e6e6e"/>';
-    var d = 'M' + x0 + ',' + yb2;
-    for (var j = 0; j <= 40; j++) { var t = j / 40; d += ' L' + (x0 + (x1 - x0) * t).toFixed(1) + ',' + (yb2 + hM * 4 * t * (1 - t)).toFixed(1); }
-    out += '<path d="' + d + ' Z" fill="#d1382b" fill-opacity=".18" stroke="#d1382b" stroke-width="2"/>';
-    out += '<text x="' + ((x0 + x1) / 2) + '" y="' + (yb2 + hM + 18) + '" text-anchor="middle" font-size="12" font-weight="700" fill="#d1382b">M_Ed = p_d·L²/' + beta + ' = ' + F(M, 1) + ' kN·m</text>';
-    $('schemaA').innerHTML = out;
+  function tabelle(p, r) {
+    var nc = p.spans.length, n = p.n, i, j, k, h;
+    // travi
+    h = '<thead><tr><th>Campata</th><th>L [m]</th><th>Regola</th><th>h [mm]</th><th>b [mm]</th><th>b × h [mm]</th></tr></thead><tbody>';
+    r.travi.forEach(function (t, i2) {
+      var b = p.mat === 'legno' ? 'h/3 ÷ h/2' : (p.mat === 'acciaio' ? '≈ h/2 = ' + F(t.b, 0) : (p.schema === 'spessore' ? '≈ L/6 = ' + F(t.b, 0) : F(t.b, 0)));
+      h += '<tr><td>' + (i2 + 1) + '</td><td>' + F(p.spans[i2], 1) + '</td><td>h ≈ ' + t.regola + '</td><td>' + celleTrave(t) + '</td><td>' + b + '</td><td><b>' + bh(t) + '</b></td></tr>';
+    });
+    $('tTrAv').innerHTML = h + '</tbody>';
+    // pilastri: per interpiano (dal terra), valore calcolato -> lato arrotondato
+    h = '<thead><tr><th>Pilastro</th><th>Posizione (pos)</th><th>L<sub>max</sub> [m]</th>';
+    for (k = 1; k <= n; k++) h += '<th>Interpiano ' + k + (k === 1 ? ' (terra)' : '') + ', n = ' + (n - k + 1) + '</th>';
+    h += '</tr></thead><tbody>';
+    r.pil.forEach(function (q) {
+      h += '<tr><td><b>' + (q.j + 1) + '</b></td><td>' + NOME_POS[q.posNome] + '</td><td>' + F(q.Lmax, 1) + '</td>';
+      for (k = 1; k <= n; k++) h += '<td>' + F(q.grezzi[k - 1], 0) + ' → <b>' + q.lati[k - 1] + '</b></td>';
+      h += '</tr>';
+    });
+    $('tPil1').innerHTML = h + '</tbody>';
+    // altezza netta
+    h = '<thead><tr><th>Interpiano</th><th>H [m]</th><th>h trave più alta [mm]</th><th>H − h [m]</th></tr></thead><tbody>';
+    for (k = 1; k <= n; k++) h += '<tr><td>' + k + (k === 1 ? ' (terra)' : '') + '</td><td>' + F(p.H[k - 1], 2) + '</td><td>' + F(r.hMax, 0) + '</td><td><b>' + F(r.nette[k - 1] / 1000, 2) + '</b></td></tr>';
+    $('tNetta').innerHTML = h + '</tbody>';
+    // tre materiali
+    var M3 = ['acciaio', 'ca', 'legno'], R3 = M3.map(function (m) { return RT.predimTelaio(Object.assign({}, p, { mat: m, schema: schemaDi(m) })); });
+    h = '<thead><tr><th>Elemento</th><th>Acciaio</th><th>C.a.</th><th>Legno</th></tr></thead><tbody>';
+    for (i = 0; i < nc; i++) h += '<tr><td>Trave ' + (i + 1) + ', L = ' + F(p.spans[i], 1) + ' m</td>' + R3.map(function (x, q) { return '<td>' + (M3[q] === 'legno' ? celleTrave(x.travi[i]) + ' (h)' : '<b>' + bh(x.travi[i]) + '</b>') + '</td>'; }).join('') + '</tr>';
+    h += '<tr><td>Pilastro di bordo (terra)</td>' + R3.map(function (x) { return '<td><b>' + x.pil[0].lati[0] + '×' + x.pil[0].lati[0] + '</b></td>'; }).join('') + '</tr>';
+    if (nc >= 2) h += '<tr><td>Pilastro interno (terra)</td>' + R3.map(function (x) { return '<td><b>' + x.pil[1].lati[0] + '×' + x.pil[1].lati[0] + '</b></td>'; }).join('') + '</tr>';
+    h += '<tr><td>Altezza netta, interpiano 1</td>' + R3.map(function (x) { return '<td>' + F(x.nette[0] / 1000, 2) + ' m</td>'; }).join('') + '</tr>';
+    $('tTre').innerHTML = h + '</tbody>';
+  }
 
-    // sezione scelta in scala e confronto M_Ed / M_Rd
-    var o2 = '', MRd = prof ? prof[2] * fyd / 1000 : 0;
-    o2 += '<text x="10" y="16" font-size="12" font-weight="700" fill="#121212">Sezione scelta, in scala</text>';
-    if (prof) {
-      var h = prof[1], b = h * 0.5, tf = Math.max(8, h * 0.065), tw = Math.max(5, h * 0.04), sc = 120 / 400 * 1.0, hh = h * sc, bb = b * sc, tfs = tf * sc, tws = tw * sc, xx = 40, yy = 28;
-      o2 += '<path d="M' + xx + ',' + yy + ' h' + bb + ' v' + tfs + ' h-' + (bb / 2 - tws / 2) + ' v' + (hh - 2 * tfs) + ' h' + (bb / 2 - tws / 2) + ' v' + tfs + ' h-' + bb + ' v-' + tfs + ' h' + (bb / 2 - tws / 2) + ' v-' + (hh - 2 * tfs) + ' h-' + (bb / 2 - tws / 2) + ' z" fill="#d1382b"/>';
-      o2 += '<text x="' + (xx + bb + 10) + '" y="' + (yy + hh / 2) + '" font-size="12" font-weight="700">' + prof[0] + '</text><text x="' + (xx + bb + 10) + '" y="' + (yy + hh / 2 + 15) + '" font-size="11" fill="#6e6e6e">h = ' + h + ' mm</text>';
-    }
-    var mx = Math.max(M, MRd, 1), sb = 240 / mx;
-    o2 += '<text x="300" y="46" font-size="12" font-weight="700">Domanda e capacità</text>';
-    o2 += '<rect x="300" y="58" width="' + (M * sb) + '" height="22" fill="#d1382b"/><text x="304" y="74" font-size="11" fill="#fff" font-weight="700">M_Ed = ' + F(M, 1) + '</text>';
-    o2 += '<rect x="300" y="92" width="' + (MRd * sb) + '" height="22" fill="#1f5c8b"/><text x="304" y="108" font-size="11" fill="#fff" font-weight="700">M_Rd = W·f_yd = ' + F(MRd, 1) + ' kN·m</text>';
-    o2 += '<text x="300" y="138" font-size="12" fill="' + (MRd >= M ? '#2d7d46' : '#d1382b') + '" font-weight="700">' + (MRd >= M ? 'Capacità ≥ domanda: verificato' : 'Capacità < domanda: non basta') + '</text>';
-    $('sezA').innerHTML = o2;
+  function aggiornaA() {
+    var mat = $('mat').value, nc = +$('nc').value, n = +$('n').value;
+    $('rAc').hidden = mat !== 'acciaio'; $('rCa').hidden = mat !== 'ca';
+    mostra('nc', nc); mostra('n', n); mostra('B1', F(leggi('B1'), 1) + ' m'); mostra('B2', F(leggi('B2'), 1) + ' m'); mostra('H', F(leggi('H'), 1) + ' m');
+    var p = leggiTelaio(mat), r = RT.predimTelaio(p);
+    ULT = { r: r, p: p };
+    disegnaProspetto(p, r); disegnaPianta(p, r); tabelle(p, r);
+    if (root.RTE) RTE.aggiorna();
   }
 
   var PRESET_B = [[60, 1.5, 120, 1.05], [110, 1.5, 120, 1.05], [60, 1.5, 80, 1.05]];
@@ -193,13 +238,13 @@
     var Dk = leggi('Dk'), gF = leggi('gF'), Ck = leggi('Ck'), gM = leggi('gM');
     mostra('Dk', F(Dk, 0)); mostra('gF', F(gF, 2)); mostra('Ck', F(Ck, 0)); mostra('gM', F(gM, 2));
     var Dd = gF * Dk, Cd = Ck / gM, mx = Math.max(Dd, Cd, Dk, Ck) * 1.08, H = 200, y0 = 232, k = H / mx, ok = Dd <= Cd;
-    function barra(x, w, v, col, tratt) {
+    function barra(x, w, v, col, tratt) {                    // pieno trasparente (valore di progetto), tratteggiato (valore caratteristico) disegnato sopra: si vedono entrambi
       var h = v * k;
-      return '<rect x="' + x + '" y="' + (y0 - h) + '" width="' + w + '" height="' + h + '" ' + (tratt ? 'fill="none" stroke="' + col + '" stroke-width="2" stroke-dasharray="6 4"' : 'fill="' + col + '"') + '/>';
+      return '<rect x="' + x + '" y="' + (y0 - h) + '" width="' + w + '" height="' + h + '" ' + (tratt ? 'fill="none" stroke="' + col + '" stroke-width="2" stroke-dasharray="6 4"' : 'fill="' + col + '" fill-opacity=".4" stroke="' + col + '" stroke-width="1.2"') + '/>';
     }
     var s = '<line x1="30" x2="530" y1="' + y0 + '" y2="' + y0 + '" stroke="#121212" stroke-width="1.5"/>';
-    s += barra(70, 100, Dk, '#d1382b', true) + barra(70, 100, Dd, '#d1382b', false);
-    s += barra(330, 100, Ck, '#1f5c8b', true) + barra(330, 100, Cd, '#1f5c8b', false);
+    s += barra(70, 100, Dd, '#d1382b', false) + barra(70, 100, Dk, '#d1382b', true);
+    s += barra(330, 100, Cd, '#1f5c8b', false) + barra(330, 100, Ck, '#1f5c8b', true);
     s += '<text x="120" y="' + (y0 - Dd * k - 8) + '" text-anchor="middle" font-size="13" font-weight="700" fill="#d1382b">D<tspan dy="3" font-size="10">d</tspan><tspan dy="-3"> = ' + F(Dd, 1) + '</tspan></text>';
     s += '<text x="380" y="' + (y0 - Math.max(Cd, Ck) * k - 8) + '" text-anchor="middle" font-size="13" font-weight="700" fill="#1f5c8b">C<tspan dy="3" font-size="10">d</tspan><tspan dy="-3"> = ' + F(Cd, 1) + '</tspan></text>';
     s += '<text x="120" y="' + (y0 + 20) + '" text-anchor="middle" font-size="13" font-weight="700">Domanda</text><text x="380" y="' + (y0 + 20) + '" text-anchor="middle" font-size="13" font-weight="700">Capacità</text>';
@@ -215,9 +260,18 @@
     var a = parseFloat($('u1').value) || 0, b = parseFloat($('u2').value) || 0;
     $('u1o').textContent = F(a, 2); $('u1k').textContent = F(RT.kgfDaKN(a), 0);
     $('u2o').textContent = F(b, 2); $('u2k').textContent = F(RT.kgfDaKN(b), 0);
+    $('u1m').textContent = F(a, 2); $('u1km').textContent = F(a * 100, 0);              // a mano: 1 kgf = 10 N, 1 kN = 100 kgf
+    $('u2m').textContent = F(b, 2); $('u2km').textContent = F(b * 100, 0);
   }
 
-  ['L', 'g1', 'g2', 'q', 'acc', 'vinc'].forEach(function (id) { $(id).addEventListener('input', esempio); });
+  ['mat', 'schAc', 'tipoCa', 'B1', 'B2'].forEach(function (id) { $(id).addEventListener('input', aggiornaA); });
+  $('nc').addEventListener('input', function () { costruisciCampate(); aggiornaA(); });
+  $('n').addEventListener('input', function () { costruisciAltezze(); aggiornaA(); });
+  $('H').addEventListener('input', function () { var v = leggi('H'); for (var k = 0; k < 6; k++) Hk[k] = v; costruisciAltezze(); aggiornaA(); });   // il cursore imposta tutti gli interpiani
+  $('altezze').addEventListener('input', function (ev) {
+    var el = ev.target, m = /^Hk(\d)$/.exec(el.id || ''), v = parseFloat(el.value);
+    if (m && v >= 2 && v <= 8) { Hk[+m[1] - 1] = v; aggiornaA(); }
+  });
   ['Dk', 'gF', 'Ck', 'gM'].forEach(function (id) { $(id).addEventListener('input', sicurezza); });
   Array.prototype.forEach.call(document.querySelectorAll('#presetB button'), function (b) {
     b.addEventListener('click', function () {
@@ -227,30 +281,39 @@
     });
   });
   ['u1', 'u2'].forEach(function (id) { $(id).addEventListener('input', unita); });
-  esempio(); sicurezza(); unita();
+  costruisciCampate(); costruisciAltezze(); aggiornaA(); sicurezza(); unita();
+
+  // Esempio della lezione: gli stessi dati e gli stessi risultati delle slide (lezione1.tex, «Esempio svolto: telaio in acciaio / in c.a.»)
+  var BASE = { mat: 'acciaio', schAc: 'semi', tipoCa: 'emergente', nc: 2, L0: 4, L1: 5.5, B1: 5, B2: 6, n: 1, H: 3.8 };
+  function atteso(grezzoB, latoB, grezzoI, latoI, hL2, bL2, hL1, bL1) {
+    return [
+      { e: 'Trave L₂ = 5,5 m: h [mm]', s: hL2, d: 0, p: function () { return ULT.r.travi[1].h; } },
+      { e: 'Trave L₂ = 5,5 m: b [mm]', s: bL2, d: 0, p: function () { return ULT.r.travi[1].b; } },
+      { e: 'Trave L₁ = 4 m: h [mm]', s: hL1, d: 0, p: function () { return ULT.r.travi[0].h; } },
+      { e: 'Trave L₁ = 4 m: b [mm]', s: bL1, d: 0, p: function () { return ULT.r.travi[0].b; } },
+      { e: 'L_max dei pilastri [m]', s: 6, d: 1, p: function () { return Math.min(ULT.r.pil[0].Lmax, ULT.r.pil[1].Lmax, ULT.r.pil[2].Lmax); } },
+      { e: 'Pilastro di bordo: κ·L_max·pos·√n [mm]', s: grezzoB, d: 0, p: function () { return ULT.r.pil[0].grezzi[0]; } },
+      { e: 'Pilastro di bordo: lato [mm]', s: latoB, d: 0, p: function () { return ULT.r.pil[0].lati[0]; } },
+      { e: 'Pilastro interno: κ·L_max·pos·√n [mm]', s: grezzoI, d: 0, p: function () { return ULT.r.pil[1].grezzi[0]; } },
+      { e: 'Pilastro interno: lato [mm]', s: latoI, d: 0, p: function () { return ULT.r.pil[1].lati[0]; } }
+    ];
+  }
   RTE.avvia({
     contenitore: 'esempio',
-    descrizione: 'È la trave di un solaio che svolgerai per esteso nella lezione 3: stessi dati, stessi risultati delle slide. Premi il pulsante e confronta.',
-    campi: ['L', 'g1', 'g2', 'q', 'acc', 'vinc'],
-    scenari: [{
-      titolo: 'Trave di un solaio',
-      nota: 'Acciaio S235, trave appoggiata di 6,5 m, interasse 1,5 m, G₁ = 3,0 · G₂ = 3,0 · Q = 0,5 kN/m² (quindi g₁ = 4,5 · g₂ = 4,5 · q = 0,75 kN/m).',
-      valori: { L: 6.5, g1: 4.5, g2: 4.5, q: 0.75, acc: 'S235', vinc: 'appoggiata' },
-      attesi: [
-        { e: 'Livello 1: h ≈ L/20 [mm]', s: 325, d: 0, p: function () { return ULT.hGeo; } },
-        { e: 'p_d,SLU [kN/m]', s: 13.73, d: 2, p: function () { return ULT.pd; } },
-        { e: 'M_Ed [kN·m]', s: 72.5, d: 1, p: function () { return ULT.M; } },
-        { e: 'W_y,min [cm³]', s: 324, d: 0, p: function () { return ULT.W; } },
-        { e: 'Profilo per la sola resistenza', s: 'IPE 240', p: function () { return ULT.profW; } },
-        { e: 'I_y,min [cm⁴]', s: 4151, d: 0, p: function () { return ULT.Imin; } },
-        { e: 'Profilo scelto (W e I_min)', s: 'IPE 270', p: function () { return ULT.prof; } },
-        { e: 'δ_max [mm]', s: 18.6, d: 1, p: function () { return ULT.delta; } }
-      ]
-    }]
+    descrizione: 'Il predimensionamento (livello 1) del telaio centrale, svolto nelle slide: stessa maglia (L₁ = 4 m, L₂ = 5,5 m, B₁ = 5 m, B₂ = 6 m, H = 3,8 m), in acciaio a un piano e in c.a. a due piani. Scegli un esempio, confronta con le slide, poi cambia maglia, piani, interpiani e materiale.',
+    descrizioneEn: 'The level 1 preliminary sizing of the central frame, worked in the slides: same grid (L₁ = 4 m, L₂ = 5.5 m, B₁ = 5 m, B₂ = 6 m, H = 3.8 m), in steel with one storey and in r.c. with two storeys. Choose an example, compare with the slides, then change the grid, the storeys, the storey heights and the material.',
+    campi: ['mat', 'schAc', 'tipoCa', 'nc', 'L0', 'L1', 'L2', 'L3', 'B1', 'B2', 'n', 'H', 'Hk1', 'Hk2', 'Hk3', 'Hk4', 'Hk5', 'Hk6'],
+    prima: function (v) { if (v.nc !== undefined) { $('nc').value = v.nc; luci[0] = v.L0; luci[1] = v.L1; costruisciCampate(); } },
+    scenari: [
+      { titolo: 'Telaio in acciaio (1 piano)', nota: 'Acciaio, travi continue (semi-incastro, h = L/25, b ≈ h/2), 1 piano (n = 1), κ = 30; pilastri di bordo e interno con L_max = B₂ = 6 m, minimo 200 mm.',
+        valori: Object.assign({}, BASE), attesi: atteso(126, 200, 180, 200, 220, 110, 160, 80) },
+      { titolo: 'Telaio in c.a. (2 piani)', nota: 'Calcestruzzo armato, travi emergenti (h = L/10, b = 300 mm), 2 piani (n = 2), κ = 45; L_max = B₂ = 6 m, arrotondato a 50 mm, minimo 300 mm.',
+        valori: Object.assign({}, BASE, { mat: 'ca', n: 2 }), attesi: atteso(267, 300, 382, 400, 550, 300, 400, 300) }
+    ]
   });
 })();
 </script>
-<script src="assets/js/i18n-en.js?v=20261110"></script>
-<script src="assets/js/i18n.js?v=20261110"></script>
+<script src="assets/js/i18n-en.js?v=20261112"></script>
+<script src="assets/js/i18n.js?v=20261112"></script>
 </body>
 </html>

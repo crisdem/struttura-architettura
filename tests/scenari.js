@@ -80,6 +80,16 @@
              RT.caricoNeve('III', 20, 15, 'normale').qs, RT.caricoNeve('II', 600, 15, 'riparata').qs].map(r6),
       Imin: [RT.Imin(5, 9.75, 6.5, 6.5), RT.Imin(2.5, 35.75, 5.5, 5.5)].map(r6),
       lezione4: [RT.dmin_emergente(159.6, 300, RT.fcd(25)), RT.bmin_spessore(159.6, 160, RT.fcd(25)), RT.su50(RT.dmin_emergente(159.6, 300, RT.fcd(25)) + 40)],
+      // Lezione 2: combinazioni delle azioni (una sola variabile, e due: uffici + neve), con la variabile principale scelta
+      combinazioni: ['slu', 'rara', 'freq', 'qp'].map(function (t) {
+        var a = RT.combinazione(t, 3, 3, [{ v: 0.5, cat: 'neve1' }]), b = RT.combinazione(t, 3, 3, [{ v: 2, cat: 'B' }, { v: 0.5, cat: 'neve1' }]);
+        return [r6(a.q), r6(b.q), b.scelto.pr];
+      }),
+      // Lezione 1: predimensionamento del telaio centrale (esempi svolti delle slide) e gli stessi dati con altri materiali e interpiani
+      predim: [['acciaio', 'semi', 1], ['ca', 'emergente', 2], ['legno', 'legno', 2], ['ca', 'spessore', 3]].map(function (c) {
+        var r = RT.predimTelaio({ mat: c[0], schema: c[1], spans: [4, 5.5], B1: 5, B2: 6, n: c[2], H: [3.8, 3.8, 3.8].slice(0, c[2]) });
+        return { travi: r.travi.map(function (t) { return [r6(t.h), r6(t.b)]; }), pil: r.pil.map(function (q) { return q.posNome + ' ' + q.Lmax + ' ' + q.grezzi.map(r6).join('/') + ' -> ' + q.lati.join('/'); }), nette: r.nette.map(r6) };
+      }),
       stato: (function () {
         var st = RT.telaioStato(base({ n: 3, spans: [5, 5, 5], senza: { '3:2': true }, colSenza: { '3:3': true } }));
         return [st.alto.join(','), st.colonne[3][3].presente, st.colonne[3][3].ripristina, st.colonne[3][2].togli, st.colonne[2][3].togli, st.trave(3, 2), st.disponibile(3, 2)];
