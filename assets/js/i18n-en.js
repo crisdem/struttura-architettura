@@ -592,8 +592,6 @@ window.RT_EN = {
 "Prontuario": "Handbook",
 "Prontuario di statica per architetti": "Statics handbook for architects",
 "Schemi, formule, sagomario e schede di consultazione rapida.": "Schemes, formulas, section tables and quick-reference sheets.",
-"Il modulo in breve": "The module in brief",
-"Lezioni, consegne e criteri del Modulo Struttura e Architettura.": "Lessons, deliverables and criteria of the Structure and Architecture module.",
 "Dal carico superficiale ai carichi su travi e pilastri, con campate diverse. Solaio a una via e a due vie (45°). Carico della neve secondo le NTC 2018.": "From the surface load to the loads on beams and columns, with different spans. One-way and two-way slabs (45°). Snow load according to NTC 2018.",
 "Dalla combinazione delle azioni al profilo scelto. Domanda e capacità con i coefficienti parziali. Unità di misura.": "From the combination of actions to the chosen section. Demand and capacity with partial factors. Units of measure.",
 "B. Domanda e capacità: il margine": "B. Demand and capacity: the margin",
