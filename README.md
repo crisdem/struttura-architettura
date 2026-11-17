@@ -25,7 +25,7 @@ Pagine statiche, senza dipendenze esterne e senza passaggi di build: funzionano 
 1. Crea un repository e copia **il contenuto** di questa cartella nella radice (oppure in `docs/`).
 2. In *Settings > Pages* scegli il ramo e la cartella (`/` oppure `/docs`).
 3. Il file `.nojekyll` è già presente. Tutti i percorsi sono relativi, quindi funzionano anche in un sotto-percorso (`utente.github.io/repo/`).
-4. Gli script e il foglio di stile sono collegati con `?v=AAAAMMGG` (per esempio `calc.js?v=20261119`): quando modifichi un file in `assets/`, cambia quel numero in tutte le pagine, così i browser non usano copie vecchie (GitHub Pages le tiene in cache per circa 10 minuti).
+4. Gli script e il foglio di stile sono collegati con `?v=AAAAMMGG` (per esempio `calc.js?v=20261120`): quando modifichi un file in `assets/`, cambia quel numero in tutte le pagine, così i browser non usano copie vecchie (GitHub Pages le tiene in cache per circa 10 minuti).
 
 ## Provare in locale
 

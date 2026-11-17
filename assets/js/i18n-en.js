@@ -879,7 +879,7 @@ window.RT_EN = {
 "Dipartimento": "Department",
 "Dove siamo": "Where we are",
 "Il Dipartimento di Architettura": "The Department of Architecture",
-"La scuola di Roma Tre che ospita il laboratorio: chi siamo, i corsi, la progettazione integrata, i riconoscimenti e la sede nell'Ex Mattatoio di Testaccio.": "The Roma Tre school that hosts the studio: who we are, the courses, integrated design, recognitions and the seat in the former Testaccio slaughterhouse.",
+"La scuola di Roma Tre che ospita il laboratorio: chi siamo, i corsi, la progettazione integrata e la sede nell'Ex Mattatoio di Testaccio.": "The Roma Tre school that hosts the studio: who we are, the courses, integrated design and the seat in the former Testaccio slaughterhouse.",
 "L'ingresso dell'Ex Mattatoio di Testaccio, a Roma, al crepuscolo": "The entrance of the former Testaccio slaughterhouse in Rome, at dusk",
 "Interno di un padiglione dell'Ex Mattatoio, con vasche in ferro e carriponte": "Inside a pavilion of the former slaughterhouse, with iron vats and overhead rails",
 "Facciata di un padiglione ottocentesco dell'Ex Mattatoio": "Facade of a nineteenth-century pavilion of the former slaughterhouse",
