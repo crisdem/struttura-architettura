@@ -14,7 +14,9 @@
  .firma{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--grigio-chiaro)}
  .firma b{font-size:1.1rem}
  .autori{margin:0 0 1rem;display:flex;flex-wrap:wrap;gap:.8rem;align-items:flex-end}
- .autori img{width:150px;height:200px;object-fit:cover;object-position:50% 20%;border-radius:6px;border-bottom:4px solid var(--rosso);background:var(--grigio-chiaro)}
+ .autori figure{margin:0;width:150px}
+ .autori img{display:block;width:150px;height:200px;object-fit:cover;object-position:50% 20%;border-radius:6px;border-bottom:4px solid var(--rosso);background:var(--grigio-chiaro)}
+ .autori figcaption{margin-top:.35rem;font-size:.9rem;line-height:1.25;color:var(--grigio)}
  .idee{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1rem 0}
  .idee div{background:var(--carta);border-top:4px solid var(--rosso);padding:.8rem 1rem;border-radius:0 0 6px 6px}
  .idee b{display:block;font-size:1.05rem;margin-bottom:.2rem}
@@ -60,8 +62,8 @@
 
 <div class="firma">
   <div class="autori">
-    <img src="assets/img/autori_1.jpg" alt="" width="150" height="200" loading="lazy">
-    <img src="assets/img/autori_2.jpg" alt="" width="150" height="200" loading="lazy">
+    <figure><img src="assets/img/autori_1.jpg" alt="" width="150" height="200" loading="lazy"><figcaption>Cristoforo Demartino</figcaption></figure>
+    <figure><img src="assets/img/autori_2.jpg" alt="" width="150" height="200" loading="lazy"><figcaption>Tommaso Albanesi</figcaption></figure>
   </div>
   <b>Tommaso Albanesi e Cristoforo Demartino</b><br>
   <span data-en="Structure and Architecture module, Architectural Design Studio 2, Department of Architecture, Roma Tre. Academic year 2026-2027." style="color:var(--grigio)">Modulo Struttura e Architettura, Laboratorio di Progettazione Architettonica 2, Dipartimento di Architettura, Roma Tre. A.A. 2026-2027.</span>
