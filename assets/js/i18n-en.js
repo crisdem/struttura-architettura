@@ -215,6 +215,7 @@ window.RT_EN = {
 "Capacità media": "Mean capacity",
 "Coefficiente ν": "Coefficient ν",
 "G₁ strutturali": "Structural G₁",
+"HEA (pilastri)": "HEA (columns)",
 "HEB (pilastri)": "HEB (columns)",
 "Sovraccarico d": "Imposed load",
 "influenza B/2)": "tributary area B/2)",
