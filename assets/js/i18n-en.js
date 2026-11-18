@@ -883,4 +883,8 @@ window.RT_EN = {
 "L'ingresso dell'Ex Mattatoio di Testaccio, a Roma, al crepuscolo": "The entrance of the former Testaccio slaughterhouse in Rome, at dusk",
 "Interno di un padiglione dell'Ex Mattatoio, con vasche in ferro e carriponte": "Inside a pavilion of the former slaughterhouse, with iron vats and overhead rails",
 "Facciata di un padiglione ottocentesco dell'Ex Mattatoio": "Facade of a nineteenth-century pavilion of the former slaughterhouse",
+"Normativa": "Regulations",
+"Riferimenti": "References",
+"Normativa: NTC 2018 e circolare": "Regulations: NTC 2018 and circular",
+"Il D.M. 17 gennaio 2018 e la circolare n. 7 del 2019, da scaricare dalla Gazzetta Ufficiale, con una breve spiegazione di che cosa contengono.": "The Ministerial Decree of 17 January 2018 and circular no. 7 of 2019, to download from the Gazzetta Ufficiale, with a short explanation of what they contain.",
 };
