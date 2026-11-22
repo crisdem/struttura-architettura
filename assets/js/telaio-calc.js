@@ -5,11 +5,14 @@
    RT.telaioStato(p)  dice quali travi e quali pilastri si possono togliere o rimettere (per l'interfaccia)
 
    p: {n, spans[m], H, B, bordo, g1, g2, q, neve, qb, sx, dx, mat:'acciaio'|'legno'|'ca',
-       acciaio, classeLegno, bLegno, fck, vincolo, travaTipo, serie:'HEA'|'HEB', senza, colSenza}
+       acciaio, classeLegno, bLegno, fck, vincolo, travaTipo, tipiTrave, serie:'HEA'|'HEB', senza, colSenza}
    sx, dx: sbalzi sinistro e destro [m] (0 = assente); qb: sovraccarico sugli sbalzi dei piani [kN/m2].
    senza: travi tolte, chiavi 'k:i' (livello k = 1..n, campata i = 0..nc-1) oppure 'k:sx', 'k:dx' per gli sbalzi.
      Una trave tolta e' un vuoto (doppia altezza): niente trave e niente carico di solaio in quella campata e a quel livello.
      Lo sbalzo e' il prolungamento della trave adiacente: senza quella trave (o senza il pilastro) non esiste.
+   travaTipo: c.a., tipo di tutte le travi: 'emergente' (b = 300 mm) o 'spessore' (h = spessore del solaio).
+   tipiTrave: c.a., tipo di singole travi che fanno eccezione, chiavi 'k:i' (livello k, campata i) -> 'emergente' | 'spessore' (18/11/2026).
+     Gli sbalzi seguono il tipo della trave che prolungano (sbalzo sx: campata 0; dx: ultima campata; nel vuoto: la trave vicina).
    colSenza: tratti di pilastro tolti, chiavi 'j:s' (pilastro j = 0..nc, interpiano s = 1..n). Si tolgono solo dall'alto e solo se in
      testa non arrivano travi (testa libera, nessun pilastro sopra): se manca l'interpiano s, mancano anche i superiori.
      Le travi che arrivano a un nodo senza pilastro sono assenti.
@@ -108,7 +111,7 @@
 
   // ---------------------------------------------------------------- travi
   // Lgeo, xGeo: luce e coefficiente del criterio geometrico (livello 1); Lc: luce di calcolo; Llim: luce per il limite di freccia
-  function dimensionaTrave(p, m, M, Lgeo, xGeo, Lc, Llim, kfr, psR, psQ, psQP) {
+  function dimensionaTrave(p, m, M, Lgeo, xGeo, Lc, Llim, kfr, psR, psQ, psQP, tipo) {
     var t = { M: M, L: Lc, hGeo: Lgeo * 1000 / xGeo, hMin: Lgeo * 1000 / 20, hMax: Lgeo * 1000 / 15 };
     if (p.mat === 'acciaio') {
       t.W = RT.Wmin(M, m.fyd);
@@ -128,12 +131,14 @@
       for (var g = 0; g < 80 && I < Imm * (1 - 1e-9); g++) { h += 40; I = m.bL * Math.pow(h, 3) / 12; }   // se I_min non basta si alza la sezione
       t.b = m.bL; t.h = h; t.Imin = Imm / 1e4; t.I = I / 1e4; t.gov = (h > RT.su40(t.hW)) ? 'deformabilità' : 'resistenza';
       m.volLegno += t.b * t.h * Lc / 1e6;
-    } else if (p.travaTipo === 'spessore') {
+    } else if (tipo === 'spessore') {
+      t.tipo = 'spessore';
       t.d = m.hs - COPRIFERRO;
       t.bmin = RT.bmin_spessore(M, t.d, m.fcd);
       t.b = Math.max(RT.su50(t.bmin), 200); t.h = m.hs; t.hGeo = m.hs;
       m.volCls += t.b * t.h * Lc / 1e6; m.casseM2 += t.b / 1000 * Lc; m.volSov += t.b * t.h * Lc / 1e6;   // a spessore: solo il fondo; il volume e' gia' nel solaio
     } else {
+      t.tipo = 'emergente';
       t.b = 300;
       t.d = RT.dmin_emergente(M, t.b, m.fcd);
       t.h = RT.su50(t.d + COPRIFERRO);
@@ -145,20 +150,22 @@
   function progettaTravi(p, m, geo, car, Binf, out) {
     var beta = RT.BETA[p.vincolo], kf = RT.KFRECCIA[p.vincolo];
     var xTrave = (p.mat === 'acciaio') ? RT.HLUCE[p.vincolo] : 10, xSbalzo = (p.mat === 'acciaio') ? 20 : 10;
+    var tutte = (p.travaTipo === 'spessore') ? 'spessore' : 'emergente', eccezioni = p.tipiTrave || {};
+    function tipoDi(k, i) { var v = eccezioni[k + ':' + i]; return (v === 'spessore' || v === 'emergente') ? v : tutte; }   // tipo della trave (k, i); gli sbalzi usano quello della trave che prolungano
     for (var k = 1; k <= p.n; k++) {
       var ps2 = (k === p.n) ? 0 : PSI2, travi = [], sbalzi = [], presenti = 0;
       for (var i = 0; i < geo.nc; i++) {
         var L = p.spans[i];
         if (!geo.presente(k, i)) { travi.push({ assente: true, L: L, i: i, perPilastro: !geo.disponibile(k, i) }); continue; }
         var pd = car.qd[k] * Binf, ps = car.qs[k] * Binf;
-        var t = dimensionaTrave(p, m, RT.momento(pd, L, beta), L, xTrave, L, L, kf, ps, car.qv[k] * Binf, (car.g[k] + ps2 * car.qv[k]) * Binf);
+        var t = dimensionaTrave(p, m, RT.momento(pd, L, beta), L, xTrave, L, L, kf, ps, car.qv[k] * Binf, (car.g[k] + ps2 * car.qv[k]) * Binf, tipoDi(k, i));
         t.pd = pd; t.ps = ps; travi.push(t); presenti++; m.areaSol += L * Binf;
       }
       ['sx', 'dx'].forEach(function (lato) {
         var Ls = geo.lungSbalzo(k, lato); if (!(Ls > 0)) return;
         if (!geo.presente(k, lato)) { sbalzi.push({ assente: true, L: Ls, lato: lato, perPilastro: !geo.disponibile(k, lato) }); return; }
         var pdb = car.qdb[k] * Binf, psb = car.qsb[k] * Binf;
-        var ts = dimensionaTrave(p, m, pdb * Ls * Ls / 2, 2 * Ls, xSbalzo, Ls, 2 * Ls, 48, psb, car.qvb[k] * Binf, (car.g[k] + ps2 * car.qvb[k]) * Binf);
+        var ts = dimensionaTrave(p, m, pdb * Ls * Ls / 2, 2 * Ls, xSbalzo, Ls, 2 * Ls, 48, psb, car.qvb[k] * Binf, (car.g[k] + ps2 * car.qvb[k]) * Binf, tipoDi(k, lato === 'sx' ? 0 : geo.nc - 1));
         ts.pd = pdb; ts.ps = psb; ts.lato = lato; sbalzi.push(ts); presenti++; m.areaSol += Ls * Binf;
       });
       var interni = [];                                // sbalzi dentro i vuoti: prolungano le travi vicine
@@ -167,7 +174,7 @@
         [['a', sv.a, iv - 1], ['b', sv.b, iv + 1]].forEach(function (c) {
           var Ls = c[1]; if (!(Ls > 0)) return;
           var pdb = car.qdb[k] * Binf, psb = car.qsb[k] * Binf;
-          var ti = dimensionaTrave(p, m, pdb * Ls * Ls / 2, 2 * Ls, xSbalzo, Ls, 2 * Ls, 48, psb, car.qvb[k] * Binf, (car.g[k] + ps2 * car.qvb[k]) * Binf);
+          var ti = dimensionaTrave(p, m, pdb * Ls * Ls / 2, 2 * Ls, xSbalzo, Ls, 2 * Ls, 48, psb, car.qvb[k] * Binf, (car.g[k] + ps2 * car.qvb[k]) * Binf, tipoDi(k, c[2]));
           ti.pd = pdb; ti.ps = psb; ti.lato = 'int'; ti.verso = c[0]; ti.i = iv; ti.Ladj = p.spans[c[2]];
           interni.push(ti); presenti++; m.areaSol += Ls * Binf;
         });

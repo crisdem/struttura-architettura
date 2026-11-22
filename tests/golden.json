@@ -596,6 +596,44 @@
     4.272,
     0
    ]
+  },
+  "c.a. travi miste: piano 1 emergenti, copertura a spessore": {
+   "travi": [
+    "1: 300x450 | 300x450",
+    "2: 1400x200 | 1400x200"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=235.625 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=222.7386>300 300 resistenza] [2-2 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=157.5>300 300 resistenza]",
+    "P2 [1-1 N=471.25 dN=0 A=50 L0=3.2 imin=32 Lm=5 interno n=2 K=318.1981>350 300 resistenza] [2-2 N=207.5 dN=0 A=25 L0=3.2 imin=32 Lm=5 interno n=1 K=225>300 300 resistenza]",
+    "P3 [1-1 N=235.625 dN=0 A=25 L0=3.2 imin=32 Lm=5 bordo n=2 K=222.7386>300 300 resistenza] [2-2 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=157.5>300 300 resistenza]"
+   ],
+   "alto": "2,2,2",
+   "avvisi": [],
+   "tot": [
+    0,
+    5.878,
+    0
+   ]
+  },
+  "c.a. travi miste con sbalzi e un vuoto": {
+   "travi": [
+    "1: 300x450 | 1800x200 | 1800x200 + sb 300x350,1850x200",
+    "2: 1800x200 | 1800x200 | 300x450 + sb 1050x200,300x450",
+    "3: 1400x200 | -- | 1400x200 + sb 650x200,1150x200"
+   ],
+   "pilastri": [
+    "P1 [1-1 N=672.825 dN=305.325 A=60 L0=3.2 imin=32 Lm=5 bordo n=3 K=272.798>300 350 resistenza] [2-2 N=424.0813 dN=188.4562 A=40 L0=3.2 imin=32 Lm=5 bordo n=2 K=222.7386>300 300 resistenza] [3-3 N=175.3375 dN=71.5875 A=20 L0=3.2 imin=32 Lm=5 bordo n=1 K=157.5>300 300 resistenza]",
+    "P2 [1-1 N=631.25 dN=0 A=62.5 L0=3.2 imin=32 Lm=5 interno n=3 K=389.7114>400 300 resistenza] [2-2 N=367.5 dN=0 A=37.5 L0=3.2 imin=32 Lm=5 interno n=2 K=318.1981>350 300 resistenza] [3-3 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 interno n=1 K=225>300 300 resistenza]",
+    "P3 [1-1 N=631.25 dN=0 A=62.5 L0=3.2 imin=32 Lm=5 interno n=3 K=389.7114>400 300 resistenza] [2-2 N=367.5 dN=0 A=37.5 L0=3.2 imin=32 Lm=5 interno n=2 K=318.1981>350 300 resistenza] [3-3 N=103.75 dN=0 A=12.5 L0=3.2 imin=32 Lm=5 interno n=1 K=225>300 300 resistenza]",
+    "P4 [1-1 N=792.3 dN=424.8 A=67.5 L0=3.2 imin=32 Lm=5 bordo n=3 K=272.798>300 350 resistenza] [2-2 N=497.825 dN=262.2 A=45 L0=3.2 imin=32 Lm=5 bordo n=2 K=222.7386>300 300 resistenza] [3-3 N=203.35 dN=99.6 A=22.5 L0=3.2 imin=32 Lm=5 bordo n=1 K=157.5>300 300 resistenza]"
+   ],
+   "alto": "3,3,3,3",
+   "avvisi": [],
+   "tot": [
+    0,
+    17.1515,
+    0
+   ]
   }
  },
  "funzioni": {
@@ -757,6 +795,27 @@
      "bordo 6 126 -> 200"
     ],
     "nette": [
+     3580
+    ]
+   },
+   {
+    "travi": [
+     [
+      160,
+      80
+     ],
+     [
+      220,
+      110
+     ]
+    ],
+    "pil": [
+     "bordo 6 178.1909/126 -> 200/200",
+     "interno 6 254.5584/180 -> 300/200",
+     "bordo 6 178.1909/126 -> 200/200"
+    ],
+    "nette": [
+     3580,
      3580
     ]
    },
@@ -1392,6 +1451,42 @@
     14002.48,
     70.1875,
     175.031
+   ]
+  },
+  "c.a. travi miste: piano 1 emergenti, copertura a spessore": {
+   "quantita": [
+    49.04,
+    100,
+    17.2
+   ],
+   "senzaSolaio": [
+    1836.875,
+    5273.27,
+    0
+   ],
+   "conSolaio": [
+    6437.875,
+    16595.27,
+    64.3788,
+    165.9527
+   ]
+  },
+  "c.a. travi miste con sbalzi e un vuoto": {
+   "quantita": [
+    121.81,
+    252.5,
+    38.79
+   ],
+   "senzaSolaio": [
+    5359.8438,
+    14386.5775,
+    0
+   ],
+   "conSolaio": [
+    15736.1688,
+    41188.2275,
+    62.3215,
+    163.1217
    ]
   }
  }

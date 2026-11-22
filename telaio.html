@@ -86,6 +86,11 @@
       <h3>Travi presenti <span class="unita">togli una trave per fare un vuoto</span></h3>
       <p class="nota" style="margin-top:-.2rem" data-en="A removed beam is a void: no beam and no floor slab in that span, at that level (double height). The cantilever is the extension of the adjacent beam: without that beam there is none. You can also click the beam in the drawing; clicking the void you can add &lt;b&gt;cantilevers&lt;/b&gt; from the neighbouring beams (only if the beam to extend exists), and clicking a cantilever changes its length. The same holds if the beam is missing because you removed a column: the beam cannot be there, but the neighbouring one can continue with a cantilever.">Una trave tolta è un vuoto: niente trave e niente solaio in quella campata, a quel livello (doppia altezza). Lo sbalzo è il prolungamento della trave adiacente: senza quella trave non c'è. Si può anche cliccare sulla trave nel disegno; cliccando sul vuoto si possono mettere <b>sbalzi</b> dalle travi vicine (solo se la trave da prolungare esiste), e cliccando su uno sbalzo se ne cambia la lunghezza. Lo stesso vale se la trave manca perché hai tolto un pilastro: la trave non può esserci, ma quella vicina può continuare con uno sbalzo.</p>
       <div id="matrice" class="scroll" role="group" aria-label="Travi presenti"></div>
+      <div id="blocTipi" hidden>
+        <h3>Tipo di ogni trave <span class="unita">solo c.a.</span></h3>
+        <p class="nota" style="margin-top:-.2rem" data-en="The «Beams (all)» menu sets the type of all the beams; here you can change one beam at a time (projecting or flat). Cantilevers follow the beam they extend. Flat beams are drawn lighter: they sit inside the floor slab.">Il menu «Travi (tutte)» imposta il tipo di tutte le travi; qui puoi cambiare una trave alla volta (emergente o a spessore). Gli sbalzi seguono la trave che prolungano. Le travi a spessore sono disegnate più chiare: stanno dentro il solaio.</p>
+        <div id="matriceTipi" class="scroll" role="group" aria-label="Tipo di ogni trave"></div>
+      </div>
       <h3>Pilastri presenti <span class="unita">si tolgono solo dall'alto</span></h3>
       <p class="nota" style="margin-top:-.2rem" data-en="A column can be removed only if it has a &lt;b&gt;free top&lt;/b&gt;: no column above and no beam (or cantilever) connected at the top. First remove the beams at the node, then the column.">Un pilastro si può togliere solo se ha la <b>testa libera</b>: nessun pilastro sopra e nessuna trave (né sbalzo) collegata in cima. Prima si tolgono le travi del nodo, poi il pilastro.</p>
       <div id="matricePil" class="scroll" role="group" aria-label="Pilastri presenti"></div>
@@ -134,7 +139,7 @@
       <div id="optCa" hidden>
         <div class="campo"><label for="fck">Calcestruzzo</label>
           <select id="fck"><option>C25/30</option><option>C28/35</option><option>C30/37</option></select></div>
-        <div class="campo"><label for="tipoTrave">Travi</label>
+        <div class="campo"><label for="tipoTrave">Travi (tutte)</label>
           <select id="tipoTrave"><option value="emergente">Emergenti (b = 300 mm)</option><option value="spessore">A spessore (h = spessore del solaio)</option></select></div>
       </div>
     </div>

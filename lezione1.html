@@ -285,7 +285,7 @@
   costruisciCampate(); costruisciAltezze(); aggiornaA(); sicurezza(); unita();
 
   // Esempio della lezione: gli stessi dati e gli stessi risultati delle slide (lezione1.tex, «Esempio svolto: telaio in acciaio / in c.a.»)
-  var BASE = { mat: 'acciaio', schAc: 'semi', tipoCa: 'emergente', nc: 2, L0: 4, L1: 5.5, B1: 5, B2: 6, n: 1, H: 3.8 };
+  var BASE = { mat: 'acciaio', schAc: 'semi', tipoCa: 'emergente', nc: 2, L0: 4, L1: 5.5, B1: 5, B2: 6, n: 2, H: 3.8 };
   function atteso(grezzoB, latoB, grezzoI, latoI, hL2, bL2, hL1, bL1) {
     return [
       { e: 'Trave L₂ = 5,5 m: h [mm]', s: hL2, d: 0, p: function () { return ULT.r.travi[1].h; } },
@@ -301,13 +301,13 @@
   }
   RTE.avvia({
     contenitore: 'esempio',
-    descrizione: 'Il predimensionamento (livello 1) del telaio centrale, svolto nelle slide: stessa maglia (L₁ = 4 m, L₂ = 5,5 m, B₁ = 5 m, B₂ = 6 m, H = 3,8 m), in acciaio a un piano e in c.a. a due piani. Scegli un esempio, confronta con le slide, poi cambia maglia, piani, interpiani e materiale.',
-    descrizioneEn: 'The level 1 preliminary sizing of the central frame, worked in the slides: same grid (L₁ = 4 m, L₂ = 5.5 m, B₁ = 5 m, B₂ = 6 m, H = 3.8 m), in steel with one storey and in r.c. with two storeys. Choose an example, compare with the slides, then change the grid, the storeys, the storey heights and the material.',
+    descrizione: 'Il predimensionamento (livello 1) del telaio centrale, svolto nelle slide: stessa maglia (L₁ = 4 m, L₂ = 5,5 m, B₁ = 5 m, B₂ = 6 m, H = 3,8 m), in acciaio e in c.a., entrambi a due piani. Scegli un esempio, confronta con le slide, poi cambia maglia, piani, interpiani e materiale.',
+    descrizioneEn: 'The level 1 preliminary sizing of the central frame, worked in the slides: same grid (L₁ = 4 m, L₂ = 5.5 m, B₁ = 5 m, B₂ = 6 m, H = 3.8 m), in steel and in r.c., both with two storeys. Choose an example, compare with the slides, then change the grid, the storeys, the storey heights and the material.',
     campi: ['mat', 'schAc', 'tipoCa', 'nc', 'L0', 'L1', 'L2', 'L3', 'B1', 'B2', 'n', 'H', 'Hk1', 'Hk2', 'Hk3', 'Hk4', 'Hk5', 'Hk6'],
     prima: function (v) { if (v.nc !== undefined) { $('nc').value = v.nc; luci[0] = v.L0; luci[1] = v.L1; costruisciCampate(); } },
     scenari: [
-      { titolo: 'Telaio in acciaio (1 piano)', nota: 'Acciaio, travi continue (semi-incastro, h = L/25, b ≈ h/2), 1 piano (n = 1), κ = 30; pilastri di bordo e interno con L_max = B₂ = 6 m, minimo 200 mm.',
-        valori: Object.assign({}, BASE), attesi: atteso(126, 200, 180, 200, 220, 110, 160, 80) },
+      { titolo: 'Telaio in acciaio (2 piani)', nota: 'Acciaio, travi continue (semi-incastro, h = L/25, b ≈ h/2), 2 piani (n = 2), κ = 30; pilastri di bordo e interno con L_max = B₂ = 6 m, arrotondato a 50 mm, minimo 200 mm.',
+        valori: Object.assign({}, BASE), attesi: atteso(178, 200, 255, 300, 220, 110, 160, 80) },
       { titolo: 'Telaio in c.a. (2 piani)', nota: 'Calcestruzzo armato, travi emergenti (h = L/10, b = 300 mm), 2 piani (n = 2), κ = 45; L_max = B₂ = 6 m, arrotondato a 50 mm, minimo 300 mm.',
         valori: Object.assign({}, BASE, { mat: 'ca', n: 2 }), attesi: atteso(267, 300, 382, 400, 550, 300, 400, 300) }
     ]
