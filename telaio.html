@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#121212">
 <title>Telaio piano - predimensionamento e dimensionamento | Struttura e Architettura</title>
 <meta name="description" content="Telaio piano in acciaio o calcestruzzo armato, con sbalzi e travi che si possono togliere (vuoti, doppie altezze): cambia campate, piani, luci e osserva le sezioni necessarie, disegnate in scala.">
-<link rel="stylesheet" href="assets/css/style.css?v=20261121">
+<link rel="stylesheet" href="assets/css/style.css?v=20261122">
 <style>
  .kpi{display:flex;gap:1.2rem;flex-wrap:wrap;margin:.6rem 0}
  .kpi div{background:var(--carta);border-top:3px solid var(--nero);padding:.4rem .8rem;border-radius:0 0 4px 4px}
@@ -60,7 +60,11 @@
 <div class="griglia due">
   <div>
     <div class="pannello">
-      <h3 style="margin-top:0">Materiale</h3>
+      <h3 style="margin-top:0">Livello di calcolo</h3>
+      <div class="campo inline"><input type="checkbox" id="conDim" checked><label for="conDim">Anche il dimensionamento (livello 2)</label></div>
+      <p class="nota" style="margin-top:-.2rem" data-en="Ticked: &lt;b&gt;preliminary sizing&lt;/b&gt; (level 1, geometric criteria) and &lt;b&gt;sizing&lt;/b&gt; (level 2, loads and simplified mechanical criteria). Unticked: only the &lt;b&gt;preliminary sizing&lt;/b&gt;: the sections are drawn with the level 1 sizes, with no loads, no profiles and no CO₂ and costs.">Con la spunta: <b>predimensionamento</b> (livello 1, criteri geometrici) e <b>dimensionamento</b> (livello 2, carichi e criteri meccanici semplificati). Senza la spunta: solo il <b>predimensionamento</b>: le sezioni sono disegnate con gli ingombri del livello 1, senza carichi, senza profili e senza CO₂ e costi.</p>
+
+      <h3>Materiale</h3>
       <div class="pillole" role="group" aria-label="Materiale">
         <button type="button" id="mAcc" aria-pressed="true">Acciaio</button>
         <button type="button" id="mCa" aria-pressed="false">C.a.</button>
@@ -102,6 +106,7 @@
         <button type="button" id="pArretra">Arretramento in copertura</button>
       </div>
 
+      <div class="solo-dim">
       <h3>Carichi caratteristici <span class="unita">[kN/m²]</span></h3>
       <div class="campo"><label for="g1">G₁ strutturali (solaio)</label><output id="g1v"></output>
         <input type="range" id="g1" min="0.5" max="6" step="0.1" value="2.5"></div>
@@ -117,14 +122,15 @@
       <div class="campo inline"><input type="checkbox" id="carLiv"><label for="carLiv">Carichi diversi ai vari piani</label></div>
       <p class="nota" style="margin-top:-.2rem" data-en="With the box ticked, the sliders above set the value of all the levels; then correct each level in the table (on the roof Q is the snow). The roof is the top row.">Con la casella attiva i cursori sopra impostano il valore di tutti i livelli; poi correggi ogni piano nella tabella (in copertura Q è la neve). In alto c'è la copertura.</p>
       <div id="matriceCarichi" class="scroll" role="group" aria-label="Carichi per livello" hidden></div>
+      </div>
 
       <h3>Modello e materiali</h3>
-      <div class="campo"><label for="vinc">Schema delle travi</label>
+      <div class="campo" id="campoVinc"><label for="vinc">Schema delle travi</label>
         <select id="vinc"><option value="appoggiata">Appoggiata: M = pL²/8</option><option value="semi" selected>Semi-incastro: M = pL²/10</option><option value="incastro">Incastro-incastro: M = pL²/12</option></select></div>
-      <div class="campo"><label for="chi" id="chiLab">Pilastri: coefficiente χ₀</label><output id="chiv"></output>
+      <div class="campo solo-dim"><label for="chi" id="chiLab">Pilastri: coefficiente χ₀</label><output id="chiv"></output>
         <input type="range" id="chi" min="0.2" max="0.9" step="0.05" value="0.5"></div>
-      <p class="nota" id="chiNota" style="margin-top:-.2rem"></p>
-      <div id="optAcc"><div class="campo"><label for="acc">Acciaio</label>
+      <p class="nota solo-dim" id="chiNota" style="margin-top:-.2rem"></p>
+      <div id="optAcc" class="solo-dim"><div class="campo"><label for="acc">Acciaio</label>
         <select id="acc"><option selected>S235</option><option>S275</option><option>S355</option></select></div>
         <div class="campo"><label for="serie">Pilastri: serie di profili</label>
         <select id="serie"><option value="HEB" selected>HEB</option><option value="HEA">HEA</option></select></div></div>
@@ -137,7 +143,7 @@
       </div>
       -->
       <div id="optCa" hidden>
-        <div class="campo"><label for="fck">Calcestruzzo</label>
+        <div class="campo solo-dim"><label for="fck">Calcestruzzo</label>
           <select id="fck"><option>C25/30</option><option>C28/35</option><option>C30/37</option></select></div>
         <div class="campo"><label for="tipoTrave">Travi (tutte)</label>
           <select id="tipoTrave"><option value="emergente">Emergenti (b = 300 mm)</option><option value="spessore">A spessore (h = spessore del solaio)</option></select></div>
@@ -146,7 +152,7 @@
   </div>
 
   <div>
-    <div class="campo inline" style="margin:.2rem 0 .1rem"><input type="checkbox" id="carichi"><label for="carichi">Mostra i carichi sulla struttura (p<sub>d</sub> sulle travi, N<sub>Ed</sub> alla base dei pilastri)</label></div>
+    <div class="campo inline solo-dim" style="margin:.2rem 0 .1rem"><input type="checkbox" id="carichi"><label for="carichi">Mostra i carichi sulla struttura (p<sub>d</sub> sulle travi, N<sub>Ed</sub> alla base dei pilastri)</label></div>
     <div class="campo inline" style="margin:.1rem 0 .5rem"><input type="checkbox" id="omini" checked><label for="omini">Mostra una persona alta 1,75 m nelle campate con la trave, per le proporzioni</label></div>
     <div class="parola"><label for="parola">Password</label><input type="password" id="parola" autocomplete="off" spellcheck="false" aria-label="Password"><span id="msgParola" hidden>Diavoletti attivati</span></div>
     <div class="vista" id="vistaFig">
@@ -180,12 +186,13 @@
     <div class="avviso" id="avvisi" hidden></div>
 
     <h2>Travi</h2>
-    <p class="nota" style="margin-top:-.4rem" data-en="&lt;span class=&quot;liv&quot;&gt;LEVEL 1&lt;/span&gt;h from the span (rule of thumb). &lt;span class=&quot;liv&quot;&gt;LEVEL 2&lt;/span&gt;moment, W&lt;sub&gt;min&lt;/sub&gt; and I&lt;sub&gt;min&lt;/sub&gt; (from the deflection limit L/250, characteristic loads), then the first section from the catalogue with W ≥ W&lt;sub&gt;min&lt;/sub&gt; and I ≥ I&lt;sub&gt;min&lt;/sub&gt;. The deflection itself is not checked."><span class="liv">LIVELLO 1</span>h dalla luce (regola pratica). <span class="liv">LIVELLO 2</span>momento, W<sub>min</sub> e I<sub>min</sub> (dal limite di freccia L/250, carichi caratteristici), poi la prima sezione del sagomario con W ≥ W<sub>min</sub> e I ≥ I<sub>min</sub>. La freccia in sé non si verifica.</p>
+    <p class="nota" style="margin-top:-.4rem" data-en="&lt;span class=&quot;liv&quot;&gt;LEVEL 1&lt;/span&gt;h from the span (rule of thumb). &lt;span class=&quot;solo-dim&quot;&gt;&lt;span class=&quot;liv&quot;&gt;LEVEL 2&lt;/span&gt;moment, W&lt;sub&gt;min&lt;/sub&gt; and I&lt;sub&gt;min&lt;/sub&gt; (from the deflection limit L/250, characteristic loads), then the first section from the catalogue with W ≥ W&lt;sub&gt;min&lt;/sub&gt; and I ≥ I&lt;sub&gt;min&lt;/sub&gt;. The deflection itself is not checked.&lt;/span&gt;"><span class="liv">LIVELLO 1</span>h dalla luce (regola pratica). <span class="solo-dim"><span class="liv">LIVELLO 2</span>momento, W<sub>min</sub> e I<sub>min</sub> (dal limite di freccia L/250, carichi caratteristici), poi la prima sezione del sagomario con W ≥ W<sub>min</sub> e I ≥ I<sub>min</sub>. La freccia in sé non si verifica.</span></p>
     <div class="scroll"><table id="tTravi"></table></div>
     <h2>Pilastri</h2>
-    <p class="nota" style="margin-top:-.4rem" data-en="&lt;span class=&quot;liv&quot;&gt;LEVEL 1&lt;/span&gt;side ≈ κ·L&lt;sub&gt;max&lt;/sub&gt;·pos·√n (κ = 45 for r.c., 30 for steel; rounded up to 50 mm, with the minimum). &lt;span class=&quot;liv&quot;&gt;LEVEL 2&lt;/span&gt;A&lt;sub&gt;min&lt;/sub&gt; = N&lt;sub&gt;Ed&lt;/sub&gt;/(χ₀·f&lt;sub&gt;d&lt;/sub&gt;) and stability: i&lt;sub&gt;min&lt;/sub&gt; = L₀/100 for steel, side ≥ L₀/15 for r.c. The final section must satisfy both. L₀ = β·H free: with a double height the free length doubles. The numbers of the columns are those in the circles of the drawing and of the plan."><span class="liv">LIVELLO 1</span>lato ≈ κ·L<sub>max</sub>·pos·√n (κ = 45 per il c.a., 30 per l'acciaio; arrotondato per eccesso a 50 mm, con il minimo). <span class="liv">LIVELLO 2</span>A<sub>min</sub> = N<sub>Ed</sub>/(χ₀·f<sub>d</sub>) e stabilità: i<sub>min</sub> = L₀/100 per l'acciaio, lato ≥ L₀/15 per il c.a. Il profilo o la sezione finale deve soddisfare entrambi. L₀ = β·H libera: con una doppia altezza la lunghezza libera raddoppia. I numeri dei pilastri sono quelli dei cerchietti nel disegno e nella pianta.</p>
+    <p class="nota" style="margin-top:-.4rem" data-en="&lt;span class=&quot;liv&quot;&gt;LEVEL 1&lt;/span&gt;side ≈ κ·L&lt;sub&gt;max&lt;/sub&gt;·pos·√n (κ = 45 for r.c., 30 for steel; rounded up to 50 mm, with the minimum). &lt;span class=&quot;solo-dim&quot;&gt;&lt;span class=&quot;liv&quot;&gt;LEVEL 2&lt;/span&gt;A&lt;sub&gt;min&lt;/sub&gt; = N&lt;sub&gt;Ed&lt;/sub&gt;/(χ₀·f&lt;sub&gt;d&lt;/sub&gt;) and stability: i&lt;sub&gt;min&lt;/sub&gt; = L₀/100 for steel, side ≥ L₀/15 for r.c. The final section must satisfy both. L₀ = β·H free: with a double height the free length doubles.&lt;/span&gt; The numbers of the columns are those in the circles of the drawing and of the plan."><span class="liv">LIVELLO 1</span>lato ≈ κ·L<sub>max</sub>·pos·√n (κ = 45 per il c.a., 30 per l'acciaio; arrotondato per eccesso a 50 mm, con il minimo). <span class="solo-dim"><span class="liv">LIVELLO 2</span>A<sub>min</sub> = N<sub>Ed</sub>/(χ₀·f<sub>d</sub>) e stabilità: i<sub>min</sub> = L₀/100 per l'acciaio, lato ≥ L₀/15 per il c.a. Il profilo o la sezione finale deve soddisfare entrambi. L₀ = β·H libera: con una doppia altezza la lunghezza libera raddoppia.</span> I numeri dei pilastri sono quelli dei cerchietti nel disegno e nella pianta.</p>
     <div class="scroll"><table id="tPil"></table></div>
 
+    <div class="solo-dim">
     <h2>CO₂ e costi (stima)</h2>
     <p class="nota" style="margin-top:-.4rem" data-en="Order of magnitude for &lt;b&gt;one frame&lt;/b&gt; (beams and columns in the figure). Emissions: material production only (modules A1–A3 of EN 15804); costs: materials in place, VAT excluded. It is not a bill of quantities nor a life-cycle assessment.">Ordine di grandezza per <b>un telaio</b> (travi e pilastri della figura). Emissioni: solo la produzione dei materiali (moduli A1–A3 della EN 15804); costi: materiali in opera, IVA esclusa. Non è un computo né un'analisi del ciclo di vita.</p>
     <div class="campo inline" style="margin:.2rem 0 .5rem"><input type="checkbox" id="conSolaio"><label for="conSolaio">Includi il solaio in c.a. (spessore B/25, minimo 120 mm, sulle campate con la trave)</label></div>
@@ -222,6 +229,7 @@
         <li><b>Limiti</b>: i prezzi variano molto con regione, anno, quantità e cantiere; le EPD cambiano con produttore e stabilimento. Consultare i prezzari regionali aggiornati e le EPD dei prodotti reali. Dati consultati il 5/11/2026.</li>
       </ul>
     </details>
+    </div>
 
     <details class="regole"><summary>Criteri usati (appunti del laboratorio)</summary>
       <ul data-en="&lt;li&gt;&lt;b&gt;Levels&lt;/b&gt;: 1 preliminary sizing (geometric criteria, to draw with realistic sizes, on the generous side); 2 sizing (simplified mechanical criteria); 3 check with the full NTC 2018 criteria, not done here. Each level may give values different from the previous one.&lt;/li&gt;
@@ -260,11 +268,11 @@
 </main>
 <footer class="sito">Strumento didattico del Modulo Struttura e Architettura. Valori dei profili e delle classi di resistenza da controllare sulle tabelle ufficiali. Riferimento normativo: NTC 2018 (D.M. 17 gennaio 2018).<p class="disclaimer" data-en="Preliminary sizing only: the tools and the slides do not replace the design or the checks of the NTC 2018, and may contain typing errors. Please report them to <a href='mailto:tommaso.albanesi@uniroma3.it'>tommaso.albanesi@uniroma3.it</a> and <a href='mailto:cristoforo.demartino@uniroma3.it'>cristoforo.demartino@uniroma3.it</a>.">Solo predimensionamento: strumenti e slide non sostituiscono il progetto né le verifiche delle NTC 2018 e potrebbero contenere errori di scrittura. Segnalazioni a <a href="mailto:tommaso.albanesi@uniroma3.it">tommaso.albanesi@uniroma3.it</a> e <a href="mailto:cristoforo.demartino@uniroma3.it">cristoforo.demartino@uniroma3.it</a>.</p></footer>
 
-<script src="assets/js/calc.js?v=20261121"></script>
-<script src="assets/js/telaio-calc.js?v=20261121"></script>
-<script src="assets/js/impatto-calc.js?v=20261121"></script>
-<script src="assets/js/telaio-ui.js?v=20261121"></script>
-<script src="assets/js/i18n-en.js?v=20261121"></script>
-<script src="assets/js/i18n.js?v=20261121"></script>
+<script src="assets/js/calc.js?v=20261122"></script>
+<script src="assets/js/telaio-calc.js?v=20261122"></script>
+<script src="assets/js/impatto-calc.js?v=20261122"></script>
+<script src="assets/js/telaio-ui.js?v=20261122"></script>
+<script src="assets/js/i18n-en.js?v=20261122"></script>
+<script src="assets/js/i18n.js?v=20261122"></script>
 </body>
 </html>

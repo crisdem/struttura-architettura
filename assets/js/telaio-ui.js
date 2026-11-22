@@ -29,6 +29,30 @@
   function leggi(id) { return parseFloat($(id).value); }
   function intero(id) { return parseInt($(id).value, 10); }
   function nomeLivello(k, n) { return k === n ? 'Copertura' : 'Piano ' + k; }
+  // Spunta «Anche il dimensionamento (livello 2)» (22/11/2026): tolta, resta solo il predimensionamento (livello 1, criteri geometrici):
+  // disegno e tabelle usano gli ingombri del livello 1; niente carichi, profili, CO2 e costi.
+  function solo1() { return !!$('conDim') && !$('conDim').checked; }
+  function carichiVisibili() { return $('carichi').checked && !solo1(); }
+
+  // copia del risultato di RT.telaio con gli ingombri del livello 1 al posto delle sezioni del livello 2 (stessa geometria, stessi pilastri e travi)
+  //   travi: acciaio h = L/x e b = h/2 (solo per la pianta); c.a. emergente h = L/10, b = 300; c.a. a spessore h = spessore del solaio, b = L/6
+  //   pilastri: lato quadrato = kappa·L_max·pos·radice(n), arrotondato per eccesso a 50 mm (RT.latoK)
+  function livello1(r) {
+    function trave(t) {
+      if (t.assente) return t;
+      var u = Object.assign({}, t), Leq = t.lato ? 2 * t.L : t.L;
+      if (materiale === 'acciaio') { u.h = Math.round(t.hGeo); u.b = Math.round(t.hGeo / 2); }
+      else if (materiale === 'legno') { u.h = Math.round(t.hMax); u.b = Math.round(t.hMax / 2); }
+      else if (t.tipo === 'spessore') { u.h = Math.round(t.hGeo); u.b = Math.round(Leq * 1000 / 6); }
+      else { u.h = Math.round(t.hGeo); u.b = 300; }
+      u.prof = null;
+      return u;
+    }
+    return Object.assign({}, r, {
+      livelli: r.livelli.map(function (lv) { return Object.assign({}, lv, { travi: lv.travi.map(trave), sbalzi: lv.sbalzi.map(trave), sbalziInt: lv.sbalziInt.map(trave) }); }),
+      colonne: r.colonne.map(function (segs) { return segs.map(function (e) { return Object.assign({}, e, { lato: e.latoK, larg: e.latoK, prof: null }); }); })
+    });
+  }
 
   function parametri() {
     var nc = intero('nc');
@@ -271,11 +295,11 @@
 
   // ---------------------------------------------------------------- disegno in prospetto
   function etichettaTrave(t) {
-    if (materiale === 'acciaio') return t.prof ? t.prof[0] : '> IPE 600';
+    if (materiale === 'acciaio') return solo1() ? 'h ' + t.h : (t.prof ? t.prof[0] : '> IPE 600');
     return t.b + '×' + t.h;
   }
   function etichettaPil(e) {
-    if (materiale === 'acciaio') return e.prof ? e.prof[0] : '> ' + $('serie').value + ' 600';
+    if (materiale === 'acciaio') return solo1() ? e.lato + '×' + e.lato : (e.prof ? e.prof[0] : '> ' + $('serie').value + ' 600');
     return e.lato + '×' + e.lato;
   }
 
@@ -292,7 +316,7 @@
     var sx = estensioneSbalzo(p, 'sx'), dx = estensioneSbalzo(p, 'dx'), totale = tot + sx + dx;
     var W = 900, mx = 70, my = 34;
     var s = Math.min(70, (W - 2 * mx) / totale, 320 / (p.n * p.H));
-    var Hh = p.n * p.H * s + 2 * my + 30 + ($('carichi').checked ? 50 : 0) + (conTerrazza ? 1.85 * s : 0);
+    var Hh = p.n * p.H * s + 2 * my + 30 + (carichiVisibili() ? 50 : 0) + (conTerrazza ? 1.85 * s : 0);
     var xStart = (W - totale * s) / 2, x0 = xStart + sx * s, yg = Hh - my - 14;
     var xs = [x0]; for (var i = 0; i < nc; i++) xs.push(xs[i] + p.spans[i] * s);
     return { nc: nc, sx: sx, dx: dx, totale: totale, W: W, Hh: Hh, s: s, H: p.H, xStart: xStart, yg: yg, xs: xs };
@@ -535,7 +559,7 @@
     var o = svgTerreno(g) + svgPilastri(g, p, r, st) + svgPilastriTolti(g, p, r);
     if ($('omini').checked) o += svgOmini(g, p, r);
     o += svgTravi(g, r, st) + svgQuote(g, p) + svgNumeriPilastri(g, r);
-    if ($('carichi').checked) o += svgCarichi(g, p, r);
+    if (carichiVisibili()) o += svgCarichi(g, p, r);
     svg.innerHTML = o;
   }
 
@@ -639,10 +663,19 @@
   // ---------------------------------------------------------------- tabelle
   function intestazioneTravi(p, mix) {
     var ac = materiale === 'acciaio', ca = materiale === 'ca';
-    return '<thead><tr><th>Livello</th><th>Elemento</th><th>L [m]</th><th>p<sub>d</sub> [kN/m]</th><th>M<sub>Ed</sub> [kN·m]</th>' +
-      (ca ? '<th>Livello 1: ' + (mix.e && mix.s ? 'h = L/10 (emergente), b ≈ L/6 (a spessore)' : (mix.s ? 'b ≈ L/6' : 'h = L/10')) + ' [mm]</th><th>Livello 2: d<sub>min</sub> / b<sub>min</sub> [mm]</th><th>Sezione b×h [mm]</th><th>L/h</th>'
-          : (ac ? '<th>Livello 1: h = L/' + RT.HLUCE[p.vincolo] + ' [mm]</th><th>Livello 2: W<sub>min</sub> [cm³]</th><th>I<sub>min</sub> [cm⁴]</th><th>Profilo (livello 2)</th><th>L/h</th>'
-                : '<th>Livello 1: h = L/20–L/15 [mm]</th><th>Livello 2: W<sub>min</sub> [cm³]</th><th>I<sub>min</sub> [cm⁴]</th><th>Sezione b×h [mm]</th><th>L/h</th>')) + '</tr></thead><tbody>';
+    var l1 = ca ? 'Livello 1: ' + (mix.e && mix.s ? 'h = L/10 (emergente), b ≈ L/6 (a spessore)' : (mix.s ? 'b ≈ L/6' : 'h = L/10')) + ' [mm]'
+      : (ac ? 'Livello 1: h = L/' + RT.HLUCE[p.vincolo] + ' [mm]' : 'Livello 1: h = L/20–L/15 [mm]');
+    if (solo1()) return '<thead><tr><th>Livello</th><th>Elemento</th><th>L [m]</th><th>' + l1 + '</th>' + (ca ? '<th>Ingombro b×h [mm]</th>' : '') + '</tr></thead><tbody>';
+    return '<thead><tr><th>Livello</th><th>Elemento</th><th>L [m]</th><th>p<sub>d</sub> [kN/m]</th><th>M<sub>Ed</sub> [kN·m]</th><th>' + l1 + '</th>' +
+      (ca ? '<th>Livello 2: d<sub>min</sub> / b<sub>min</sub> [mm]</th><th>Sezione b×h [mm]</th><th>L/h</th>'
+          : (ac ? '<th>Livello 2: W<sub>min</sub> [cm³]</th><th>I<sub>min</sub> [cm⁴]</th><th>Profilo (livello 2)</th><th>L/h</th>'
+                : '<th>Livello 2: W<sub>min</sub> [cm³]</th><th>I<sub>min</sub> [cm⁴]</th><th>Sezione b×h [mm]</th><th>L/h</th>')) + '</tr></thead><tbody>';
+  }
+  // solo predimensionamento: la cella del criterio geometrico (e, per il c.a., l'ingombro b×h)
+  function celleTrave1(t, Leq) {
+    if (materiale === 'ca') { var spess = t.tipo === 'spessore'; return '<td>' + F(spess ? Leq * 1000 / 6 : t.hGeo, 0) + (spess ? ' (b)' : '') + '</td><td><b>' + t.b + '×' + t.h + '</b></td>'; }
+    if (materiale === 'legno') return '<td>' + F(t.hMin, 0) + '–' + F(t.hMax, 0) + '</td>';
+    return '<td><b>' + F(t.hGeo, 0) + '</b></td>';
   }
 
   // le tre righe di trave (c.a., acciaio, legno) restituiscono le celle specifiche del materiale; le avvertenze vanno in avv
@@ -663,7 +696,7 @@
   }
 
   function tabellaTravi(p, r, avv) {
-    var ncol = materiale === 'ca' ? 9 : 10, mix = { e: false, s: false };
+    var s1 = solo1(), ncol = s1 ? (materiale === 'ca' ? 5 : 4) : (materiale === 'ca' ? 9 : 10), mix = { e: false, s: false };
     r.livelli.forEach(function (lv) { lv.travi.concat(lv.sbalzi, lv.sbalziInt).forEach(function (t) { if (!t.assente && t.tipo) mix[t.tipo === 'spessore' ? 's' : 'e'] = true; }); });
     var h = intestazioneTravi(p, mix), misto = mix.e && mix.s;
     function riga(lv, t, nome) {
@@ -671,7 +704,8 @@
       if (t.assente) return '<tr class="vuoto"><td>' + liv + '</td><td>' + nome + '</td><td>' + F(t.L, 1) + '</td><td colspan="' + (ncol - 3) + '">trave tolta (vuoto)</td></tr>';
       var Leq = t.lato ? 2 * t.L : t.L;
       var etichetta = (misto && t.tipo) ? ' <span class="unita">(' + (t.tipo === 'spessore' ? 'a spessore' : 'emergente') + ')</span>' : '';
-      var comuni = '<tr><td>' + liv + '</td><td>' + nome + etichetta + '</td><td>' + F(t.L, 1) + '</td><td>' + F(t.pd, 1) + '</td><td>' + F(t.M, 1) + '</td>';
+      var comuni = '<tr><td>' + liv + '</td><td>' + nome + etichetta + '</td><td>' + F(t.L, 1) + '</td>' + (s1 ? '' : '<td>' + F(t.pd, 1) + '</td><td>' + F(t.M, 1) + '</td>');
+      if (s1) return comuni + celleTrave1(t, Leq) + '</tr>';
       var specifiche = materiale === 'ca' ? celleTraveCa(p, t, Leq, liv, nome, avv) : (materiale === 'acciaio' ? celleTraveAcciaio(t, Leq, liv, nome, avv) : celleTraveLegno(t, Leq, liv, nome, avv));
       return comuni + specifiche + '</tr>';
     }
@@ -686,9 +720,9 @@
   var NOME_POS = { interno: 'interno ×1', bordo: 'di bordo ×0,7', angolo: 'd\'angolo ×0,5' };
   // Livello 1: lato ≈ κ·L_max·pos·√n (nessuna regola di snellezza). Livello 2: A_min, poi la stabilita' (acciaio: i_min; c.a. e legno: lato ≥ L₀/15).
   function tabellaPilastri(r, avv) {
-    var ac = materiale === 'acciaio';
-    var h = '<thead><tr><th>Interpiani</th><th>Pilastro</th><th>Posizione (pos)</th><th>L<sub>max</sub> [m]</th><th>n</th><th>Livello 1: lato ≈ κ·L<sub>max</sub>·pos·√n [mm]</th>' +
-      '<th>ΣA [m²]</th><th>N<sub>Ed</sub> alla base [kN]</th><th>L₀ [m]</th><th>Livello 2: A<sub>min</sub> [cm²]</th><th>' + (ac ? 'i<sub>min</sub> = L₀/100 [mm]' : 'lato ≥ L₀/15 [mm]') + '</th><th>' + (ac ? 'Profilo' : 'Sezione [mm]') + ' (livello 2)</th><th>Decide</th></tr></thead><tbody>';
+    var ac = materiale === 'acciaio', s1 = solo1();
+    var h = '<thead><tr><th>Interpiani</th><th>Pilastro</th><th>Posizione (pos)</th><th>L<sub>max</sub> [m]</th><th>n</th><th>Livello 1: lato ≈ κ·L<sub>max</sub>·pos·√n [mm]</th>' + (s1 ? '</tr></thead><tbody>' :
+      '<th>ΣA [m²]</th><th>N<sub>Ed</sub> alla base [kN]</th><th>L₀ [m]</th><th>Livello 2: A<sub>min</sub> [cm²]</th><th>' + (ac ? 'i<sub>min</sub> = L₀/100 [mm]' : 'lato ≥ L₀/15 [mm]') + '</th><th>' + (ac ? 'Profilo' : 'Sezione [mm]') + ' (livello 2)</th><th>Decide</th></tr></thead><tbody>');
     var righe = [];
     r.colonne.forEach(function (segs) { segs.forEach(function (sg) { righe.push(sg); }); });
     righe.sort(function (a, b) { return (b.s1 - a.s1) || (b.s0 - a.s0) || (a.j - b.j); });
@@ -696,7 +730,9 @@
       var ip = e.s0 === e.s1 ? e.s0 + (e.s0 === 1 ? ' (terra)' : '') : e.s0 + '–' + e.s1 + ' (doppia altezza)';
       if (e.libera) ip += ', testa libera';
       var l1 = F(e.latoKgrezzo, 0) + ' → <b>' + F(e.latoK, 0) + '</b>';
-      h += '<tr><td>' + ip + '</td><td><b>' + (e.j + 1) + '</b></td><td>' + NOME_POS[e.posNome] + '</td><td>' + F(e.Lmax, 1) + '</td><td>' + e.nSopra + '</td><td>' + l1 + '</td>' +
+      h += '<tr><td>' + ip + '</td><td><b>' + (e.j + 1) + '</b></td><td>' + NOME_POS[e.posNome] + '</td><td>' + F(e.Lmax, 1) + '</td><td>' + e.nSopra + '</td><td>' + l1 + '</td>';
+      if (s1) { h += '</tr>'; return; }
+      h +=
         '<td>' + F(e.Atot, 1) + '</td><td>' + F(e.N, 0) + (e.dN > 0 ? ' <span class="unita">(di cui sbalzo ' + F(e.dN, 0) + ')</span>' : '') + '</td><td>' + F(e.L0, 1) + '</td><td>' + F(ac ? e.A : e.A / 100, ac ? 1 : 0) + '</td>' +
         '<td>' + (ac ? F(e.imin, 0) : F(e.L0 * 1000 / RT.LATO_L0, 0)) + '</td>';
       if (ac) {
@@ -710,6 +746,11 @@
 
   function indicatori(p, r) {
     var ac = materiale === 'acciaio', lg = materiale === 'legno', ca = materiale === 'ca', nTolte = Object.keys(p.senza).length, k = '';
+    if (solo1()) {                                   // solo predimensionamento: niente masse, volumi, carichi e resistenze
+      if (ca) k += '<div><b>' + F(r.hs, 0) + ' mm</b><span>spessore solaio (B/25)</span></div>';
+      if (nTolte) k += '<div><b>' + nTolte + '</b><span>travi tolte</span></div>';
+      return k;
+    }
     if (ac) k += '<div><b>' + F(r.tot.massaAcciaio, 0) + ' kg</b><span>acciaio nel telaio</span></div>';
     else if (lg) k += '<div><b>' + F(r.tot.volumeLegno, 2) + ' m³</b><span>legno di travi e pilastri</span></div>';
     else k += '<div><b>' + F(r.tot.volumeCls, 1) + ' m³</b><span>calcestruzzo di travi e pilastri</span></div>';
@@ -729,6 +770,9 @@
 
   function tabelle(p, r) {
     var avv = r.avvisi.slice();
+    if (solo1()) avv = avv.map(function (a) {        // senza livello 2 niente lunghezza libera e mensola: la stabilita' si controlla dopo
+      return a.replace(/, lunghezza libera .*$/, '. La stabilità si controlla al livello 2.').replace(/; qui è calcolato come mensola.*$/, '.');
+    });
     $('tTravi').innerHTML = tabellaTravi(p, r, avv);
     $('tPil').innerHTML = tabellaPilastri(r, avv);
     $('kpi').innerHTML = indicatori(p, r);
@@ -885,8 +929,10 @@
     aggiornaEtichette();
     costruisciLivelliPianta(intero('n'));
     ripulisciVuoti();
-    var p = parametri(), r = RT.telaio(p);
-    disegna(p, r); disegnaPianta(p, r); tabelle(p, r); impatto(p, r); mostraPannello(p);
+    document.body.classList.toggle('liv1', solo1());          // le parti del livello 2 (classe .solo-dim) spariscono
+    $('campoVinc').hidden = solo1() && materiale !== 'acciaio';   // lo schema delle travi conta nel solo livello 1 dell'acciaio (h = L/20, L/25, L/30)
+    var p = parametri(), r = RT.telaio(p), r1 = solo1() ? livello1(r) : r;
+    disegna(p, r1); disegnaPianta(p, r1); tabelle(p, r1); impatto(p, r); mostraPannello(p);
   }
 
   // ---------------------------------------------------------------- eventi
@@ -901,7 +947,7 @@
     $('n').addEventListener('input', function () { costruisciMatrice(); costruisciMatriceCarichi(); calcola(); });
     ['sx', 'dx'].forEach(function (id) { $(id).addEventListener('input', function () { costruisciMatrice(); calcola(); }); });
     $('uguali').addEventListener('change', function () { if (this.checked) { for (var j = 1; j < 5; j++) luci[j] = luci[0]; costruisciCampate(); calcola(); } });
-    ['H', 'B', 'bordo', 'chi', 'carichi', 'omini', 'parola', 'vinc', 'acc', 'serie', 'cleg', 'bleg', 'fck', 'livPianta', 'conSolaio'].concat(IPOTESI.map(function (x) { return x[0]; })).forEach(function (id) { if ($(id)) $(id).addEventListener('input', calcola); });
+    ['H', 'B', 'bordo', 'chi', 'carichi', 'omini', 'parola', 'vinc', 'acc', 'serie', 'cleg', 'bleg', 'fck', 'livPianta', 'conSolaio', 'conDim'].concat(IPOTESI.map(function (x) { return x[0]; })).forEach(function (id) { if ($(id)) $(id).addEventListener('input', calcola); });
     ['g1', 'g2', 'q', 'qb', 'neve'].forEach(function (id) {                 // cursori generali: con i carichi per livello impostano tutti i livelli
       $(id).addEventListener('input', function () { if (perLivello()) { applicaGenerale(id); costruisciMatriceCarichi(); } calcola(); });
     });
@@ -958,6 +1004,7 @@
   //   &sbalziVuoto=2:1:1.5:2 (livello:campata:da sinistra:da destra, in m)&sbalziLivello=2:sx:0.8 (sbalzo di estremita' di un solo livello)
   //   &acc=S235|S275|S355&fck=C25/30&vinc=appoggiata|semi|incastro&g1=3&g2=3&q=2&qb=4&neve=0.5 (materiale, schema e carichi in kN/m2)
   //   &carichiLiv=1:3:3:4:5,2:2.5:2:2:4,3:3:3:0.5 (carichi diversi ai piani: livello:G1:G2:Q[:Q sbalzi], in kN/m2; in copertura Q = neve)
+  //   &liv=1 (solo predimensionamento, livello 1: niente carichi, profili, CO2 e costi; senza liv o liv=2: anche il dimensionamento)
   //   &travi=emergente|spessore (c.a.: tipo di tutte le travi)&tipiTrave=1:0:s,2:1:e (c.a.: eccezioni, livello:campata:e|s; e = emergente, s = a spessore)
   function leggiUrl() {
     var qs = new URLSearchParams(location.search);
@@ -974,6 +1021,7 @@
     if (qs.get('H')) $('H').value = Math.min(5, Math.max(2.6, parseFloat(qs.get('H')) || 3.2));
     if (qs.get('B')) $('B').value = Math.min(9, Math.max(2.5, parseFloat(qs.get('B')) || 5));
     if (qs.get('bordo') === '1') $('bordo').checked = true;
+    if (qs.get('liv') === '1') $('conDim').checked = false;                              // solo predimensionamento (livello 1); liv=2 o niente: anche il dimensionamento
     if (qs.get('sbalzo_sx')) $('sx').value = Math.min(3, Math.max(0, parseFloat(qs.get('sbalzo_sx')) || 0));
     if (qs.get('sbalzo_dx')) $('dx').value = Math.min(3, Math.max(0, parseFloat(qs.get('sbalzo_dx')) || 0));
     if (qs.get('serie') === 'HEA') $('serie').value = 'HEA';

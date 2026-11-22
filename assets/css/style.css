@@ -129,3 +129,5 @@ pre,code{overflow-wrap:anywhere}
   th,td{padding:.3rem .4rem}
 }
 .esempio-lezione td:nth-child(2),.esempio-lezione td:nth-child(3){white-space:nowrap}
+/* spunta «Anche il dimensionamento (livello 2)» di telaio.html (22/11/2026): con la spunta tolta restano solo le parti del livello 1 */
+.liv1 .solo-dim{display:none !important}
