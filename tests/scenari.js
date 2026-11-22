@@ -42,7 +42,10 @@
     ['c.a. telaio di bordo, tre campate, B=6', base({ mat: 'ca', g1: 3.5, bordo: true, B: 6, spans: [4, 6, 5], n: 3 })],
     ['legno carichi diversi, copertura con neve 1,2', base({ mat: 'legno', g1: 1.5, g2: 1.5, chi: 0.3, n: 3, carichiLiv: { 1: { g1: 2, g2: 1.5, q: 3, qb: 4 }, 3: { g1: 1.5, g2: 1.5, q: 1.2, qb: 1.2 } } })],
     ['c.a. luci 4+4, B=5 (la trave trasversale decide L_max)', base({ mat: 'ca', g1: 3.5, spans: [4, 4], B: 5, n: 2 })],
-    ['c.a. campata unica di 8 m, B=5', base({ mat: 'ca', g1: 3.5, spans: [8], B: 5, n: 2 })]
+    ['c.a. campata unica di 8 m, B=5', base({ mat: 'ca', g1: 3.5, spans: [8], B: 5, n: 2 })],
+    // 18/11/2026: tipo di trave per singola trave (c.a.): tipiTrave 'k:i' -> 'emergente' | 'spessore', gli sbalzi seguono la trave che prolungano
+    ['c.a. travi miste: piano 1 emergenti, copertura a spessore', base({ mat: 'ca', g1: 3.5, tipiTrave: { '2:0': 'spessore', '2:1': 'spessore' } })],
+    ['c.a. travi miste con sbalzi e un vuoto', base({ mat: 'ca', g1: 3.5, n: 3, spans: [5, 5, 5], sx: 1.5, dx: 2, travaTipo: 'spessore', tipiTrave: { '1:0': 'emergente', '2:2': 'emergente' }, senza: { '3:1': true } })]
   ];
 
   // riassunto compatto di un risultato di RT.telaio
@@ -86,7 +89,7 @@
         return [r6(a.q), r6(b.q), b.scelto.pr];
       }),
       // Lezione 1: predimensionamento del telaio centrale (esempi svolti delle slide) e gli stessi dati con altri materiali e interpiani
-      predim: [['acciaio', 'semi', 1], ['ca', 'emergente', 2], ['legno', 'legno', 2], ['ca', 'spessore', 3]].map(function (c) {
+      predim: [['acciaio', 'semi', 1], ['acciaio', 'semi', 2], ['ca', 'emergente', 2], ['legno', 'legno', 2], ['ca', 'spessore', 3]].map(function (c) {
         var r = RT.predimTelaio({ mat: c[0], schema: c[1], spans: [4, 5.5], B1: 5, B2: 6, n: c[2], H: [3.8, 3.8, 3.8].slice(0, c[2]) });
         return { travi: r.travi.map(function (t) { return [r6(t.h), r6(t.b)]; }), pil: r.pil.map(function (q) { return q.posNome + ' ' + q.Lmax + ' ' + q.grezzi.map(r6).join('/') + ' -> ' + q.lati.join('/'); }), nette: r.nette.map(r6) };
       }),

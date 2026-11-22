@@ -13,6 +13,7 @@
   var colSenza = {};                               // tratti di pilastro tolti: chiavi 'j:s' (solo dall'alto)
   var vuoti = {};                                  // sbalzi dentro i vuoti: chiavi 'k:i' -> {a, b} [m]
   var lung = {};                                   // lunghezze individuali degli sbalzi di estremita': chiavi 'k:sx' e 'k:dx' -> m
+  var tipi = {};                                   // c.a.: tipo delle singole travi che fanno eccezione al menu «Travi»: chiavi 'k:i' -> 'emergente' | 'spessore'
   var sel = null;                                  // elemento scelto per il pannello: 'k:i' (vuoto) oppure 'k:sx' / 'k:dx' (sbalzo di estremita')
   var carPiani = {};                               // carichi dei singoli piani (k < n), con «carichi diversi ai piani»: chiave k -> {g1, g2, q, qb}
   var carTetto = null;                             // carichi della copertura, con «carichi diversi ai piani»: {g1, g2, q (neve)}
@@ -35,7 +36,7 @@
       n: intero('n'), spans: luci.slice(0, nc), H: leggi('H'), B: leggi('B'), bordo: $('bordo').checked,
       g1: leggi('g1'), g2: leggi('g2'), q: leggi('q'), neve: $('usaNeve').checked ? leggi('neve') : 0, qb: leggi('qb'), sx: leggi('sx'), dx: leggi('dx'),
       mat: materiale, acciaio: $('acc').value, serie: $('serie').value, classeLegno: valore('cleg', 'GL24h'), bLegno: parseInt(valore('bleg', '160'), 10),
-      chi: leggi('chi'), fck: $('fck').value, vincolo: $('vinc').value, travaTipo: $('tipoTrave').value, senza: senza, colSenza: colSenza, sbalziVuoto: vuoti, sbalziLivello: lung,
+      chi: leggi('chi'), fck: $('fck').value, vincolo: $('vinc').value, travaTipo: $('tipoTrave').value, tipiTrave: tipi, senza: senza, colSenza: colSenza, sbalziVuoto: vuoti, sbalziLivello: lung,
       carichiLiv: carichiLivelli(intero('n'))
     };
   }
@@ -104,6 +105,7 @@
     $('optAcc').hidden = m !== 'acciaio';
     if ($('optLeg')) $('optLeg').hidden = m !== 'legno';
     $('optCa').hidden = m !== 'ca';
+    costruisciMatrice();                              // la matrice dei tipi di trave compare solo nel c.a.
     if (ripristina) {
       ['g1', 'g2', 'q', 'neve'].forEach(function (k) { $(k).value = DEF[m][k]; }); $('chi').value = CHI[m];
       if (perLivello()) { ['g1', 'g2', 'q', 'neve'].forEach(applicaGenerale); costruisciMatriceCarichi(); }   // i carichi per livello ripartono dai valori del materiale
@@ -163,6 +165,10 @@
       var pr = key.split(':');
       if (parseInt(pr[0], 10) > n || (pr[1] === 'sx' && !hasSx) || (pr[1] === 'dx' && !hasDx)) delete lung[key];
     });
+    Object.keys(tipi).forEach(function (key) {
+      var pr = key.split(':'), kk = parseInt(pr[0], 10), ii = parseInt(pr[1], 10);
+      if (!(kk >= 1 && kk <= n && ii >= 0 && ii < nc) || (tipi[key] !== 'spessore' && tipi[key] !== 'emergente')) delete tipi[key];
+    });
   }
 
   function htmlMatriceTravi(st, n, nc, hasSx, hasDx) {
@@ -182,6 +188,24 @@
       for (i = 0; i < nc; i++) h += cella(k, i, nome + ', campata ' + (i + 1));
       if (hasSx) h += cella(k, 'sx', nome + ', sbalzo sinistro');
       if (hasDx) h += cella(k, 'dx', nome + ', sbalzo destro');
+      h += '</tr>';
+    }
+    return h + '</tbody></table>';
+  }
+
+  // c.a.: un menu per ogni trave presente (emergente o a spessore); vale il tipo scelto nel menu «Travi» se la trave non fa eccezione
+  function htmlMatriceTipi(st, n, nc) {
+    var h = '<table class="mx"><thead><tr><th></th>', i, k, generale = $('tipoTrave').value;
+    for (i = 0; i < nc; i++) h += '<th>Campata ' + (i + 1) + '</th>';
+    h += '</tr></thead><tbody>';
+    for (k = n; k >= 1; k--) {
+      var nome = nomeLivello(k, n);
+      h += '<tr><th scope="row">' + nome + '</th>';
+      for (i = 0; i < nc; i++) {
+        var key = k + ':' + i, on = st.trave(k, i), v = tipi[key] || generale;
+        h += '<td><select data-tipo="' + key + '" aria-label="' + nome + ', campata ' + (i + 1) + ': tipo di trave"' + (on ? '' : ' disabled title="trave tolta"') + '>' +
+          '<option value="emergente"' + (v === 'emergente' ? ' selected' : '') + '>Emergente</option><option value="spessore"' + (v === 'spessore' ? ' selected' : '') + '>A spessore</option></select></td>';
+      }
       h += '</tr>';
     }
     return h + '</tbody></table>';
@@ -216,6 +240,14 @@
     collega('matrice', 'data-key', alterna);
     $('matricePil').innerHTML = htmlMatricePilastri(st, n, nc);
     collega('matricePil', 'data-col', alternaCol);
+    $('blocTipi').hidden = materiale !== 'ca';
+    $('matriceTipi').innerHTML = htmlMatriceTipi(st, n, nc);
+  }
+
+  function cambiaTipo(sel2) {                      // un menu della matrice dei tipi: la trave fa eccezione al menu «Travi», oppure torna a seguirlo
+    var key = sel2.getAttribute('data-tipo');
+    if (sel2.value === $('tipoTrave').value) delete tipi[key]; else tipi[key] = sel2.value;
+    calcola();
   }
 
   function alterna(key) {
@@ -419,7 +451,8 @@
           return;
         }
         var hh = ((t.h || 600) / 1000) * g.s;
-        o += '<rect class="tg" data-key="' + key + '" x="' + g.xs[i] + '" y="' + (yl - hh / 2) + '" width="' + (g.xs[i + 1] - g.xs[i]) + '" height="' + hh + '" fill="' + ROSSO + '"><title>Clicca per togliere la trave</title></rect>';
+        var spess = (t.tipo === 'spessore');             // c.a., trave a spessore: piu' chiara (sta dentro il solaio)
+        o += '<rect class="tg" data-key="' + key + '" x="' + g.xs[i] + '" y="' + (yl - hh / 2) + '" width="' + (g.xs[i + 1] - g.xs[i]) + '" height="' + hh + '" fill="' + (spess ? 'rgba(209,56,43,.5)' : ROSSO) + '"' + (spess ? ' stroke="' + ROSSO + '" stroke-width="1.2"' : '') + '><title>Clicca per togliere la trave' + (spess ? ' (a spessore)' : '') + '</title></rect>';
         if (hh < toccoMin(g)) o += '<rect class="tg" data-key="' + key + '" x="' + g.xs[i] + '" y="' + (yl - toccoMin(g) / 2) + '" width="' + (g.xs[i + 1] - g.xs[i]) + '" height="' + toccoMin(g) + '" fill="rgba(0,0,0,0)"></rect>';
         o += '<text x="' + ((g.xs[i] + g.xs[i + 1]) / 2) + '" y="' + (yl - hh / 2 - 5) + '" font-size="11" text-anchor="middle" fill="' + NERO + '" font-weight="700" pointer-events="none">' + etichettaTrave(t) + '</text>';
       });
@@ -604,17 +637,17 @@
   }
 
   // ---------------------------------------------------------------- tabelle
-  function intestazioneTravi(p) {
+  function intestazioneTravi(p, mix) {
     var ac = materiale === 'acciaio', ca = materiale === 'ca';
     return '<thead><tr><th>Livello</th><th>Elemento</th><th>L [m]</th><th>p<sub>d</sub> [kN/m]</th><th>M<sub>Ed</sub> [kN·m]</th>' +
-      (ca ? '<th>Livello 1: ' + (p.travaTipo === 'spessore' ? 'b ≈ L/6' : 'h = L/10') + ' [mm]</th><th>Livello 2: d<sub>min</sub> / b<sub>min</sub> [mm]</th><th>Sezione b×h [mm]</th><th>L/h</th>'
+      (ca ? '<th>Livello 1: ' + (mix.e && mix.s ? 'h = L/10 (emergente), b ≈ L/6 (a spessore)' : (mix.s ? 'b ≈ L/6' : 'h = L/10')) + ' [mm]</th><th>Livello 2: d<sub>min</sub> / b<sub>min</sub> [mm]</th><th>Sezione b×h [mm]</th><th>L/h</th>'
           : (ac ? '<th>Livello 1: h = L/' + RT.HLUCE[p.vincolo] + ' [mm]</th><th>Livello 2: W<sub>min</sub> [cm³]</th><th>I<sub>min</sub> [cm⁴]</th><th>Profilo (livello 2)</th><th>L/h</th>'
                 : '<th>Livello 1: h = L/20–L/15 [mm]</th><th>Livello 2: W<sub>min</sub> [cm³]</th><th>I<sub>min</sub> [cm⁴]</th><th>Sezione b×h [mm]</th><th>L/h</th>')) + '</tr></thead><tbody>';
   }
 
   // le tre righe di trave (c.a., acciaio, legno) restituiscono le celle specifiche del materiale; le avvertenze vanno in avv
   function celleTraveCa(p, t, Leq, liv, nome, avv) {
-    var spess = p.travaTipo === 'spessore', dm = spess ? 'b<sub>min</sub> = ' + F(t.bmin, 0) : 'd<sub>min</sub> = ' + F(t.d, 0);
+    var spess = t.tipo === 'spessore', dm = spess ? 'b<sub>min</sub> = ' + F(t.bmin, 0) : 'd<sub>min</sub> = ' + F(t.d, 0);
     if (spess && t.b > Leq * 1000 / 6 * 1.5) avv.push(liv + ', ' + nome.toLowerCase() + ': la trave a spessore risulta molto larga (b = ' + t.b + ' mm). Valuta una trave emergente.');
     return '<td>' + F(spess ? Leq * 1000 / 6 : t.hGeo, 0) + (spess ? ' (b)' : '') + '</td><td>' + dm + '</td><td><b>' + t.b + '×' + t.h + '</b></td><td>' + F(Leq * 1000 / t.h, 1) + '</td>';
   }
@@ -630,12 +663,15 @@
   }
 
   function tabellaTravi(p, r, avv) {
-    var ncol = materiale === 'ca' ? 9 : 10, h = intestazioneTravi(p);
+    var ncol = materiale === 'ca' ? 9 : 10, mix = { e: false, s: false };
+    r.livelli.forEach(function (lv) { lv.travi.concat(lv.sbalzi, lv.sbalziInt).forEach(function (t) { if (!t.assente && t.tipo) mix[t.tipo === 'spessore' ? 's' : 'e'] = true; }); });
+    var h = intestazioneTravi(p, mix), misto = mix.e && mix.s;
     function riga(lv, t, nome) {
       var liv = nomeLivello(lv.k, p.n);
       if (t.assente) return '<tr class="vuoto"><td>' + liv + '</td><td>' + nome + '</td><td>' + F(t.L, 1) + '</td><td colspan="' + (ncol - 3) + '">trave tolta (vuoto)</td></tr>';
       var Leq = t.lato ? 2 * t.L : t.L;
-      var comuni = '<tr><td>' + liv + '</td><td>' + nome + '</td><td>' + F(t.L, 1) + '</td><td>' + F(t.pd, 1) + '</td><td>' + F(t.M, 1) + '</td>';
+      var etichetta = (misto && t.tipo) ? ' <span class="unita">(' + (t.tipo === 'spessore' ? 'a spessore' : 'emergente') + ')</span>' : '';
+      var comuni = '<tr><td>' + liv + '</td><td>' + nome + etichetta + '</td><td>' + F(t.L, 1) + '</td><td>' + F(t.pd, 1) + '</td><td>' + F(t.M, 1) + '</td>';
       var specifiche = materiale === 'ca' ? celleTraveCa(p, t, Leq, liv, nome, avv) : (materiale === 'acciaio' ? celleTraveAcciaio(t, Leq, liv, nome, avv) : celleTraveLegno(t, Leq, liv, nome, avv));
       return comuni + specifiche + '</tr>';
     }
@@ -865,7 +901,7 @@
     $('n').addEventListener('input', function () { costruisciMatrice(); costruisciMatriceCarichi(); calcola(); });
     ['sx', 'dx'].forEach(function (id) { $(id).addEventListener('input', function () { costruisciMatrice(); calcola(); }); });
     $('uguali').addEventListener('change', function () { if (this.checked) { for (var j = 1; j < 5; j++) luci[j] = luci[0]; costruisciCampate(); calcola(); } });
-    ['H', 'B', 'bordo', 'chi', 'carichi', 'omini', 'parola', 'vinc', 'acc', 'serie', 'cleg', 'bleg', 'fck', 'tipoTrave', 'livPianta', 'conSolaio'].concat(IPOTESI.map(function (x) { return x[0]; })).forEach(function (id) { if ($(id)) $(id).addEventListener('input', calcola); });
+    ['H', 'B', 'bordo', 'chi', 'carichi', 'omini', 'parola', 'vinc', 'acc', 'serie', 'cleg', 'bleg', 'fck', 'livPianta', 'conSolaio'].concat(IPOTESI.map(function (x) { return x[0]; })).forEach(function (id) { if ($(id)) $(id).addEventListener('input', calcola); });
     ['g1', 'g2', 'q', 'qb', 'neve'].forEach(function (id) {                 // cursori generali: con i carichi per livello impostano tutti i livelli
       $(id).addEventListener('input', function () { if (perLivello()) { applicaGenerale(id); costruisciMatriceCarichi(); } calcola(); });
     });
@@ -875,6 +911,8 @@
       costruisciMatriceCarichi(); calcola();
     });
     $('matriceCarichi').addEventListener('input', modificaCarico);
+    $('tipoTrave').addEventListener('input', function () { tipi = {}; costruisciMatrice(); calcola(); });   // il menu «Travi» imposta tutte le travi
+    $('matriceTipi').addEventListener('change', function (ev) { if (ev.target && ev.target.getAttribute('data-tipo')) cambiaTipo(ev.target); });
     $('ripristinaIpotesi').addEventListener('click', function () { impostaIpotesi(); calcola(); });
     $('sbA').addEventListener('input', function () { cambiaSbalzo('a', parseFloat(this.value)); });
     $('sbB').addEventListener('input', function () { cambiaSbalzo('b', parseFloat(this.value)); });
@@ -920,6 +958,7 @@
   //   &sbalziVuoto=2:1:1.5:2 (livello:campata:da sinistra:da destra, in m)&sbalziLivello=2:sx:0.8 (sbalzo di estremita' di un solo livello)
   //   &acc=S235|S275|S355&fck=C25/30&vinc=appoggiata|semi|incastro&g1=3&g2=3&q=2&qb=4&neve=0.5 (materiale, schema e carichi in kN/m2)
   //   &carichiLiv=1:3:3:4:5,2:2.5:2:2:4,3:3:3:0.5 (carichi diversi ai piani: livello:G1:G2:Q[:Q sbalzi], in kN/m2; in copertura Q = neve)
+  //   &travi=emergente|spessore (c.a.: tipo di tutte le travi)&tipiTrave=1:0:s,2:1:e (c.a.: eccezioni, livello:campata:e|s; e = emergente, s = a spessore)
   function leggiUrl() {
     var qs = new URLSearchParams(location.search);
     if (qs.get('piani')) $('n').value = Math.min(6, Math.max(1, parseInt(qs.get('piani'), 10) || 2));
@@ -939,6 +978,11 @@
     if (qs.get('sbalzo_dx')) $('dx').value = Math.min(3, Math.max(0, parseFloat(qs.get('sbalzo_dx')) || 0));
     if (qs.get('serie') === 'HEA') $('serie').value = 'HEA';
     if (RT.ACCIAI[qs.get('acc')]) $('acc').value = qs.get('acc');                        // acciaio: S235 | S275 | S355
+    if (['emergente', 'spessore'].indexOf(qs.get('travi')) >= 0) $('tipoTrave').value = qs.get('travi');   // c.a.: tipo di tutte le travi
+    if (qs.get('tipiTrave')) qs.get('tipiTrave').split(',').forEach(function (x) {                 // c.a.: eccezioni k:i:e (emergente) oppure k:i:s (a spessore)
+      var q = /^(\d+:\d+):(e|s)$/.exec(x);
+      if (q) tipi[q[1]] = q[2] === 's' ? 'spessore' : 'emergente';
+    });
     if (RT.CLS[qs.get('fck')]) $('fck').value = qs.get('fck');                            // calcestruzzo: C25/30 | C28/35 | C30/37
     if (['appoggiata', 'semi', 'incastro'].indexOf(qs.get('vinc')) >= 0) $('vinc').value = qs.get('vinc');
     if (qs.get('senza')) qs.get('senza').split(',').forEach(function (x) { if (/^\d+:(\d+|sx|dx)$/.test(x)) senza[x] = true; });
