@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>Struttura e Architettura</title>
+  <!-- telaio a due piani con sbalzo a destra: pilastri bianchi, travi rosse, terreno bianco; misure multiple di 4 per restare nitido a 16 px -->
+  <rect width="64" height="64" rx="14" fill="#121212"/>
+  <g fill="#fff">
+    <rect x="8" y="8" width="8" height="44"/>
+    <rect x="32" y="8" width="8" height="44"/>
+    <rect x="4" y="48" width="44" height="8"/>
+  </g>
+  <g fill="#d1382b">
+    <rect x="8" y="8" width="48" height="8"/>
+    <rect x="8" y="28" width="48" height="8"/>
+  </g>
+</svg>

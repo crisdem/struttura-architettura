@@ -19,6 +19,7 @@ Pagine statiche, senza dipendenze esterne e senza passaggi di build: funzionano 
 | `assets/js/impatto-calc.js` | stima di CO₂ e costi: `RT.impatto`, valori predefiniti in `RT.IMPATTO_DEF` (fonti nella pagina del telaio) |
 | `assets/js/telaio-ui.js` | interfaccia di `telaio.html`: stato, matrici delle travi e dei pilastri, disegno in prospetto, pianta, tabelle, CO₂ e costi, eventi, preset da URL |
 | `tests.html`, `tests/` | prove automatiche: confronto dei risultati di `RT.telaio`, `RT.impatto` e delle funzioni delle lezioni con i valori di riferimento `tests/golden.json`. Apri `tests.html` in un server locale: deve dire «Tutte le prove coincidono» |
+| `assets/img/favicon.svg`, `favicon.ico`, `apple-touch-icon.png` | icona del sito (24/11/2026): un telaio a due piani con sbalzo, pilastri bianchi e travi rosse su fondo nero; disegnato su una griglia di 4 unità per restare nitido a 16 px. L'SVG è l'originale: `.ico` (16, 32, 48 px) e `apple-touch-icon.png` (180 px, senza angoli arrotondati) si ricavano con `rsvg-convert` e Pillow. Collegata in tutte le pagine con `?v=20261124` |
 | `assets/js/sagomario_he.py` | estrae HEA e HEB (h, b, A, G, i_y, i_z) dal sagomario ArcelorMittal e stampa gli array di `RT.HE` |
 
 ## Pubblicare su GitHub Pages
