@@ -131,3 +131,5 @@ pre,code{overflow-wrap:anywhere}
 .esempio-lezione td:nth-child(2),.esempio-lezione td:nth-child(3){white-space:nowrap}
 /* spunta «Anche il dimensionamento (livello 2)» di telaio.html (22/11/2026): con la spunta tolta restano solo le parti del livello 1 */
 .liv1 .solo-dim{display:none !important}
+/* contatore delle visite (mapmyvisitors.com, 25/11/2026): in fondo a ogni pagina, largo come una scheda e non come tutta la pagina */
+.contatore{max-width:320px;margin:1rem 0 0}
