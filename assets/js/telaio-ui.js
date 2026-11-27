@@ -8,7 +8,8 @@
 
   // ---------------------------------------------------------------- stato
   var materiale = 'acciaio';
-  var luci = [5, 5, 5, 5, 5];
+  var NC_MAX = 8;                                              // numero massimo di campate (cursore 'nc', luci, URL)
+  var luci = [5, 5, 5, 5, 5, 5, 5, 5];
   var senza = {};                                  // travi tolte: chiavi 'k:i' oppure 'k:sx', 'k:dx'
   var colSenza = {};                               // tratti di pilastro tolti: chiavi 'j:s' (solo dall'alto)
   var vuoti = {};                                  // sbalzi dentro i vuoti: chiavi 'k:i' -> {a, b} [m]
@@ -149,7 +150,10 @@
     Array.prototype.forEach.call($('campate').querySelectorAll('input'), function (el) {
       el.addEventListener('input', function () {
         var i = parseInt(el.dataset.i, 10), v = parseFloat(el.value);
-        if ($('uguali').checked) { for (var j = 0; j < 5; j++) luci[j] = v; costruisciCampate(); }
+        if ($('uguali').checked) {                                // campate uguali: si aggiornano sul posto gli altri cursori, senza ricostruire le righe
+          for (var j = 0; j < NC_MAX; j++) luci[j] = v;           // (cosi' il cursore trascinato e il campo numerico in uso non spariscono)
+          Array.prototype.forEach.call($('campate').querySelectorAll('input[type=range]'), function (e2) { e2.value = v; $('L' + e2.dataset.i + 'v').textContent = F(v, 1); });
+        }
         else { luci[i] = v; $('L' + i + 'v').textContent = F(v, 1); }
         calcola();
       });
@@ -946,7 +950,7 @@
     $('nc').addEventListener('input', function () { costruisciCampate(); costruisciMatrice(); calcola(); });
     $('n').addEventListener('input', function () { costruisciMatrice(); costruisciMatriceCarichi(); calcola(); });
     ['sx', 'dx'].forEach(function (id) { $(id).addEventListener('input', function () { costruisciMatrice(); calcola(); }); });
-    $('uguali').addEventListener('change', function () { if (this.checked) { for (var j = 1; j < 5; j++) luci[j] = luci[0]; costruisciCampate(); calcola(); } });
+    $('uguali').addEventListener('change', function () { if (this.checked) { for (var j = 1; j < NC_MAX; j++) luci[j] = luci[0]; costruisciCampate(); calcola(); } });
     ['H', 'B', 'bordo', 'chi', 'carichi', 'omini', 'parola', 'vinc', 'acc', 'serie', 'cleg', 'bleg', 'fck', 'livPianta', 'conSolaio', 'conDim'].concat(IPOTESI.map(function (x) { return x[0]; })).forEach(function (id) { if ($(id)) $(id).addEventListener('input', calcola); });
     ['g1', 'g2', 'q', 'qb', 'neve'].forEach(function (id) {                 // cursori generali: con i carichi per livello impostano tutti i livelli
       $(id).addEventListener('input', function () { if (perLivello()) { applicaGenerale(id); costruisciMatriceCarichi(); } calcola(); });
@@ -1009,9 +1013,9 @@
   function leggiUrl() {
     var qs = new URLSearchParams(location.search);
     if (qs.get('piani')) $('n').value = Math.min(6, Math.max(1, parseInt(qs.get('piani'), 10) || 2));
-    if (qs.get('campate')) $('nc').value = Math.min(5, Math.max(1, parseInt(qs.get('campate'), 10) || 2));
+    if (qs.get('campate')) $('nc').value = Math.min(NC_MAX, Math.max(1, parseInt(qs.get('campate'), 10) || 2));
     if (qs.get('luci')) {                                        // luci delle campate in m, separate da virgole: luci=4,5.5
-      var lv = qs.get('luci').split(',').map(parseFloat).filter(function (x) { return x >= 2 && x <= 10; }).slice(0, 5);
+      var lv = qs.get('luci').split(',').map(parseFloat).filter(function (x) { return x >= 2 && x <= 10; }).slice(0, NC_MAX);
       if (lv.length) {
         lv.forEach(function (x, i) { luci[i] = x; });
         if (!qs.get('campate')) $('nc').value = Math.max(1, lv.length);
@@ -1019,7 +1023,7 @@
       }
     }
     if (qs.get('H')) $('H').value = Math.min(5, Math.max(2.6, parseFloat(qs.get('H')) || 3.2));
-    if (qs.get('B')) $('B').value = Math.min(9, Math.max(2.5, parseFloat(qs.get('B')) || 5));
+    if (qs.get('B')) $('B').value = Math.min(9, Math.max(2, parseFloat(qs.get('B')) || 5));
     if (qs.get('bordo') === '1') $('bordo').checked = true;
     if (qs.get('liv') === '1') $('conDim').checked = false;                              // solo predimensionamento (livello 1); liv=2 o niente: anche il dimensionamento
     if (qs.get('sbalzo_sx')) $('sx').value = Math.min(3, Math.max(0, parseFloat(qs.get('sbalzo_sx')) || 0));
